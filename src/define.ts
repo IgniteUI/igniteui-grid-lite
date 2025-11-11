@@ -1,4 +1,4 @@
-import { ApexGrid } from './components/grid.js';
-export { ApexGrid };
+import { IgcGridLite } from './components/grid.js';
+export { IgcGridLite };
 
-ApexGrid.register();
+IgcGridLite.register();

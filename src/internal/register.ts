@@ -1,12 +1,9 @@
-type ApexComponent = CustomElementConstructor & {
+type IgcComponent = CustomElementConstructor & {
   tagName: string;
   register: () => void;
 };
 
-export function registerComponent(
-  component: ApexComponent,
-  ...dependencies: ApexComponent[]
-): void {
+export function registerComponent(component: IgcComponent, ...dependencies: IgcComponent[]): void {
   for (const dependency of dependencies) {
     dependency.register();
   }

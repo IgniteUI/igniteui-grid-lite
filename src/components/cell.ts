@@ -2,14 +2,14 @@ import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_CELL_TAG } from '../internal/tags.js';
-import type { ApexCellContext, ColumnConfiguration, PropertyType } from '../internal/types.js';
+import type { ColumnConfiguration, IgcCellContext, PropertyType } from '../internal/types.js';
 import { styles } from '../styles/body-cell/body-cell.css.js';
-import type ApexGridRow from './row.js';
+import type IgcGridLiteRow from './row.js';
 
 /**
- * Component representing a DOM cell of the Apex grid.
+ * Component representing a DOM cell of the Igc grid.
  */
-export default class ApexGridCell<T extends object> extends LitElement {
+export default class IgcGridLiteCell<T extends object> extends LitElement {
   public static get tagName() {
     return GRID_CELL_TAG;
   }
@@ -17,7 +17,7 @@ export default class ApexGridCell<T extends object> extends LitElement {
   public static override styles = styles;
 
   public static register(): void {
-    registerComponent(ApexGridCell);
+    registerComponent(IgcGridLiteCell);
   }
 
   /**
@@ -42,26 +42,26 @@ export default class ApexGridCell<T extends object> extends LitElement {
   /**
    * The parent row component holding this cell.
    */
-  public row!: ApexGridRow<T>;
+  public row!: IgcGridLiteRow<T>;
 
-  protected get context(): ApexCellContext<T> {
+  protected get context(): IgcCellContext<T> {
     return {
       parent: this,
       row: this.row,
       column: this.column,
       value: this.value,
-    } as unknown as ApexCellContext<T>;
+    } as unknown as IgcCellContext<T>;
   }
 
   protected override render() {
     return this.column.cellTemplate
-      ? this.column.cellTemplate(this.context as ApexCellContext<T> as any)
+      ? this.column.cellTemplate(this.context as IgcCellContext<T> as any)
       : html`${this.value}`;
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    [ApexGridCell.tagName]: ApexGridCell<object>;
+    [IgcGridLiteCell.tagName]: IgcGridLiteCell<object>;
   }
 }

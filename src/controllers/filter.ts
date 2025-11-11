@@ -1,5 +1,5 @@
 import type { ReactiveController } from 'lit';
-import type { ApexFilteredEvent } from '../components/grid.js';
+import type { IgcFilteredEvent } from '../components/grid.js';
 import { PIPELINE } from '../internal/constants.js';
 import type { ColumnConfiguration, GridHost, Keys } from '../internal/types.js';
 import { asArray, getFilterOperandsFor } from '../internal/utils.js';
@@ -34,7 +34,7 @@ export class FilterController<T extends object> implements ReactiveController {
     });
   }
 
-  #emitFilteredEvent(detail?: ApexFilteredEvent<T>) {
+  #emitFilteredEvent(detail?: IgcFilteredEvent<T>) {
     return this.host.emitEvent('filtered', { detail });
   }
 

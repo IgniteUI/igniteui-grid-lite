@@ -1,9 +1,9 @@
-import type ApexFilterRow from '../../src/components/filter-row.js';
+import type IgcFilterRow from '../../src/components/filter-row.js';
 import type { Keys } from '../../src/internal/types.js';
 import type { OperandKeys } from '../../src/operations/filter/types.js';
 
 export default class FilterRowFixture<T extends object> {
-  constructor(public element: ApexFilterRow<T>) {}
+  constructor(public element: IgcFilterRow<T>) {}
 
   protected get previewParts(): HTMLElement[] {
     return Array.from(this.element.shadowRoot!.querySelectorAll('[part~="filter-row-preview"]'));

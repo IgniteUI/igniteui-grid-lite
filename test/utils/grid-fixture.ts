@@ -1,6 +1,6 @@
 import { elementUpdated, fixture, fixtureCleanup, html, nextFrame } from '@open-wc/testing';
-import { ApexGrid } from '../../src/components/grid.js';
-import ApexGridHeaderRow from '../../src/components/header-row.js';
+import { IgcGridLite } from '../../src/components/grid.js';
+import IgcGridLiteHeaderRow from '../../src/components/header-row.js';
 import type { ColumnConfiguration, Keys } from '../../src/internal/types.js';
 import type { FilterExpression } from '../../src/operations/filter/types.js';
 import type { SortExpression } from '../../src/operations/sort/types.js';
@@ -22,7 +22,7 @@ interface HeaderCollection<T extends object> {
 }
 
 export default class GridTestFixture<T extends object> {
-  public grid!: ApexGrid<T>;
+  public grid!: IgcGridLite<T>;
   public columnConfig: ColumnConfiguration<T>[];
 
   constructor(
@@ -38,7 +38,7 @@ export default class GridTestFixture<T extends object> {
   }
 
   public registerComponents() {
-    ApexGrid.register();
+    IgcGridLite.register();
   }
 
   public updateConfig() {}
@@ -70,7 +70,7 @@ export default class GridTestFixture<T extends object> {
     return fixtureCleanup();
   }
 
-  public async updateProperty<K extends keyof ApexGrid<T>>(prop: K, value: ApexGrid<T>[K]) {
+  public async updateProperty<K extends keyof IgcGridLite<T>>(prop: K, value: IgcGridLite<T>[K]) {
     Object.assign(this.grid, { [prop]: value });
     await this.waitForUpdate();
   }
@@ -95,7 +95,9 @@ export default class GridTestFixture<T extends object> {
   }
 
   public get headerRow() {
-    return this.grid.renderRoot.querySelector<ApexGridHeaderRow<T>>(ApexGridHeaderRow.tagName)!;
+    return this.grid.renderRoot.querySelector<IgcGridLiteHeaderRow<T>>(
+      IgcGridLiteHeaderRow.tagName
+    )!;
   }
 
   public get rows(): RowCollection<T> {

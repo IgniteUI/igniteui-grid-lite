@@ -8,20 +8,20 @@ import { registerComponent } from '../internal/register.js';
 import { GRID_HEADER_ROW_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration } from '../internal/types.js';
 import { styles } from '../styles/header-row/header-row.base.css.js';
-import ApexGridHeader from './header.js';
+import IgcGridLiteHeader from './header.js';
 
-export default class ApexGridHeaderRow<T extends object> extends LitElement {
+export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
   public static get tagName() {
     return GRID_HEADER_ROW_TAG;
   }
   public static override styles = styles;
 
   public static register(): void {
-    registerComponent(ApexGridHeaderRow, ApexGridHeader);
+    registerComponent(IgcGridLiteHeaderRow, IgcGridLiteHeader);
   }
 
-  @queryAll(ApexGridHeader.tagName)
-  protected _headers!: NodeListOf<ApexGridHeader<T>>;
+  @queryAll(IgcGridLiteHeader.tagName)
+  protected _headers!: NodeListOf<IgcGridLiteHeader<T>>;
 
   @consume({ context: gridStateContext, subscribe: true })
   @property({ attribute: false })
@@ -47,8 +47,8 @@ export default class ApexGridHeaderRow<T extends object> extends LitElement {
   #activeFilterColumn(event: MouseEvent) {
     const header = event
       .composedPath()
-      .filter((target) => target instanceof ApexGridHeader)
-      .at(0) as ApexGridHeader<T>;
+      .filter((target) => target instanceof IgcGridLiteHeader)
+      .at(0) as IgcGridLiteHeader<T>;
 
     this.state.filtering.setActiveColumn(header?.column);
   }
@@ -79,6 +79,6 @@ export default class ApexGridHeaderRow<T extends object> extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    [ApexGridHeaderRow.tagName]: ApexGridHeaderRow<object>;
+    [IgcGridLiteHeaderRow.tagName]: IgcGridLiteHeaderRow<object>;
   }
 }

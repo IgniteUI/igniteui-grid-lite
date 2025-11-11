@@ -2,13 +2,13 @@ import { LitVirtualizer } from '@lit-labs/virtualizer/LitVirtualizer.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_BODY } from '../internal/tags.js';
 
-export default class ApexVirtualizer extends LitVirtualizer {
+export default class IgcVirtualizer extends LitVirtualizer {
   public static get tagName() {
     return GRID_BODY;
   }
 
   public static register(): void {
-    registerComponent(ApexVirtualizer);
+    registerComponent(IgcVirtualizer);
   }
 
   public override scroller = true;
@@ -23,6 +23,6 @@ export default class ApexVirtualizer extends LitVirtualizer {
 
 declare global {
   interface HTMLElementTagNameMap {
-    [ApexVirtualizer.tagName]: ApexVirtualizer;
+    [IgcVirtualizer.tagName]: IgcVirtualizer;
   }
 }

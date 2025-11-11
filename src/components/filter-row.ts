@@ -34,7 +34,7 @@ function prefixedIcon(icon?: string) {
   ></igc-icon>`;
 }
 
-export default class ApexFilterRow<T extends object> extends LitElement {
+export default class IgcFilterRow<T extends object> extends LitElement {
   public static get tagName() {
     return GRID_FILTER_ROW_TAG;
   }
@@ -42,7 +42,7 @@ export default class ApexFilterRow<T extends object> extends LitElement {
   public static override styles = styles;
 
   public static register() {
-    registerComponent(ApexFilterRow);
+    registerComponent(IgcFilterRow);
   }
 
   @consume({ context: gridStateContext, subscribe: true })
@@ -377,6 +377,6 @@ export default class ApexFilterRow<T extends object> extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    [ApexFilterRow.tagName]: ApexFilterRow<object>;
+    [IgcFilterRow.tagName]: IgcFilterRow<object>;
   }
 }

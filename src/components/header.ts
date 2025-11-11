@@ -11,10 +11,10 @@ import {
 import { partNameMap } from '../internal/part-map.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_HEADER_TAG } from '../internal/tags.js';
-import type { ApexHeaderContext, ColumnConfiguration } from '../internal/types.js';
+import type { ColumnConfiguration, IgcHeaderContext } from '../internal/types.js';
 import { styles } from '../styles/header-cell/header-cell.css.js';
 
-export default class ApexGridHeader<T extends object> extends LitElement {
+export default class IgcGridLiteHeader<T extends object> extends LitElement {
   public static get tagName() {
     return GRID_HEADER_TAG;
   }
@@ -22,10 +22,10 @@ export default class ApexGridHeader<T extends object> extends LitElement {
   public static override styles = styles;
 
   public static register(): void {
-    registerComponent(ApexGridHeader, IgcIconComponent);
+    registerComponent(IgcGridLiteHeader, IgcIconComponent);
   }
 
-  protected get context(): ApexHeaderContext<T> {
+  protected get context(): IgcHeaderContext<T> {
     return {
       parent: this,
       column: this.column,
@@ -163,6 +163,6 @@ export default class ApexGridHeader<T extends object> extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    [ApexGridHeader.tagName]: ApexGridHeader<object>;
+    [IgcGridLiteHeader.tagName]: IgcGridLiteHeader<object>;
   }
 }

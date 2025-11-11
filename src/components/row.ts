@@ -5,23 +5,23 @@ import { registerComponent } from '../internal/register.js';
 import { GRID_ROW_TAG } from '../internal/tags.js';
 import type { ActiveNode, ColumnConfiguration } from '../internal/types.js';
 import { styles } from '../styles/body-row/body-row.css.js';
-import ApexGridCell from './cell.js';
+import IgcGridLiteCell from './cell.js';
 
 /**
- * Component representing the DOM row in the Apex grid.
+ * Component representing the DOM row in the IgcGridLite.
  */
-export default class ApexGridRow<T extends object> extends LitElement {
+export default class IgcGridLiteRow<T extends object> extends LitElement {
   public static get tagName() {
     return GRID_ROW_TAG;
   }
   public static override styles = styles;
 
   public static register(): void {
-    registerComponent(ApexGridRow, ApexGridCell);
+    registerComponent(IgcGridLiteRow, IgcGridLiteCell);
   }
 
-  @queryAll(ApexGridCell.tagName)
-  protected _cells!: NodeListOf<ApexGridCell<T>>;
+  @queryAll(IgcGridLiteCell.tagName)
+  protected _cells!: NodeListOf<IgcGridLiteCell<T>>;
 
   @property({ attribute: false })
   public data!: T;
@@ -55,7 +55,7 @@ export default class ApexGridRow<T extends object> extends LitElement {
               part="cell"
               .active=${key === column.key && index === this.index}
               .column=${column}
-              .row=${this as ApexGridRow<T>}
+              .row=${this as IgcGridLiteRow<T>}
               .value=${this.data[column.key]}
             ></igc-grid-lite-cell>`
       )}
@@ -65,6 +65,6 @@ export default class ApexGridRow<T extends object> extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    [ApexGridRow.tagName]: ApexGridRow<object>;
+    [IgcGridLiteRow.tagName]: IgcGridLiteRow<object>;
   }
 }

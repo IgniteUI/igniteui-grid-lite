@@ -30,16 +30,16 @@ import { styles as bootstrap } from '../styles/grid/themes/light/grid.bootstrap.
 import { styles as fluent } from '../styles/grid/themes/light/grid.fluent.css.js';
 import { styles as indigo } from '../styles/grid/themes/light/grid.indigo.css.js';
 import { styles as material } from '../styles/grid/themes/light/grid.material.css.js';
-import ApexGridCell from './cell.js';
-import ApexFilterRow from './filter-row.js';
-import ApexGridHeaderRow from './header-row.js';
-import ApexGridRow from './row.js';
-import ApexVirtualizer from './virtualizer.js';
+import IgcGridLiteCell from './cell.js';
+import IgcFilterRow from './filter-row.js';
+import IgcGridLiteHeaderRow from './header-row.js';
+import IgcGridLiteRow from './row.js';
+import IgcVirtualizer from './virtualizer.js';
 
 /**
  * Event object for the filtering event of the grid.
  */
-export interface ApexFilteringEvent<T extends object> {
+export interface IgcFilteringEvent<T extends object> {
   /**
    * The target column for the filter operation.
    */
@@ -65,7 +65,7 @@ export interface ApexFilteringEvent<T extends object> {
 /**
  * Event object for the filtered event of the grid.
  */
-export interface ApexFilteredEvent<T extends object> {
+export interface IgcFilteredEvent<T extends object> {
   /**
    * The target column for the filter operation.
    */
@@ -80,7 +80,7 @@ export interface ApexFilteredEvent<T extends object> {
 /**
  * Events for the igc-grid-lite.
  */
-export interface ApexGridEventMap<T extends object> {
+export interface IgcGridLiteEventMap<T extends object> {
   /**
    * Emitted when sorting is initiated through the UI.
    * Returns the sort expression which will be used for the operation.
@@ -108,18 +108,18 @@ export interface ApexGridEventMap<T extends object> {
    *
    * @event
    */
-  filtering: CustomEvent<ApexFilteringEvent<T>>;
+  filtering: CustomEvent<IgcFilteringEvent<T>>;
   /**
    * Emitted when a filter operation initiated through the UI has completed.
    * Returns the filter state for the affected column.
    *
    * @event
    */
-  filtered: CustomEvent<ApexFilteredEvent<T>>;
+  filtered: CustomEvent<IgcFilteredEvent<T>>;
 }
 
 /**
- * Apex grid is a web component for displaying data in a tabular format quick and easy.
+ * IgcGridLite is a web component for displaying data in a tabular format quick and easy.
  *
  * Out of the box it provides row virtualization, sort and filter operations (client and server side),
  * the ability to template cells and headers and column hiding.
@@ -132,7 +132,7 @@ export interface ApexGridEventMap<T extends object> {
  * @fires filtered - Emitted when a filter operation initiated through the UI has completed.
  *
  */
-export class ApexGrid<T extends object> extends EventEmitterBase<ApexGridEventMap<T>> {
+export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteEventMap<T>> {
   public static get tagName() {
     return GRID_TAG;
   }
@@ -141,11 +141,11 @@ export class ApexGrid<T extends object> extends EventEmitterBase<ApexGridEventMa
 
   public static register() {
     registerComponent(
-      ApexGrid,
-      ApexVirtualizer,
-      ApexGridRow,
-      ApexGridHeaderRow,
-      ApexFilterRow,
+      IgcGridLite,
+      IgcVirtualizer,
+      IgcGridLiteRow,
+      IgcGridLiteHeaderRow,
+      IgcFilterRow,
       IgcButtonComponent,
       IgcChipComponent,
       IgcInputComponent,
@@ -162,20 +162,20 @@ export class ApexGrid<T extends object> extends EventEmitterBase<ApexGridEventMa
     initialValue: this.stateController,
   });
 
-  @query(ApexVirtualizer.tagName)
-  protected scrollContainer!: ApexVirtualizer;
+  @query(IgcVirtualizer.tagName)
+  protected scrollContainer!: IgcVirtualizer;
 
-  @query(ApexGridHeaderRow.tagName)
-  protected headerRow!: ApexGridHeaderRow<T>;
+  @query(IgcGridLiteHeaderRow.tagName)
+  protected headerRow!: IgcGridLiteHeaderRow<T>;
 
-  @query(ApexFilterRow.tagName)
-  protected filterRow!: ApexFilterRow<T>;
+  @query(IgcFilterRow.tagName)
+  protected filterRow!: IgcFilterRow<T>;
 
   @state()
   protected dataState: Array<T> = [];
 
-  @queryAll(ApexGridRow.tagName)
-  protected _rows!: NodeListOf<ApexGridRow<T>>;
+  @queryAll(IgcGridLiteRow.tagName)
+  protected _rows!: NodeListOf<IgcGridLiteRow<T>>;
 
   /** Column configuration for the grid. */
   @property({ attribute: false })
@@ -285,7 +285,7 @@ export class ApexGrid<T extends object> extends EventEmitterBase<ApexGridEventMa
   }
 
   /**
-   * The total number of items in the {@link ApexGrid.dataView} collection.
+   * The total number of items in the {@link IgcGridLite.dataView} collection.
    */
   public get totalItems() {
     return this.dataState.length;
@@ -387,7 +387,9 @@ export class ApexGrid<T extends object> extends EventEmitterBase<ApexGridEventMa
 
   @eventOptions({ capture: true })
   protected bodyClickHandler(event: MouseEvent) {
-    const target = event.composedPath().find((el) => el instanceof ApexGridCell) as ApexGridCell<T>;
+    const target = event
+      .composedPath()
+      .find((el) => el instanceof IgcGridLiteCell) as IgcGridLiteCell<T>;
     if (target) {
       this.stateController.active = {
         column: target.column.key,
@@ -413,18 +415,18 @@ export class ApexGrid<T extends object> extends EventEmitterBase<ApexGridEventMa
 
   protected renderBody() {
     return html`
-      <apex-virtualizer
+      <igc-virtualizer
         .items=${this.dataState}
         .renderItem=${this.DOM.rowRenderer}
         @click=${this.bodyClickHandler}
         @keydown=${this.bodyKeydownHandler}
-      ></apex-virtualizer>
+      ></igc-virtualizer>
     `;
   }
 
   protected renderFilterRow() {
     return this.columns.some((column) => column.filter)
-      ? html`<apex-filter-row style=${styleMap(this.DOM.columnSizes)}></apex-filter-row>`
+      ? html`<igc-filter-row style=${styleMap(this.DOM.columnSizes)}></igc-filter-row>`
       : nothing;
   }
 
@@ -440,6 +442,6 @@ export class ApexGrid<T extends object> extends EventEmitterBase<ApexGridEventMa
 
 declare global {
   interface HTMLElementTagNameMap {
-    [ApexGrid.tagName]: ApexGrid<object>;
+    [IgcGridLite.tagName]: IgcGridLite<object>;
   }
 }

@@ -1,11 +1,13 @@
-export type { ApexFilteredEvent, ApexFilteringEvent, ApexGridEventMap } from './components/grid.js';
-export { ApexGrid } from './components/grid.js';
 export type {
-  ApexCellContext,
-  ApexHeaderContext,
-  BaseApexCellContext,
+  IgcFilteredEvent,
+  IgcFilteringEvent,
+  IgcGridLiteEventMap,
+} from './components/grid.js';
+export { IgcGridLite } from './components/grid.js';
+export type {
   BaseColumnConfiguration,
   BaseColumnSortConfiguration,
+  BaseIgcCellContext,
   BasePropertyType,
   ColumnConfiguration,
   ColumnFilterConfiguration,
@@ -15,6 +17,8 @@ export type {
   DataPipelineParams,
   DataType,
   GridSortConfiguration,
+  IgcCellContext,
+  IgcHeaderContext,
   Keys,
   PropertyType,
 } from './internal/types.js';

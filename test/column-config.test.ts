@@ -1,5 +1,5 @@
 import { elementUpdated, expect, html } from '@open-wc/testing';
-import type { ApexCellContext, Keys } from '../src/internal/types.js';
+import type { IgcCellContext, Keys } from '../src/internal/types.js';
 import GridTestFixture from './utils/grid-fixture.js';
 import data, { type TestData } from './utils/test-data.js';
 
@@ -79,7 +79,7 @@ describe('Column configuration', () => {
     it('Cell template', async () => {
       await TDD.updateColumns({
         key: 'name',
-        cellTemplate: (props: ApexCellContext<TestData, 'name'>) =>
+        cellTemplate: (props: IgcCellContext<TestData, 'name'>) =>
           html`<input value=${props.value} />`,
       });
 

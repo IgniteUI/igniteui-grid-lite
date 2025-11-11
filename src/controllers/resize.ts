@@ -1,6 +1,6 @@
 import { html, nothing, type ReactiveController } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
-import type ApexGridHeader from '../components/header.js';
+import type IgcGridLiteHeader from '../components/header.js';
 import { MIN_COL_RESIZE_WIDTH } from '../internal/constants.js';
 import type { ColumnConfiguration, GridHost, Keys } from '../internal/types.js';
 
@@ -25,7 +25,7 @@ export class ResizeController<T extends object> implements ReactiveController {
    *
    * @param header the
    */
-  public start(header: ApexGridHeader<T>) {
+  public start(header: IgcGridLiteHeader<T>) {
     this.indicatorActive = true;
     this.indicatorOffset = header.offsetLeft + header.offsetWidth;
     this.host.requestUpdate();
@@ -48,7 +48,7 @@ export class ResizeController<T extends object> implements ReactiveController {
     this.host.requestUpdate();
   }
 
-  public async autosize(column: ColumnConfiguration<T>, header: ApexGridHeader<T>) {
+  public async autosize(column: ColumnConfiguration<T>, header: IgcGridLiteHeader<T>) {
     column.width = 'max-content';
 
     this.host.requestUpdate();

@@ -1,12 +1,12 @@
 import type { ReactiveControllerHost, TemplateResult } from 'lit';
-import type ApexGridCell from '../components/cell.js';
-import type { ApexGrid } from '../components/grid.js';
-import type ApexGridHeader from '../components/header.js';
-import type ApexGridRow from '../components/row.js';
+import type IgcGridLiteCell from '../components/cell.js';
+import type { IgcGridLite } from '../components/grid.js';
+import type IgcGridLiteHeader from '../components/header.js';
+import type IgcGridLiteRow from '../components/row.js';
 import type { SortComparer } from '../operations/sort/types.js';
 
 export type NavigationState = 'previous' | 'current';
-export type GridHost<T extends object> = ReactiveControllerHost & ApexGrid<T>;
+export type GridHost<T extends object> = ReactiveControllerHost & IgcGridLite<T>;
 
 /**
  * Helper type for resolving keys of type T.
@@ -124,11 +124,11 @@ export interface BaseColumnConfiguration<T extends object, K extends Keys<T> = K
   /**
    * Header template callback.
    */
-  headerTemplate?: (params: ApexHeaderContext<T>) => TemplateResult | unknown;
+  headerTemplate?: (params: IgcHeaderContext<T>) => TemplateResult | unknown;
   /**
    * Cell template callback.
    */
-  cellTemplate?: (params: ApexCellContext<T, K>) => TemplateResult | unknown;
+  cellTemplate?: (params: IgcCellContext<T, K>) => TemplateResult | unknown;
 }
 
 /**
@@ -146,11 +146,11 @@ export interface ActiveNode<T> {
 /**
  * Context object for the column header template callback.
  */
-export interface ApexHeaderContext<T extends object> {
+export interface IgcHeaderContext<T extends object> {
   /**
    * The header element parent of the template.
    */
-  parent: ApexGridHeader<T>;
+  parent: IgcGridLiteHeader<T>;
   /**
    * The current configuration for the column.
    */
@@ -160,15 +160,15 @@ export interface ApexHeaderContext<T extends object> {
 /**
  * Context object for the row cell template callback.
  */
-export interface BaseApexCellContext<T extends object, K extends Keys<T> = Keys<T>> {
+export interface BaseIgcCellContext<T extends object, K extends Keys<T> = Keys<T>> {
   /**
    * The cell element parent of the template.
    */
-  parent: ApexGridCell<T>;
+  parent: IgcGridLiteCell<T>;
   /**
    * The row element containing the cell.
    */
-  row: ApexGridRow<T>;
+  row: IgcGridLiteRow<T>;
   /**
    * The current configuration for the column.
    */
@@ -180,10 +180,10 @@ export interface BaseApexCellContext<T extends object, K extends Keys<T> = Keys<
 }
 
 /**
- * See {@link BaseApexCellContext} for the full documentation.
+ * See {@link BaseIgcCellContext} for the full documentation.
  */
-export type ApexCellContext<T extends object, K extends Keys<T> = Keys<T>> = K extends Keys<T>
-  ? BaseApexCellContext<T, K>
+export type IgcCellContext<T extends object, K extends Keys<T> = Keys<T>> = K extends Keys<T>
+  ? BaseIgcCellContext<T, K>
   : never;
 
 /**
@@ -197,7 +197,7 @@ export type DataPipelineParams<T extends object> = {
   /**
    * The grid component itself.
    */
-  grid: ApexGrid<T>;
+  grid: IgcGridLite<T>;
   /**
    * The type of data operation being performed.
    */

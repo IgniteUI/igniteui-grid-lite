@@ -9,7 +9,7 @@ import {
 } from 'igniteui-webcomponents';
 import { html, render } from 'lit';
 import { ColumnConfiguration } from '../src/index';
-import { ApexGrid } from '../src/index.js';
+import { IgcGridLite } from '../src/index.js';
 
 defineComponents(
   IgcAvatarComponent,
@@ -166,7 +166,7 @@ const columns: ColumnConfiguration<User>[] = [
 ];
 
 const data = generateData(1e4);
-ApexGrid.register();
+IgcGridLite.register();
 
 render(
   html`${themeChoose}<igc-grid-lite

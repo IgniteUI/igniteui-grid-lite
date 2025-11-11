@@ -1,9 +1,9 @@
-import type ApexGridHeader from '../../src/components/header.js';
+import type IgcGridLiteHeader from '../../src/components/header.js';
 
 const DEFAULT_ARGS: PointerEventInit = { pointerId: 1, bubbles: true, composed: true };
 
 export default class HeaderTestFixture<T extends object> {
-  constructor(public element: ApexGridHeader<T>) {}
+  constructor(public element: IgcGridLiteHeader<T>) {}
 
   protected get(selector: string) {
     return this.element.shadowRoot!.querySelector(selector) as HTMLElement;

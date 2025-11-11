@@ -17,7 +17,7 @@ $grid-resize-line-color: var(--igx-grid-resize-line-color, var(--grid-resize-lin
     --z-index-base: 1;
 }
 
-apex-virtualizer {
+igc-virtualizer {
     grid-row: virtualized-container;
     display: flex;
     flex-flow: column;

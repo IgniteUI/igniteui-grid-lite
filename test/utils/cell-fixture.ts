@@ -1,7 +1,7 @@
-import type ApexGridCell from '../../src/components/cell.js';
+import type IgcGridLiteCell from '../../src/components/cell.js';
 
 export default class CellTestFixture<T extends object> {
-  constructor(public element: ApexGridCell<T>) {}
+  constructor(public element: IgcGridLiteCell<T>) {}
 
   public get value() {
     return this.element.value;
