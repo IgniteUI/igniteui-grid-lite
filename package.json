@@ -5,6 +5,10 @@
   "keywords": ["lit", "web-component", "lit-element"],
   "license": "SEE LICENSE IN LICENSE",
   "author": "igc-grid-lite",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IgniteUI/igc-grid-lite.git"
+  },
   "exports": {
     ".": "./dist/src/index.js",
     "./define": "./dist/src/define.js"
