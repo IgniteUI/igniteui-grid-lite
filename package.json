@@ -2,7 +2,11 @@
   "name": "igc-grid-lite",
   "version": "0.0.0",
   "description": "Web component data grid following open-wc recommendations",
-  "keywords": ["lit", "web-component", "lit-element"],
+  "keywords": [
+    "lit",
+    "web-component",
+    "lit-element"
+  ],
   "license": "SEE LICENSE IN LICENSE",
   "author": "igc-grid-lite",
   "repository": {
@@ -46,8 +50,7 @@
   "dependencies": {
     "@lit-labs/virtualizer": "^2.1.0",
     "@lit/context": "^1.1.5",
-    "igniteui-theming": "~19.1.0",
-    "igniteui-webcomponents": "~6.1.0",
+    "igniteui-webcomponents": "~6.3.5",
     "lit": "^3.3.0"
   },
   "devDependencies": {
@@ -62,6 +65,7 @@
     "concurrently": "^9.2.0",
     "globby": "^14.1.0",
     "husky": "^9.1.7",
+    "igniteui-theming": "^22.1.0",
     "lint-staged": "^16.1.2",
     "node-watch": "^0.7.4",
     "playwright": "^1.53.2",
