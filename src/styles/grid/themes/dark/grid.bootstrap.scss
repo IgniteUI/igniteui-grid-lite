@@ -1,7 +1,19 @@
-@use '../../../../../node_modules/igniteui-theming/sass/color/functions' as *;
-@use '../../../../../node_modules/igniteui-theming/sass/typography/functions' as *;
+@use "../../../../../node_modules/igniteui-theming/sass/color/functions" as *;
+@use "../../../../../node_modules/igniteui-theming/sass/typography/functions" as *;
 
 :host {
+    // Header row
+    --header-border-color: #{color(null, gray, 200, 0.28)};
+
+    // Body row
+    --row-hover-background: #{color(null, gray, 100)};
+    --row-hover-text-color: #{contrast-color(null, gray, 100)};
+    --row-border-color: #{color(null, gray, 200, 0.24)};
+
+    // Body cell
+    --cell-active-border-color: #{color(null, primary, 500)};
+
+    // TODO: Common?
     // Grid body
     --content-background: #{color(null, gray, 50)};
     --content-text-color: #{contrast-color(null, gray, 50)};
@@ -11,7 +23,6 @@
     --header-text-color: #{contrast-color(null, surface, 500)};
     --header-border-width: #{rem(1px)};
     --header-border-style: solid;
-    --header-border-color: #{color(null, gray, 400, .38)};
     --filtering-header-background: #{color(null, gray, 50)};
 
     // Filtering row
@@ -25,17 +36,13 @@
     --icon-color: 'currentColor';
 
     // Body row
-    --row-hover-background: #{color(null, gray, 200)};
-    --row-hover-text-color: #{contrast-color(null, gray, 200)};
     --row-even-background: #{color(null, gray, 50)};
     --row-even-text-color: #{contrast-color(null, gray, 50)};
     --row-odd-background: #{color(null, gray, 50)};
     --row-odd-text-color: #{contrast-color(null, gray, 50)};
-    --row-border-color: #{color(null, gray, 300, .38)};
     --row-border-style: solid;
     --row-border-width: #{rem(1px)};
 
     // Body Cell
-    --cell-active-border-color: #{color(null, primary, 500)};
     --grid-resize-line-color: #{color(null, primary, 500)};
 }

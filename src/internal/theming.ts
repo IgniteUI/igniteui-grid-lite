@@ -10,7 +10,7 @@ import { adoptStyles, css, isServer } from 'lit';
 type Theme = 'material' | 'bootstrap' | 'indigo' | 'fluent';
 type ThemeVariant = 'light' | 'dark';
 
-type Themes = {
+export type Themes = {
   light: {
     [K in Theme | 'shared']?: CSSResult;
   };
