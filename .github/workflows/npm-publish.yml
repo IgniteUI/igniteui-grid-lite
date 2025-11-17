@@ -42,3 +42,5 @@ jobs:
       - name: Publish the package
         run: npm publish --tag ${NPM_TAG}
         working-directory: dist
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
