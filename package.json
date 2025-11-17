@@ -11,7 +11,7 @@
   "author": "Infragistics",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IgniteUI/igniteui-grid-lite.git"
+    "url": "https://github.com/IgniteUI/igniteui-grid-lite"
   },
   "exports": {
     ".": "./dist/src/index.js",
