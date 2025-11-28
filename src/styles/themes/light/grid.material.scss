@@ -5,6 +5,5 @@
 $theme: $material;
 
 :host {
-	@include css-vars-from-theme($base, 'igc-grid-lite');
-	@include css-vars-from-theme(diff($base, $theme), 'igc-grid-lite');
+	@include css-vars-from-theme($theme, 'igc-grid-lite');
 }

@@ -7,14 +7,19 @@ $theme: $material;
     display: grid;
     width: 100%;
     min-height: $ig-cells-min-height;
-    border-block-end: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
-    background: var-get($theme, 'row-odd-background');
+    border-block-end: rem(1px) solid var-get($theme, 'row-border-color');
+    background: var-get($theme, 'content-background');
     color: var-get($theme, 'row-odd-text-color');
     z-index: var(--z-index-base);
 }
 
 :host(:last-of-type) {
     border-bottom: 0;
+}
+
+:host(:nth-of-type(odd)) {
+	background: var-get($theme, 'row-even-background');
+	color: var-get($theme, 'row-even-text-color');
 }
 
 :host(:nth-of-type(even)) {

@@ -1,7 +1,7 @@
 @use 'igniteui-theming/sass/themes/functions' as *;
 @use '../light/themes' as *;
 
-$theme: $material;
+$theme: $base;
 
 :host {
 	box-shadow: var-get($theme, 'grid-elevation');

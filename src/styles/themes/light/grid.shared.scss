@@ -2,8 +2,6 @@
 @use 'igniteui-theming/sass/utils' as *;
 @use 'themes' as *;
 
-$theme: $indigo;
-
 :host {
-	@include css-vars-from-theme(diff($base, $theme), 'igc-grid-lite');
+	@include css-vars-from-theme($base, 'igc-grid-lite');
 }

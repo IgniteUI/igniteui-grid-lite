@@ -5,7 +5,17 @@ $ig-cells-padding: sizable(rem(8px), rem(16px), rem(24px));
 $ig-cells-min-height: sizable(rem(24px), rem(34px), rem(50px));
 
 :host {
-  @include sizable();
-
-  --component-size: 3;
+	@include sizable();
+	
+	--component-size: 3;
+	
+	
+	position: relative;
+	box-sizing: border-box;
+	
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
 }
