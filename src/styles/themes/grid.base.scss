@@ -1,20 +1,15 @@
-@use '../../common' as *;
-
-$content-background: var(--igx-content-background, var(--content-background));
-$content-text-color: var(--igx-content-text-color, var(--content-text-color));
-$grid-resize-line-color: var(--igx-grid-resize-line-color, var(--grid-resize-line-color));
+@use '../common' as *;
 
 :host {
+	--scrollbar-offset: 0;
+	--z-index-base: 1;
+	
     display: grid;
     height: 100%;
     position: relative;
-    font-family: var(--ig-font-family);
-    box-shadow: elevation(2);
+	font-family: var(--ig-font-family), serif;
     overflow: auto hidden;
     grid-template-rows: [header-row] max-content [filter-row] max-content [virtualized-container] auto;
-
-    --scrollbar-offset: 0;
-    --z-index-base: 1;
 }
 
 igc-virtualizer {
@@ -22,8 +17,6 @@ igc-virtualizer {
     display: flex;
     flex-flow: column;
     flex: 1;
-    background: $content-background;
-    color: $content-text-color;
     overflow: hidden auto !important;
 
     &:focus {
@@ -34,7 +27,6 @@ igc-virtualizer {
 [part~='resize-indicator'] {
     position: absolute;
     height: 100%;
-    background-color: $grid-resize-line-color;
     width: rem(2px);
     inset-inline-start: 0;
     top: 0;

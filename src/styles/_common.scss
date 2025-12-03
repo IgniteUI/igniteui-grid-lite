@@ -1,11 +1,44 @@
-@use "../../node_modules/igniteui-theming/" as *;
-@forward "../../node_modules/igniteui-theming/";
+@use 'igniteui-theming' as *;
+@forward 'igniteui-theming';
 
 $ig-cells-padding: sizable(rem(8px), rem(16px), rem(24px));
 $ig-cells-min-height: sizable(rem(24px), rem(34px), rem(50px));
 
-:host {
-  @include sizable();
+@mixin ig-scrollbar($track-size, $track-bg, $thumb-bg) {
+	// Firefox only
+	scrollbar-width: $track-size;
+	scrollbar-color: $thumb-bg $track-bg;
+	
+	// Chromium only
+	::-webkit-scrollbar {
+		width: $track-size;
+		height: $track-size;
+		background: $track-bg;
+	}
+	
+	::-webkit-scrollbar-thumb {
+		background: $thumb-bg;
+	}
+}
 
-  --component-size: 3;
+:host {
+	@include sizable();
+	
+	--component-size: 3;
+	
+	
+	position: relative;
+	box-sizing: border-box;
+	
+	@include ig-scrollbar(
+		var(--ig-scrollbar-size, var(--sb-size)),
+		var(--ig-scrollbar-track-background, var(--sb-track-bg-color)),
+		var(--ig-scrollbar-thumb-background, var(--sb-thumb-bg-color))
+	);
+	
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
 }

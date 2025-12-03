@@ -90,7 +90,7 @@ const themeChoose = html`
     <igc-select
       value="bootstrap"
       outlined
-      label="Choose theme"
+      title="Choose theme"
       @igcChange=${({ detail }) => setTheme(detail.value)}
     >
       ${themes.map(theme => html`<igc-select-item .value=${theme}>${theme}</igc-select-item>`)}

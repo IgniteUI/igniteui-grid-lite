@@ -107,14 +107,12 @@ function isOfTypeThemeVariant(variant: string): variant is ThemeVariant {
 }
 
 function getTheme() {
-  if (!(theme && themeVariant)) {
-    const cssVars = getAllCssVariables();
-    const foundTheme = cssVars.igTheme;
-    const foundVariant = cssVars.igThemeVariant;
+  const cssVars = getAllCssVariables();
+  const foundTheme = cssVars.igTheme;
+  const foundVariant = cssVars.igThemeVariant;
 
-    theme = isOfTypeTheme(foundTheme) ? foundTheme : 'bootstrap';
-    themeVariant = isOfTypeThemeVariant(foundVariant) ? foundVariant : 'light';
-  }
+  theme = isOfTypeTheme(foundTheme) ? foundTheme : 'bootstrap';
+  themeVariant = isOfTypeThemeVariant(foundVariant) ? foundVariant : 'light';
 
   return { theme, themeVariant };
 }

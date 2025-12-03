@@ -1,18 +1,13 @@
 @use '../common' as *;
+@use '../themes/light/themes' as *;
 
-$filtering-header-background: var(--igx-filtering-header-background, var(--filtering-header-background));
-$header-border-width: var(--igx-header-border-width, var(--header-border-width));
-$header-border-style: var(--igx-header-border-style, var(--header-border-style));
-$header-border-color: var(--igx-header-border-color, var(--header-border-color));
-$active-header-icon-color: var(--igx-sorted-header-icon-color, var(--sorted-header-icon-color));
-$inactive-header-icon-color: var(--igx-icon-color, var(--icon-color));
+$theme: $material;
 
 :host {
     display: flex;
     align-items: center;
     position: relative;
-    border-inline-end: $header-border-width $header-border-style $header-border-color;
-    font-weight: 600;
+    border-inline-end: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
     font-size: #{rem(12px)};
 }
 
@@ -27,7 +22,6 @@ $inactive-header-icon-color: var(--igx-icon-color, var(--icon-color));
     width: 100%;
     height: 100%;
     padding: 0 $ig-cells-padding;
-    font-weight: 500;
     overflow: hidden;
     user-select: none;
 }
@@ -39,6 +33,7 @@ $inactive-header-icon-color: var(--igx-icon-color, var(--icon-color));
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+	font-weight: 600;
     min-width: 3ch;
 }
 
@@ -60,8 +55,6 @@ $inactive-header-icon-color: var(--igx-icon-color, var(--icon-color));
 
     igc-icon {
         --size: #{rem(15px)};
-
-        color: $inactive-header-icon-color;
     }
 
     igc-icon::after {
@@ -73,21 +66,20 @@ $inactive-header-icon-color: var(--igx-icon-color, var(--icon-color));
         text-align: end;
         font-family: sans-serif;
         line-height: rem(10px);
-        color: $active-header-icon-color;
     }
 }
 
 [part~='sorted'],
 [part~='filtered'] {
-    color: $active-header-icon-color;
+	color: var-get($theme, 'sorted-header-icon-color');
 
     igc-icon {
-        color: $active-header-icon-color;
+	    color: inherit;
     }
 }
 
 [part~='filtered'] {
-    background: $filtering-header-background;
+    background: var-get($theme, 'filtering-header-background');
 }
 
 [part~='action']:empty {
