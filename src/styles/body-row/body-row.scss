@@ -18,8 +18,8 @@ $theme: $material;
 }
 
 :host(:nth-of-type(odd)) {
-	background: var-get($theme, 'row-even-background');
-	color: var-get($theme, 'row-even-text-color');
+	background: var-get($theme, 'row-odd-background');
+	color: var-get($theme, 'row-odd-text-color');
 }
 
 :host(:nth-of-type(even)) {
