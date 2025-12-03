@@ -1,22 +1,15 @@
 @use '../common' as *;
+@use '../themes/light/themes' as *;
 
-$row-border-width: var(--igx-row-border-width, var(--header-border-width));
-$row-border-style: var(--igx-row-border-style, var(--header-border-style));
-$row-border-color: var(--igx-row-border-color, var(--header-border-color));
-$row-odd-background: var(--igx-row-odd-background, var(--row-odd-background));
-$row-odd-text-color: var(--igx-row-odd-text-color, var(--row-odd-text-color));
-$row-even-background: var(--igx-row-even-background, var(--row-even-background));
-$row-even-text-color: var(--igx-row-even-text-color, var(--row-even-text-color));
-$row-hover-background: var(--igx-row-hover-background, var(--row-hover-background));
-$row-hover-text-color: var(--igx-row-hover-text-color, var(--row-hover-text-color));
+$theme: $material;
 
 :host {
     display: grid;
     width: 100%;
     min-height: $ig-cells-min-height;
-    border-block-end: $row-border-width $row-border-style $row-border-color;
-    background: $row-odd-background;
-    color: $row-odd-text-color;
+    border-block-end: rem(1px) solid var-get($theme, 'row-border-color');
+    background: var-get($theme, 'content-background');
+    color: var-get($theme, 'row-odd-text-color');
     z-index: var(--z-index-base);
 }
 
@@ -24,12 +17,17 @@ $row-hover-text-color: var(--igx-row-hover-text-color, var(--row-hover-text-colo
     border-bottom: 0;
 }
 
+:host(:nth-of-type(odd)) {
+	background: var-get($theme, 'row-odd-background');
+	color: var-get($theme, 'row-odd-text-color');
+}
+
 :host(:nth-of-type(even)) {
-    background: $row-even-background;
-    color: $row-even-text-color;
+    background: var-get($theme, 'row-even-background');
+    color: var-get($theme, 'row-even-text-color');
 }
 
 :host(:hover) {
-    background: $row-hover-background;
-    color: $row-hover-text-color;
+    background: var-get($theme, 'row-hover-background');
+    color: var-get($theme, 'row-hover-text-color');
 }

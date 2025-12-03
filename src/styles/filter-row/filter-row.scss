@@ -1,12 +1,10 @@
 @use '../common' as *;
+@use '../themes/light/themes' as *;
 
-$filtering-row-background: var(--igx-filtering-row-background, var(--filtering-row-background));
-$filtering-row-text-color: var(--igx-filtering-row-text-color, var(--filtering-row-text-color));
-$header-background: var(--igx-header-background, var(--header-background));
-$header-text-color: var(--igx-header-text-color, var(--header-text-color));
-$header-border-width: var(--igx-header-border-width, var(--header-border-width));
-$header-border-style: var(--igx-header-border-style, var(--header-border-style));
-$header-border-color: var(--igx-header-border-color, var(--header-border-color));
+$theme: $material;
+$filtering-row-background: var-get($theme, 'filtering-row-background');
+$filtering-row-text-color: var-get($theme, 'filtering-row-text-color');
+$border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
 
 :host {
     --ig-size: 1;
@@ -14,9 +12,9 @@ $header-border-color: var(--igx-header-border-color, var(--header-border-color))
     display: grid;
     grid-row: filter-row;
     min-height: $ig-cells-min-height;
-    background: $header-background;
-    color: $header-text-color;
-    border-block-end: $header-border-width $header-border-style $header-border-color;
+    background: var-get($theme, 'header-background');
+    color: var-get($theme, 'header-text-color');
+    border-block-end: $border;
     z-index: var(--z-index-base);
     padding-inline-end: var(--scrollbar-offset);
 }
@@ -28,7 +26,7 @@ $header-border-color: var(--igx-header-border-color, var(--header-border-color))
     padding: 0 $ig-cells-padding;
     background: $filtering-row-background;
     color: $filtering-row-text-color;
-    border-inline-end: $header-border-width $header-border-style $header-border-color;
+    border-inline-end: $border;
 }
 
 [part~='active-state'] {

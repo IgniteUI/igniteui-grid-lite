@@ -1,0 +1,11 @@
+@use 'igniteui-theming/sass/themes' as *;
+@use 'igniteui-theming/sass/utils' as *;
+@use 'themes' as *;
+@use '../light/themes' as light;
+
+$theme: $material;
+
+:host {
+	@include css-vars-from-theme($base, 'igc-grid-lite');
+	@include css-vars-from-theme(diff(light.$base, $theme), 'igc-grid-lite');
+}

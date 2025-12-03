@@ -1,0 +1,17 @@
+@use 'igniteui-theming/sass/themes/functions' as *;
+@use '../light/themes' as *;
+
+$theme: $base;
+
+:host {
+	box-shadow: var-get($theme, 'grid-elevation');
+	
+	igc-virtualizer {
+		background: var-get($theme, 'content-background');
+		color: var-get($theme, 'content-text-color');
+	}
+	
+	[part~='resize-indicator'] {
+		background-color: var-get($theme, 'resize-line-color');
+	}
+}

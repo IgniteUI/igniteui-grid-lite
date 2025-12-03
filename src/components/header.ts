@@ -11,8 +11,10 @@ import {
 import { partNameMap } from '../internal/part-map.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_HEADER_TAG } from '../internal/tags.js';
+import { addThemingController } from '../internal/theming.js';
 import type { ColumnConfiguration, IgcHeaderContext } from '../internal/types.js';
 import { styles } from '../styles/header-cell/header-cell.css.js';
+import { all } from '../styles/themes/grid-header-themes.js';
 
 export default class IgcGridLiteHeader<T extends object> extends LitElement {
   public static get tagName() {
@@ -47,6 +49,11 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   @property({ attribute: false })
   public column!: ColumnConfiguration<T>;
 
+  constructor() {
+    super();
+
+    addThemingController(this, all);
+  }
   #addResizeEventHandlers() {
     const config: AddEventListenerOptions = { once: true };
 

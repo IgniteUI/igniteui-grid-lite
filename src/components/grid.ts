@@ -26,8 +26,9 @@ import { asArray, autoGenerateColumns, getFilterOperandsFor } from '../internal/
 import { watch } from '../internal/watch.js';
 import type { FilterExpression } from '../operations/filter/types.js';
 import type { SortExpression } from '../operations/sort/types.js';
-import { styles } from '../styles/grid/themes/grid.base.css.js';
-import { all } from '../styles/grid/themes/themes.js';
+import { styles } from '../styles/themes/grid.base.css.js';
+import { all } from '../styles/themes/grid-themes.js';
+import { styles as shared } from '../styles/themes/shared/grid.common.css.js';
 import IgcGridLiteCell from './cell.js';
 import IgcFilterRow from './filter-row.js';
 import IgcGridLiteHeaderRow from './header-row.js';
@@ -135,7 +136,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
     return GRID_TAG;
   }
 
-  public static override styles = styles;
+  public static override styles = [styles, shared];
 
   public static register() {
     registerComponent(

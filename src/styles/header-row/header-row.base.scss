@@ -1,20 +1,16 @@
 @use '../common' as *;
+@use '../themes/light/themes' as *;
 
-$header-background: var(--igx-header-background, var(--header-background));
-$header-text-color: var(--igx-header-text-color, var(--header-text-color));
-$header-border-width: var(--igx-header-border-width, var(--header-border-width));
-$header-border-style: var(--igx-header-border-style, var(--header-border-style));
-$header-border-color: var(--igx-header-border-color, var(--header-border-color));
-$filtering-header-background: var(--igx-filtering-header-background, var(--filtering-header-background));
+$theme: $material;
 
 :host {
     display: grid;
     grid-row: header-row;
     min-height: $ig-cells-min-height;
-    background: $header-background;
-    color: $header-text-color;
+    background: var-get($theme, 'header-background');
+    color: var-get($theme, 'header-text-color');
     contain: content;
-    border-block-end: $header-border-width $header-border-style $header-border-color;
+    border-block-end: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
     z-index: var(--z-index-base);
     padding-inline-end: var(--scrollbar-offset);
 }
@@ -24,5 +20,5 @@ $filtering-header-background: var(--igx-filtering-header-background, var(--filte
 }
 
 [part='filtered'] {
-    background: $filtering-header-background;
+    background: var-get($theme, 'filtering-header-background');
 }
