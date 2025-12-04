@@ -31,15 +31,11 @@ export type DataType = 'number' | 'string' | 'boolean';
 /**
  * Configures the sort behavior for the grid.
  */
-export interface GridSortConfiguration {
+export interface GridLiteSortingOptions {
   /**
-   * Whether multiple sorting is enabled.
+   * The sorting mode - either 'single' or 'multiple' column sorting.
    */
-  multiple: boolean;
-  /**
-   * Whether tri-state sorting is enabled.
-   */
-  triState: boolean;
+  mode: 'single' | 'multiple';
 }
 
 /**
