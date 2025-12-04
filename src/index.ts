@@ -16,7 +16,7 @@ export type {
   DataPipelineHook,
   DataPipelineParams,
   DataType,
-  GridSortConfiguration,
+  GridLiteSortingOptions,
   IgcCellContext,
   IgcHeaderContext,
   Keys,

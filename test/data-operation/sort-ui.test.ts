@@ -104,7 +104,7 @@ describe('Grid UI sort', () => {
 
   describe('Grid sorting configuration', () => {
     it('Single sort with tri-state', async () => {
-      await TDD.updateProperty('sortConfiguration', { multiple: false, triState: true });
+      await TDD.updateProperty('sortingOptions', { mode: 'single' });
 
       // ASC
       await TDD.sortHeader('id');
@@ -125,33 +125,6 @@ describe('Grid UI sort', () => {
       // Reset
       await TDD.sortHeader('active');
       TDD.columnIsNotSorted('active');
-    });
-
-    it('Single sort without tri-state', async () => {
-      await TDD.updateProperty('sortConfiguration', { multiple: false, triState: false });
-
-      // ASC
-      await TDD.sortHeader('id');
-
-      TDD.indicatorExists('id');
-      TDD.indicatorIsAscending('id');
-      TDD.columnIsSorted('id');
-
-      // ASC by `active`, reset `id`
-      await TDD.sortHeader('active');
-
-      TDD.columnIsNotSorted('id');
-      TDD.columnIsSorted('active');
-      TDD.indicatorExists('active');
-      TDD.indicatorIsAscending('active');
-
-      // ASC -> DESC
-      await TDD.sortHeader('active');
-      TDD.indicatorIsDescending('active');
-
-      // DESC -> ASC
-      await TDD.sortHeader('active');
-      TDD.indicatorIsAscending('active');
     });
 
     it('Multiple sort with tri-state', async () => {
@@ -172,26 +145,6 @@ describe('Grid UI sort', () => {
 
       TDD.indicatorIsAscending('id');
       TDD.columnIsNotSorted('active');
-    });
-
-    it('Multiple sort without tri-state', async () => {
-      await TDD.updateProperty('sortConfiguration', { multiple: true, triState: false });
-
-      // ASC
-      await TDD.sortHeader('id');
-
-      // ASC -> DESC
-      await TDD.sortHeader('active');
-      await TDD.sortHeader('active');
-
-      TDD.indicatorIsAscending('id');
-      TDD.indicatorIsDescending('active');
-
-      // DESC -> ASC
-      await TDD.sortHeader('active');
-
-      TDD.indicatorIsAscending('id');
-      TDD.indicatorIsAscending('active');
     });
   });
 

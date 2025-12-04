@@ -17,11 +17,11 @@ export class SortController<T extends object> implements ReactiveController {
   public state: SortState<T> = new Map();
 
   get #isMultipleSort() {
-    return this.host.sortConfiguration.multiple;
+    return this.host.sortingOptions.mode === 'multiple';
   }
 
   get #isTriStateSort() {
-    return this.host.sortConfiguration.triState;
+    return true;
   }
 
   #resolveSortOptions(options?: boolean | ColumnSortConfiguration<T>) {
