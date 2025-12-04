@@ -7,7 +7,7 @@ import type {
   Keys,
 } from '../internal/types.js';
 import { asArray } from '../internal/utils.js';
-import type { SortExpression, SortingDirection, SortState } from '../operations/sort/types.js';
+import type { SortingDirection, SortingExpression, SortState } from '../operations/sort/types.js';
 
 export class SortController<T extends object> implements ReactiveController {
   constructor(protected host: GridHost<T>) {
@@ -25,19 +25,19 @@ export class SortController<T extends object> implements ReactiveController {
   }
 
   #resolveSortOptions(options?: boolean | ColumnSortConfiguration<T>) {
-    const expr: Pick<SortExpression<T>, 'caseSensitive' | 'comparer'> = {
+    const expr: Pick<SortingExpression<T>, 'caseSensitive' | 'comparer'> = {
       caseSensitive: false,
       comparer: undefined,
     };
 
     if (!options || typeof options === 'boolean') {
-      return expr as Partial<SortExpression<T>>;
+      return expr as Partial<SortingExpression<T>>;
     }
 
     return Object.assign(expr, {
       caseSensitive: options.caseSensitive,
       comparer: options.comparer,
-    }) as Partial<SortExpression<T>>;
+    }) as Partial<SortingExpression<T>>;
   }
 
   #createDefaultExpression(key: Keys<T>) {
@@ -47,7 +47,7 @@ export class SortController<T extends object> implements ReactiveController {
       key,
       direction: 'ascending',
       ...this.#resolveSortOptions(options),
-    } as SortExpression<T>;
+    } as SortingExpression<T>;
   }
 
   #orderBy(dir?: SortingDirection): SortingDirection {
@@ -62,15 +62,15 @@ export class SortController<T extends object> implements ReactiveController {
         : 'ascending';
   }
 
-  #emitSortingEvent(detail: SortExpression<T>) {
+  #emitSortingEvent(detail: SortingExpression<T>) {
     return this.host.emitEvent('sorting', { detail, cancelable: true });
   }
 
-  #emitSortedEvent(detail: SortExpression<T>) {
+  #emitSortedEvent(detail: SortingExpression<T>) {
     return this.host.emitEvent('sorted', { detail });
   }
 
-  #setExpression(expression: SortExpression<T>) {
+  #setExpression(expression: SortingExpression<T>) {
     expression.direction === 'none'
       ? this.reset(expression.key)
       : this.state.set(expression.key, { ...expression });
@@ -93,7 +93,7 @@ export class SortController<T extends object> implements ReactiveController {
     this.#emitSortedEvent(expression);
   }
 
-  public prepareExpression({ key, sort: options }: ColumnConfiguration<T>): SortExpression<T> {
+  public prepareExpression({ key, sort: options }: ColumnConfiguration<T>): SortingExpression<T> {
     if (this.state.has(key)) {
       const expr = this.state.get(key)!;
 
@@ -111,7 +111,7 @@ export class SortController<T extends object> implements ReactiveController {
     key ? this.state.delete(key) : this.state.clear();
   }
 
-  protected _sort(expressions: SortExpression<T> | SortExpression<T>[]) {
+  protected _sort(expressions: SortingExpression<T> | SortingExpression<T>[]) {
     for (const expr of asArray(expressions)) {
       this.#setExpression(expr);
     }
@@ -119,7 +119,7 @@ export class SortController<T extends object> implements ReactiveController {
     this.host.requestUpdate(PIPELINE);
   }
 
-  public sort(expressions: SortExpression<T> | SortExpression<T>[]) {
+  public sort(expressions: SortingExpression<T> | SortingExpression<T>[]) {
     this._sort(
       asArray(expressions).map((expr) =>
         Object.assign(this.state.get(expr.key) ?? this.#createDefaultExpression(expr.key), expr)

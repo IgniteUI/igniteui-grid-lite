@@ -306,13 +306,13 @@ describe('Grid UI sort', () => {
       await TDD.sort({ key: 'active', direction: 'none' });
       TDD.columnIsSorted('importance');
       TDD.columnIsNotSorted('active');
-      expect(TDD.grid.sortExpressions).lengthOf(1);
+      expect(TDD.grid.sortingExpressions).lengthOf(1);
 
       await TDD.clearSort();
       await TDD.sort({ key: 'importance', direction: 'none', comparer: importanceComparer });
 
       TDD.columnIsNotSorted('importance');
-      expect(TDD.grid.sortExpressions).to.be.empty;
+      expect(TDD.grid.sortingExpressions).to.be.empty;
     });
 
     it('API clear state', async () => {
@@ -329,10 +329,10 @@ describe('Grid UI sort', () => {
         { key: 'importance', direction: 'descending', comparer: importanceComparer },
         { key: 'name', direction: 'ascending' },
       ]);
-      expect(TDD.grid.sortExpressions).lengthOf(2);
+      expect(TDD.grid.sortingExpressions).lengthOf(2);
 
       await TDD.clearSort('importance');
-      expect(TDD.grid.sortExpressions).lengthOf(1);
+      expect(TDD.grid.sortingExpressions).lengthOf(1);
     });
   });
 });

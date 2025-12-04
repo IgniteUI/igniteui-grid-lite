@@ -1,5 +1,5 @@
 import DataOperation from './base.js';
-import type { SortExpression, SortState } from './sort/types.js';
+import type { SortingExpression, SortState } from './sort/types.js';
 
 export default class SortDataOperation<T> extends DataOperation<T> {
   protected orderBy = new Map(
@@ -16,7 +16,7 @@ export default class SortDataOperation<T> extends DataOperation<T> {
     return first > second ? 1 : first < second ? -1 : 0;
   }
 
-  protected compareObjects(first: T, second: T, expression: SortExpression<T>) {
+  protected compareObjects(first: T, second: T, expression: SortingExpression<T>) {
     const { direction, key, caseSensitive, comparer } = expression;
 
     const a = this.resolveCase(this.resolveValue(first, key), caseSensitive);
