@@ -3,7 +3,7 @@ import { IgcGridLite } from '../../src/components/grid.js';
 import IgcGridLiteHeaderRow from '../../src/components/header-row.js';
 import type { ColumnConfiguration, Keys } from '../../src/internal/types.js';
 import type { FilterExpression } from '../../src/operations/filter/types.js';
-import type { SortExpression } from '../../src/operations/sort/types.js';
+import type { SortingExpression } from '../../src/operations/sort/types.js';
 import type CellTestFixture from './cell-fixture.js';
 import FilterRowFixture from './filter-row.fixture.js';
 import HeaderTestFixture from './header-fixture.js';
@@ -176,7 +176,7 @@ export default class GridTestFixture<T extends object> {
     return this;
   }
 
-  public async sort(config: SortExpression<T> | SortExpression<T>[]) {
+  public async sort(config: SortingExpression<T> | SortingExpression<T>[]) {
     this.grid.sort(config);
     await this.waitForUpdate();
     return this;

@@ -36,9 +36,9 @@ export type {
 } from './operations/filter/types.js';
 export type {
   BaseSortComparer,
-  BaseSortExpression,
+  BaseSortingExpression,
   SortComparer,
-  SortExpression,
   SortingDirection,
+  SortingExpression,
   SortState,
 } from './operations/sort/types.js';

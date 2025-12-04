@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** Renamed `GridSortConfiguration` type to `GridLiteSortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortConfiguration` property to `sortingOptions`.
+- **BREAKING:** Renamed `IgcGridLite.sortExpressions` property to `sortingExpressions`.
+- **BREAKING:** Renamed `SortExpression` type to `SortingExpression`.
+- **BREAKING:** Renamed `BaseSortExpression` type to `BaseSortingExpression`.
 - **BREAKING:** `GridLiteSortingOptions.multiple` boolean property has been replaced with `mode` property that accepts `'single'` or `'multiple'` string values.
   - Before: `grid.sortConfiguration = { multiple: true, triState: true }`
   - After: `grid.sortingOptions = { mode: 'multiple' }`
