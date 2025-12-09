@@ -1,4 +1,4 @@
-# Ignite UI Grid Lite
+# Ignite UI Grid Lite for Web Components
 [![Node.js CI](https://github.com/IgniteUI/igniteui-grid-lite/actions/workflows/node.js.yml/badge.svg)](https://github.com/IgniteUI/igniteui-grid-lite/actions/workflows/node.js.yml)
 [![Coverage Status](https://coveralls.io/repos/github/IgniteUI/igniteui-grid-lite/badge.svg?branch=master)](https://coveralls.io/github/IgniteUI/igniteui-grid-lite?branch=master)
 [![npm version](https://badge.fury.io/js/igniteui-grid-lite.svg)](https://badge.fury.io/js/igniteui-grid-lite)
