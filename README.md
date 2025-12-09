@@ -166,7 +166,6 @@ Ignite UI Grid Lite is designed as a lightweight, open-source alternative to the
 - Enterprise applications requiring advanced features
 - Complex data scenarios with editing, grouping, and aggregation
 - Applications needing professional support and SLA
-- Angular-specific optimizations
 
 **Includes:**
 - All Grid Lite features plus:
