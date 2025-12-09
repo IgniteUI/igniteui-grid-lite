@@ -22,13 +22,15 @@ Ignite UI Grid Lite is a high-performance, lightweight data grid built as a web 
 
 Ignite UI Grid Lite provides core data grid capabilities with an emphasis on performance and simplicity:
 
-- **High Performance Virtualization** - Handles large datasets efficiently with built-in virtual scrolling
-- **Filtering** - Built-in column filtering capabilities
+- **High Performance Row Virtualization** - Handles large datasets efficiently with built-in virtual scrolling
+- **Column Filtering** - Built-in column filtering capabilities
 - **Sorting** - Column sorting support for better data organization
 - **Lightweight** - Minimal bundle size for fast load times
 - **Web Standards** - Built with web components for framework-agnostic usage
 - **Modern Architecture** - Built with Lit and TypeScript for maintainability
 - **Customizable** - Flexible theming and styling options
+- **Cell Templating** - Custom cell rendering for flexible data display
+- **Header Templating** - Custom header rendering for enhanced grid headers
 - **Accessible** - Designed with accessibility in mind
 
 ## Browser Support
@@ -70,7 +72,7 @@ import 'igniteui-grid-lite';
 ## Usage
 
 For detailed usage instructions and API documentation, visit:
-- [Grid Lite Overview](https://www.infragistics.com/products/ignite-ui-angular/angular/components/grid-lite/overview)
+- <a href="https://www.infragistics.com/products/ignite-ui-web-components/web-components/components/grid-lite/overview">Grid Lite Overview</a>
 - [API Documentation](https://igniteui.github.io/igniteui-grid-lite/)
 
 ## Building the Library
@@ -138,13 +140,13 @@ Documentation will be available in the build output.
 
 ### Additional Resources
 
-- [Ignite UI Product Documentation](https://www.infragistics.com/products/ignite-ui-angular)
-- [Grid Lite Documentation](https://www.infragistics.com/products/ignite-ui-angular/angular/components/grid-lite/overview)
+- <a href="https://www.infragistics.com/products/ignite-ui-web-components/web-components/components/general-getting-started">Ignite UI Web Components Product Documentation</a>
+- <a href="https://www.infragistics.com/products/ignite-ui-web-components/web-components/components/grid-lite/overview">Grid Lite Documentation</a>
 - [Web Components Guide](https://lit.dev/)
 
 ## Ignite UI Grid Lite vs. Ignite UI for Angular
 
-Ignite UI Grid Lite is designed as a lightweight, open-source alternative to the full-featured [Ignite UI for Angular Grid](https://www.infragistics.com/products/ignite-ui-angular/angular/components/grid/overview).
+Ignite UI Grid Lite is designed as a lightweight, open-source alternative to the full-featured <a href="https://www.infragistics.com/products/ignite-ui-web-components/web-components/components/grids/data-grid">Ignite UI for Web Components Data Grid</a>, while allowing for an easy swap with the full-featured grid, if application needs require it.
 
 ### Ignite UI Grid Lite (Open Source - MIT)
 
@@ -160,8 +162,6 @@ Ignite UI Grid Lite is designed as a lightweight, open-source alternative to the
 - Lightweight and fast
 - MIT licensed and free for all use
 
-### Ignite UI for Angular (Commercial)
-
 **Best for:**
 - Enterprise applications requiring advanced features
 - Complex data scenarios with editing, grouping, and aggregation
@@ -170,18 +170,25 @@ Ignite UI Grid Lite is designed as a lightweight, open-source alternative to the
 
 **Includes:**
 - All Grid Lite features plus:
-  - Advanced filtering (Excel-style)
-  - Multi-column sorting and grouping
+  - Advanced filtering with query builder
+  - Excel-style column filtering
+  - Grouping
   - Cell editing, row editing, batch editing
   - Summaries and aggregations
-  - Excel and CSV export
+  - Excel, PDF, and CSV export
   - Column pinning, hiding, and resizing
-  - Row selection and cell selection
+  - Row selection selection
   - Paging
+  - Multi-column headers and collapsible column groups
+  - Cell merging
+  - Custom row layouts
   - Master-detail views
-  - Professional support and updates
+  - Hierarchical grid
+  - Tree grid
+  - Pivot grid
+  - 24/5 developer support
 
-[Learn more about Ignite UI for Angular vs Open Source options](https://www.infragistics.com/products/ignite-ui-angular/angular/components/general/open-source-vs-premium)
+<a href="https://www.infragistics.com/products/ignite-ui-web-components/web-components/components/general-open-source-vs-premium">Learn more about Open-Source vs Premium Ignite UI options</a>
 
 ## Contributing
 
@@ -209,7 +216,7 @@ Community support for open source usage of this product is available at:
 
 ### Commercial Support
 
-For professional support and access to the full Ignite UI for Angular suite with advanced grid features:
+For professional support and access to the full Ignite UI for Web Components suite with advanced grid features:
 - Visit [Infragistics Support](https://www.infragistics.com/support)
 - Explore [Ignite UI for Angular](https://www.infragistics.com/products/ignite-ui-angular)
 - [Register for a trial](https://www.infragistics.com/products/ignite-ui-angular/angular/components/general/getting-started)
