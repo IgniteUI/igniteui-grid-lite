@@ -62,11 +62,17 @@ export class SortController<T extends object> implements ReactiveController {
         : 'ascending';
   }
 
-  #emitSortingEvent(detail: SortingExpression<T>) {
+  #emitSortingEvent(expression: SortingExpression<T>) {
+    const sortingExpressions = this.state.has(expression.key)
+      ? Array.from(this.state.values())
+      : [...this.state.values(), expression];
+    const detail = { expression, sortingExpressions };
     return this.host.emitEvent('sorting', { detail, cancelable: true });
   }
 
-  #emitSortedEvent(detail: SortingExpression<T>) {
+  #emitSortedEvent(expression: SortingExpression<T>) {
+    const sortingExpressions = Array.from(this.state.values());
+    const detail = { expression, sortingExpressions };
     return this.host.emitEvent('sorted', { detail });
   }
 
@@ -98,6 +104,7 @@ export class SortController<T extends object> implements ReactiveController {
       const expr = this.state.get(key)!;
 
       return Object.assign(expr, {
+        // TODO: BUG with multiple cancel
         direction: this.#orderBy(expr.direction),
         ...this.#resolveSortOptions(options),
       });

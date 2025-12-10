@@ -3,6 +3,8 @@ export type {
   IgcFilteredEvent,
   IgcFilteringEvent,
   IgcGridLiteEventMap,
+  IgcSortedEventArgs,
+  IgcSortingEventArgs,
 } from './components/grid.js';
 export { IgcGridLite } from './components/grid.js';
 export type {

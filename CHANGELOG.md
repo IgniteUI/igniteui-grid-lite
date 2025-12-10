@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **BREAKING:** The `sorting` event detail type is now `IgcSortingEventArgs<T>` which contains a `sortingExpressions` array instead of a single `SortingExpression<T>`.
+  - Before: `e.detail.direction`, `e.detail.key`, etc.
+  - After: `e.detail.sortingExpressions[0].direction`, `e.detail.sortingExpressions[0].key`, etc.
+- **BREAKING:** The `sorted` event detail type is now `IgcSortedEventArgs<T>` which contains a `sortingExpressions` array instead of a single `SortingExpression<T>`.
+  - Before: `e.detail.direction`, `e.detail.key`, etc.
+  - After: `e.detail.sortingExpressions[0].direction`, `e.detail.sortingExpressions[0].key`, etc.
 - **BREAKING:** Renamed `GridSortConfiguration` type to `GridLiteSortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortConfiguration` property to `sortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortExpressions` property to `sortingExpressions`.

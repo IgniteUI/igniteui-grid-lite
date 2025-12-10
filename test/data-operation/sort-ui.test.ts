@@ -159,10 +159,14 @@ describe('Grid UI sort', () => {
       expect(spy.firstCall.firstArg).to.equal('sorting');
       expect(spy.firstCall.lastArg).to.eql({
         detail: {
-          key: 'id',
-          direction: 'ascending',
-          comparer: undefined,
-          caseSensitive: false,
+          sortingExpressions: [
+            {
+              key: 'id',
+              direction: 'ascending',
+              comparer: undefined,
+              caseSensitive: false,
+            },
+          ],
         },
         cancelable: true,
       });
@@ -170,10 +174,14 @@ describe('Grid UI sort', () => {
       expect(spy.lastCall.firstArg).to.equal('sorted');
       expect(spy.lastCall.lastArg).to.eql({
         detail: {
-          key: 'id',
-          direction: 'ascending',
-          comparer: undefined,
-          caseSensitive: false,
+          sortingExpressions: [
+            {
+              key: 'id',
+              direction: 'ascending',
+              comparer: undefined,
+              caseSensitive: false,
+            },
+          ],
         },
       });
 
@@ -187,10 +195,14 @@ describe('Grid UI sort', () => {
       expect(spy.firstCall.firstArg).to.equal('sorting');
       expect(spy.firstCall.lastArg).to.eql({
         detail: {
-          key: 'id',
-          direction: 'descending',
-          comparer: undefined,
-          caseSensitive: false,
+          sortingExpressions: [
+            {
+              key: 'id',
+              direction: 'descending',
+              comparer: undefined,
+              caseSensitive: false,
+            },
+          ],
         },
         cancelable: true,
       });
@@ -198,10 +210,14 @@ describe('Grid UI sort', () => {
       expect(spy.lastCall.firstArg).to.equal('sorted');
       expect(spy.lastCall.lastArg).to.eql({
         detail: {
-          key: 'id',
-          direction: 'descending',
-          comparer: undefined,
-          caseSensitive: false,
+          sortingExpressions: [
+            {
+              key: 'id',
+              direction: 'descending',
+              comparer: undefined,
+              caseSensitive: false,
+            },
+          ],
         },
       });
     });
@@ -225,7 +241,7 @@ describe('Grid UI sort', () => {
       TDD.grid.addEventListener(
         'sorting',
         (e) => {
-          e.detail.direction = 'descending';
+          e.detail.sortingExpressions[0].direction = 'descending';
         },
         { once: true }
       );
@@ -237,10 +253,14 @@ describe('Grid UI sort', () => {
       expect(spy.callCount).to.equal(2);
       expect(spy.firstCall.lastArg).to.eql({
         detail: {
-          key: 'id',
-          direction: 'descending',
-          caseSensitive: false,
-          comparer: undefined,
+          sortingExpressions: [
+            {
+              key: 'id',
+              direction: 'descending',
+              caseSensitive: false,
+              comparer: undefined,
+            },
+          ],
         },
         cancelable: true,
       });

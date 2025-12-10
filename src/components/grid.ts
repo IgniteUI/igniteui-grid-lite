@@ -41,6 +41,34 @@ import IgcGridLiteRow from './row.js';
 import IgcVirtualizer from './virtualizer.js';
 
 /**
+ * Event object for the sorting event of the grid.
+ */
+export interface IgcSortingEventArgs<T extends object> {
+  /**
+   * The sorting expression(s) which will be applied.
+   */
+  expression: SortingExpression<T>;
+  /**
+   * The sorting state which will be applied.
+   */
+  sortingExpressions: SortingExpression<T>[];
+}
+
+/**
+ * Event object for the sorted event of the grid.
+ */
+export interface IgcSortedEventArgs<T extends object> {
+  /**
+   * The sorting expression(s) which were applied.
+   */
+  expression: SortingExpression<T>;
+  /**
+   * The sorting state which was applied.
+   */
+  sortingExpressions: SortingExpression<T>[];
+}
+
+/**
  * Event object for the filtering event of the grid.
  */
 export interface IgcFilteringEvent<T extends object> {
@@ -87,22 +115,22 @@ export interface IgcFilteredEvent<T extends object> {
 export interface IgcGridLiteEventMap<T extends object> {
   /**
    * Emitted when sorting is initiated through the UI.
-   * Returns the sort expression which will be used for the operation.
+   * Returns the sort expression(s) which will be used for the operation.
    *
    * @remarks
    * The event is cancellable which prevents the operation from being applied.
-   * The expression can be modified prior to the operation running.
+   * The expression(s) can be modified prior to the operation running.
    *
    * @event
    */
-  sorting: CustomEvent<SortingExpression<T>>;
+  sorting: CustomEvent<IgcSortingEventArgs<T>>;
   /**
    * Emitted when a sort operation initiated through the UI has completed.
-   * Returns the sort expression used for the operation.
+   * Returns the sort expression(s) used for the operation.
    *
    * @event
    */
-  sorted: CustomEvent<SortingExpression<T>>;
+  sorted: CustomEvent<IgcSortedEventArgs<T>>;
   /**
    * Emitted when filtering is initiated through the UI.
    *
