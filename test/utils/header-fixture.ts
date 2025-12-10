@@ -6,7 +6,7 @@ export default class HeaderTestFixture<T extends object> {
   constructor(public element: IgcGridLiteHeader<T>) {}
 
   protected get(selector: string) {
-    return this.element.shadowRoot!.querySelector(selector) as HTMLElement;
+    return this.element.renderRoot.querySelector(selector) as HTMLElement;
   }
 
   protected get contentPart() {

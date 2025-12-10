@@ -1,4 +1,5 @@
 import { ContextProvider } from '@lit/context';
+import type { RenderItemFunction } from '@lit-labs/virtualizer/virtualize.js';
 import {
   IgcButtonComponent,
   IgcChipComponent,
@@ -6,12 +7,15 @@ import {
   IgcInputComponent,
 } from 'igniteui-webcomponents';
 import { html, nothing } from 'lit';
-import { eventOptions, property, query, queryAll, state } from 'lit/decorators.js';
+import { eventOptions, property, state } from 'lit/decorators.js';
+import { cache } from 'lit/directives/cache.js';
 import { styleMap } from 'lit/directives/style-map.js';
-import { DataOperationsController } from '../controllers/data-operation.js';
-import { GridDOMController } from '../controllers/dom.js';
-import { gridStateContext, StateController } from '../controllers/state.js';
-import { DEFAULT_COLUMN_CONFIG, PIPELINE } from '../internal/constants.js';
+import { createDataOperationsController } from '../controllers/data-operation.js';
+import { createDomController } from '../controllers/dom.js';
+import { createStateController } from '../controllers/state.js';
+import { PIPELINE } from '../internal/constants.js';
+import { COLUMN_UPDATE_CONTEXT, GRID_STATE_CONTEXT } from '../internal/context.js';
+import { getElementFromEventPath } from '../internal/element-from-event-path.js';
 import { EventEmitterBase } from '../internal/mixins/event-emitter.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_TAG } from '../internal/tags.js';
@@ -22,7 +26,7 @@ import type {
   GridSortConfiguration,
   Keys,
 } from '../internal/types.js';
-import { asArray, autoGenerateColumns, getFilterOperandsFor } from '../internal/utils.js';
+import { asArray, getFilterOperandsFor, isNumber, isString } from '../internal/utils.js';
 import { watch } from '../internal/watch.js';
 import type { FilterExpression } from '../operations/filter/types.js';
 import type { SortExpression } from '../operations/sort/types.js';
@@ -30,6 +34,7 @@ import { styles } from '../styles/themes/grid.base.css.js';
 import { all } from '../styles/themes/grid-themes.js';
 import { styles as shared } from '../styles/themes/shared/grid.common.css.js';
 import IgcGridLiteCell from './cell.js';
+import { IgcGridLiteColumn } from './column.js';
 import IgcFilterRow from './filter-row.js';
 import IgcGridLiteHeaderRow from './header-row.js';
 import IgcGridLiteRow from './row.js';
@@ -138,9 +143,10 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
 
   public static override styles = [styles, shared];
 
-  public static register() {
+  public static register(): void {
     registerComponent(
       IgcGridLite,
+      IgcGridLiteColumn,
       IgcVirtualizer,
       IgcGridLiteRow,
       IgcGridLiteHeaderRow,
@@ -152,37 +158,39 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
     );
   }
 
-  protected stateController = new StateController<T>(this);
-  protected DOM = new GridDOMController<T>(this, this.stateController);
-  protected dataController = new DataOperationsController<T>(this);
+  protected readonly _stateController = createStateController(this, this._updateObservers);
+  protected readonly _domController = createDomController(this, this._stateController);
+  protected readonly _dataController = createDataOperationsController(this);
 
-  protected stateProvider = new ContextProvider(this, {
-    context: gridStateContext,
-    initialValue: this.stateController,
+  protected readonly _stateProvider = new ContextProvider(this, {
+    context: GRID_STATE_CONTEXT,
+    initialValue: this._stateController,
   });
 
-  @query(IgcVirtualizer.tagName)
-  protected scrollContainer!: IgcVirtualizer;
+  protected readonly _columnUpdateProvider = new ContextProvider(this, {
+    context: COLUMN_UPDATE_CONTEXT,
+    initialValue: ((config: ColumnConfiguration<T>) => {
+      this._updateConfiguration(config);
+    }) as any,
+  });
 
-  @query(IgcGridLiteHeaderRow.tagName)
-  protected headerRow!: IgcGridLiteHeaderRow<T>;
+  private _initialSortExpressions: SortExpression<T>[] = [];
+  private _initialFilterExpressions: FilterExpression<T>[] = [];
 
-  @query(IgcFilterRow.tagName)
-  protected filterRow!: IgcFilterRow<T>;
+  private _updateObservers(): void {
+    this._stateProvider.updateObservers();
+  }
+
+  private _updateConfiguration(config: ColumnConfiguration<T>): void {
+    this._stateController.updateColumnsConfiguration(asArray(config));
+  }
 
   @state()
-  protected dataState: Array<T> = [];
-
-  @queryAll(IgcGridLiteRow.tagName)
-  protected _rows!: NodeListOf<IgcGridLiteRow<T>>;
-
-  /** Column configuration for the grid. */
-  @property({ attribute: false })
-  public columns: Array<ColumnConfiguration<T>> = [];
+  protected _dataState: T[] = [];
 
   /** The data source for the grid. */
   @property({ attribute: false })
-  public data: Array<T> = [];
+  public data: T[] = [];
 
   /**
    * Whether the grid will try to "resolve" its column configuration based on the passed
@@ -228,8 +236,10 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    * Set the sort state for the grid.
    */
   public set sortExpressions(expressions: SortExpression<T>[]) {
-    if (expressions.length) {
+    if (this.hasUpdated && expressions.length) {
       this.sort(expressions);
+    } else {
+      this._initialSortExpressions = expressions;
     }
   }
 
@@ -238,15 +248,17 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    */
   @property({ attribute: false })
   public get sortExpressions(): SortExpression<T>[] {
-    return Array.from(this.stateController.sorting.state.values());
+    return Array.from(this._stateController.sorting.state.values());
   }
 
   /**
    * Set the filter state for the grid.
    */
   public set filterExpressions(expressions: FilterExpression<T>[]) {
-    if (expressions.length) {
+    if (this.hasUpdated && expressions.length) {
       this.filter(expressions);
+    } else {
+      this._initialFilterExpressions = expressions;
     }
   }
 
@@ -255,13 +267,11 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    */
   @property({ attribute: false })
   public get filterExpressions(): FilterExpression<T>[] {
-    const expressions: FilterExpression<T>[] = [];
+    return this._stateController.filtering.state.values.flatMap((each) => each.all);
+  }
 
-    for (const each of this.stateController.filtering.state.values) {
-      expressions.push(...each.all);
-    }
-
-    return expressions;
+  public get columns(): ColumnConfiguration<T>[] {
+    return this._stateController.columns.map((col) => ({ ...col }));
   }
 
   /**
@@ -272,7 +282,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    * chunk of elements in the DOM.
    */
   public get rows() {
-    return Array.from(this._rows);
+    return this._stateController.rows;
   }
 
   /**
@@ -280,37 +290,31 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    * have been applied.
    */
   public get dataView(): ReadonlyArray<T> {
-    return this.dataState;
+    return this._dataState;
   }
 
   /**
    * The total number of items in the {@link IgcGridLite.dataView} collection.
    */
-  public get totalItems() {
-    return this.dataState.length;
-  }
-
-  @watch('columns')
-  protected watchColumns(_: ColumnConfiguration<T>[], newConfig: ColumnConfiguration<T>[] = []) {
-    this.columns = newConfig.map((config) => ({ ...DEFAULT_COLUMN_CONFIG, ...config }));
+  public get totalItems(): number {
+    return this._dataState.length;
   }
 
   @watch('data')
   protected dataChanged() {
-    this.dataState = structuredClone(this.data);
-    autoGenerateColumns(this);
+    this._dataState = [...this.data];
 
     if (this.hasUpdated) {
+      if (!this._hasAssignedColumns()) {
+        this._stateController.setAutoColumnConfiguration();
+      }
       this.pipeline();
     }
   }
 
   @watch(PIPELINE)
   protected async pipeline() {
-    this.dataState = await this.dataController.apply(
-      structuredClone(this.data),
-      this.stateController
-    );
+    this._dataState = await this._dataController.apply([...this.data], this._stateController);
   }
 
   constructor() {
@@ -319,15 +323,55 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
     addThemingController(this, all);
   }
 
+  protected override createRenderRoot(): HTMLElement | DocumentFragment {
+    const root = super.createRenderRoot();
+    root.addEventListener('slotchange', this._handleSlotChange.bind(this));
+    return root;
+  }
+
+  protected override firstUpdated(): void {
+    this.updateComplete.then(() => {
+      if (this.autoGenerate && !this._hasAssignedColumns()) {
+        this._stateController.setAutoColumnConfiguration();
+      }
+
+      if (this._initialFilterExpressions.length) {
+        this.filter(this._initialFilterExpressions);
+      }
+
+      if (this._initialSortExpressions.length) {
+        this.sort(this._initialSortExpressions);
+      }
+    });
+  }
+
+  private _hasAssignedColumns(): boolean {
+    const slot = this.renderRoot.querySelector('slot') as HTMLSlotElement;
+    const assignedNodes = slot
+      .assignedElements({ flatten: true })
+      .filter((element) => element.matches(IgcGridLiteColumn.tagName));
+    return assignedNodes.length > 0;
+  }
+
+  private _handleSlotChange(event: Event): void {
+    const slot = event.target as HTMLSlotElement;
+    const assignedNodes = slot
+      .assignedElements({ flatten: true })
+      .filter((element) => element.matches(IgcGridLiteColumn.tagName));
+
+    this._stateController.setColumnConfiguration(
+      assignedNodes as unknown as ColumnConfiguration<T>[]
+    );
+  }
+
   /**
    * Performs a filter operation in the grid based on the passed expression(s).
    */
-  public filter(config: FilterExpression<T> | FilterExpression<T>[]) {
-    this.stateController.filtering.filter(
+  public filter(config: FilterExpression<T> | FilterExpression<T>[]): void {
+    this._stateController.filtering.filter(
       asArray(config).map((each) =>
-        typeof each.condition === 'string'
-          ? // XXX: Types
-            Object.assign(each, {
+        isString(each.condition)
+          ? Object.assign(each, {
               condition: (getFilterOperandsFor(this.getColumn(each.key)!) as any)[each.condition],
             })
           : each
@@ -339,99 +383,111 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    * Performs a sort operation in the grid based on the passed expression(s).
    */
   public sort(expressions: SortExpression<T> | SortExpression<T>[]) {
-    this.stateController.sorting.sort(expressions);
+    this._stateController.sorting.sort(expressions);
   }
 
   /**
    * Resets the current sort state of the control.
    */
-  public clearSort(key?: Keys<T>) {
-    this.stateController.sorting.reset(key);
+  public clearSort(key?: Keys<T>): void {
+    this._stateController.sorting.reset(key);
     this.requestUpdate(PIPELINE);
   }
 
   /**
    * Resets the current filter state of the control.
    */
-  public clearFilter(key?: Keys<T>) {
-    this.stateController.filtering.reset(key);
+  public clearFilter(key?: Keys<T>): void {
+    this._stateController.filtering.reset(key);
     this.requestUpdate(PIPELINE);
   }
 
   /**
    * Returns a {@link ColumnConfiguration} for a given column.
    */
-  public getColumn(id: Keys<T> | number) {
-    return typeof id === 'number'
-      ? this.columns.at(id)
-      : this.columns.find(({ key }) => key === id);
+  public getColumn(id: Keys<T> | number): ColumnConfiguration<T> | undefined {
+    return this._stateController.columns.find((column, index) =>
+      isNumber(id) ? index === id : column.key === id
+    );
   }
 
   /**
    * Updates the column configuration of the grid.
    */
-  public updateColumns(columns: ColumnConfiguration<T> | ColumnConfiguration<T>[]) {
-    for (const column of asArray(columns)) {
-      const instance = this.columns.find((curr) => curr.key === column.key);
-      if (instance) {
-        Object.assign(instance, column);
-      }
-    }
-
-    this.requestUpdate(PIPELINE);
+  public updateColumns(columns: ColumnConfiguration<T> | ColumnConfiguration<T>[]): void {
+    this._stateController.updateColumnsConfiguration(asArray(columns));
   }
 
   @eventOptions({ capture: true })
-  protected bodyClickHandler(event: MouseEvent) {
-    const target = event
-      .composedPath()
-      .find((el) => el instanceof IgcGridLiteCell) as IgcGridLiteCell<T>;
+  protected _bodyClickHandler(event: PointerEvent): void {
+    const target = getElementFromEventPath<IgcGridLiteCell<T>>(IgcGridLiteCell.tagName, event);
+
     if (target) {
-      this.stateController.active = {
-        column: target.column.key,
-        row: target.row.index,
-      };
+      this._stateController.active = { column: target.column.key, row: target.row.index };
     }
   }
 
-  protected bodyKeydownHandler(event: KeyboardEvent) {
-    if (this.scrollContainer.isSameNode(event.target as HTMLElement)) {
-      this.stateController.navigation.navigate(event);
+  protected _bodyKeydownHandler(event: KeyboardEvent): void {
+    if (event.target === this._stateController.virtualizer) {
+      this._stateController.navigation.navigate(event);
     }
   }
 
-  protected renderHeaderRow() {
+  protected _renderRow: RenderItemFunction<T> = (item: T, index: number) => {
+    const styles = {
+      ...this._domController.columnSizes,
+      ...this._domController.getActiveRowStyles(index),
+    };
+    const activeNode = this._stateController.active;
+
+    return html`
+      <igc-grid-lite-row
+        part="row"
+        exportparts="cell"
+        style=${styleMap(styles)}
+        .index=${index}
+        .activeNode=${activeNode}
+        .data=${item}
+        .columns=${this._stateController.columns}
+      ></igc-grid-lite-row>
+    `;
+  };
+
+  protected _renderHeaderRow() {
     return html`
       <igc-grid-lite-header-row
-      style=${styleMap(this.DOM.columnSizes)}
-      .columns=${this.columns}
+        tabindex="0"
+        style=${styleMap(this._domController.columnSizes)}
+        .columns=${this._stateController.columns}
       ></igc-grid-lite-header-row>
     `;
   }
 
-  protected renderBody() {
+  protected _renderBody() {
     return html`
       <igc-virtualizer
-        .items=${this.dataState}
-        .renderItem=${this.DOM.rowRenderer}
-        @click=${this.bodyClickHandler}
-        @keydown=${this.bodyKeydownHandler}
+        tabindex="0"
+        .items=${this._dataState}
+        .renderItem=${this._renderRow}
+        @click=${this._bodyClickHandler}
+        @keydown=${this._bodyKeydownHandler}
       ></igc-virtualizer>
     `;
   }
 
-  protected renderFilterRow() {
-    return this.columns.some((column) => column.filter)
-      ? html`<igc-filter-row style=${styleMap(this.DOM.columnSizes)}></igc-filter-row>`
-      : nothing;
+  protected _renderFilterRow() {
+    return html`${cache(
+      this._stateController.columns.some((column) => column.filter)
+        ? html`<igc-filter-row style=${styleMap(this._domController.columnSizes)}></igc-filter-row>`
+        : nothing
+    )}`;
   }
 
   protected override render() {
     return html`
-      ${this.stateController.resizing.renderIndicator()}
-      ${this.renderHeaderRow()}
-      ${this.renderFilterRow()}
-      ${this.renderBody()}
+      <slot part="column-sink"></slot>
+      ${this._stateController.resizing.renderIndicator()} ${this._renderHeaderRow()}
+      ${this._renderFilterRow()} ${this._renderBody()}
     `;
   }
 }

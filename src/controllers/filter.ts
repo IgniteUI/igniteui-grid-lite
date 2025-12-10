@@ -1,26 +1,33 @@
 import type { ReactiveController } from 'lit';
+import type IgcFilterRow from '../components/filter-row.js';
 import type { IgcFilteredEvent } from '../components/grid.js';
 import { PIPELINE } from '../internal/constants.js';
-import type { ColumnConfiguration, GridHost, Keys } from '../internal/types.js';
+import type { ColumnConfiguration, Keys } from '../internal/types.js';
 import { asArray, getFilterOperandsFor } from '../internal/utils.js';
 import { FilterState } from '../operations/filter/state.js';
 import type { FilterExpression } from '../operations/filter/types.js';
+import type { StateController } from './state.js';
 
 export class FilterController<T extends object> implements ReactiveController {
-  constructor(protected host: GridHost<T>) {
-    this.host.addController(this);
+  private readonly _stateController: StateController<T>;
+
+  constructor(state: StateController<T>) {
+    this._stateController = state;
+    this._stateController.host.addController(this);
   }
 
   public state: FilterState<T> = new FilterState();
 
-  public get filterRow() {
-    // @ts-expect-error - protected access
-    return this.host.filterRow;
+  public get host() {
+    return this._stateController.host;
+  }
+
+  public get filterRow(): IgcFilterRow<T> | null {
+    return this._stateController.filterRow;
   }
 
   get #virtualizer() {
-    // @ts-expect-error - protected access
-    return this.host.scrollContainer;
+    return this._stateController.virtualizer;
   }
 
   #emitFilteringEvent(expression: FilterExpression<T>, type: 'add' | 'modify' | 'remove') {

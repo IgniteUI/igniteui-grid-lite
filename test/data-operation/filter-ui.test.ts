@@ -109,10 +109,7 @@ describe('Grid UI filter', () => {
 
   describe('Default UI state', () => {
     it('Default state for no filterable columns', async () => {
-      await TDD.updateProperty(
-        'columns',
-        TDD.columnConfig.map((each) => ({ ...each, filter: false }))
-      );
+      await TDD.updateColumns(TDD.columnConfig.map((each) => ({ ...each, filter: false })));
 
       expect(TDD.filterRow.element).to.not.exist;
     });
@@ -283,7 +280,7 @@ describe('Grid UI filter', () => {
     });
 
     it('Number column, single filter [correct type]', async () => {
-      await TDD.updateColumns({ key: 'id', type: 'number' });
+      await TDD.updateColumns({ key: 'id', type: 'number', filter: true });
 
       await TDD.activateFilterRow('id');
       await TDD.filterByInput('3');

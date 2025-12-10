@@ -8,8 +8,9 @@ import {
 import { html, LitElement, nothing } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { gridStateContext, type StateController } from '../controllers/state.js';
+import type { StateController } from '../controllers/state.js';
 import { DEFAULT_COLUMN_CONFIG } from '../internal/constants.js';
+import { GRID_STATE_CONTEXT } from '../internal/context.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_FILTER_ROW_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration } from '../internal/types.js';
@@ -27,11 +28,13 @@ type ExpressionChipProps<T> = {
 };
 
 function prefixedIcon(icon?: string) {
-  return html`<igc-icon
-    slot="prefix"
-    name=${ifDefined(icon)}
-    collection="internal"
-  ></igc-icon>`;
+  return html`
+    <igc-icon
+      slot="prefix"
+      name=${ifDefined(icon)}
+      collection="internal"
+    ></igc-icon>
+  `;
 }
 
 export default class IgcFilterRow<T extends object> extends LitElement {
@@ -45,7 +48,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     registerComponent(IgcFilterRow);
   }
 
-  @consume({ context: gridStateContext, subscribe: true })
+  @consume({ context: GRID_STATE_CONTEXT, subscribe: true })
   @property({ attribute: false })
   public state!: StateController<T>;
 
@@ -202,12 +205,14 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   protected renderCriteriaButton(expr: FilterExpression<T>, index: number) {
     return index
-      ? html`<igc-button
-          variant="flat"
-          @click=${this.#chipCriteriaFor(expr)}
-        >
-          ${expr.criteria}
-        </igc-button>`
+      ? html`
+          <igc-button
+            variant="flat"
+            @click=${this.#chipCriteriaFor(expr)}
+          >
+            ${expr.criteria}
+          </igc-button>
+        `
       : nothing;
   }
 
@@ -217,15 +222,17 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
     const prefix = html`<span slot="select"></span>${prefixedIcon(name)}`;
 
-    return html`<igc-chip
-      selectable
-      removable
-      ?selected=${props.selected}
-      @igcRemove=${props.onRemove}
-      @igcSelect=${props.onSelect}
-    >
-      ${prefix}${unary ? name : term}
-    </igc-chip>`;
+    return html`
+      <igc-chip
+        selectable
+        removable
+        ?selected=${props.selected}
+        @igcRemove=${props.onRemove}
+        @igcSelect=${props.onSelect}
+      >
+        ${prefix}${unary ? name : term}
+      </igc-chip>
+    `;
   }
 
   protected renderActiveChips() {
@@ -299,7 +306,8 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   protected renderInputArea() {
-    return html`<igc-input
+    return html`
+      <igc-input
         outlined
         value=${ifDefined(this.expression.searchTerm)}
         placeholder="Add filter value"
@@ -309,15 +317,18 @@ export default class IgcFilterRow<T extends object> extends LitElement {
       >
         ${this.renderDropdownTarget()}
       </igc-input>
-      ${this.renderDropdown()}`;
+      ${this.renderDropdown()}
+    `;
   }
 
   protected renderActiveState() {
-    return html`<div part="active-state">
-      <div part="filter-row-input">${this.renderInputArea()}</div>
-      <div part="filter-row-filters">${this.renderActiveChips()}</div>
-      <div part="filter-row-actions">${this.renderFilterActions()}</div>
-    </div> `;
+    return html`
+      <div part="active-state">
+        <div part="filter-row-input">${this.renderInputArea()}</div>
+        <div part="filter-row-filters">${this.renderActiveChips()}</div>
+        <div part="filter-row-actions">${this.renderFilterActions()}</div>
+      </div>
+    `;
   }
 
   protected renderInactiveChips(column: ColumnConfiguration<T>, state: FilterExpressionTree<T>) {
@@ -361,12 +372,14 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   protected renderInactiveState() {
-    return this.state.host.columns.map((column) =>
+    return this.state.columns.map((column) =>
       column.hidden
         ? nothing
-        : html`<div part="filter-row-preview">
-            ${column.filter ? this.renderFilterState(column) : nothing}
-          </div>`
+        : html`
+            <div part="filter-row-preview">
+              ${column.filter ? this.renderFilterState(column) : nothing}
+            </div>
+          `
     );
   }
 

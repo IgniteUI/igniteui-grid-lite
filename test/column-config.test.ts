@@ -1,4 +1,6 @@
 import { elementUpdated, expect, html } from '@open-wc/testing';
+import type { IgcGridLiteColumn } from '../src/index.js';
+import { GRID_COLUMN_TAG } from '../src/internal/tags.js';
 import type { IgcCellContext, Keys } from '../src/internal/types.js';
 import GridTestFixture from './utils/grid-fixture.js';
 import data, { type TestData } from './utils/test-data.js';
@@ -22,7 +24,16 @@ describe('Column configuration', () => {
 
     it('After initial render', async () => {
       const newKeys: Array<Keys<TestData>> = ['id', 'name'];
-      TDD.grid.columns = newKeys.map((key) => ({ key }));
+
+      TDD.grid.replaceChildren(
+        ...newKeys.map((key) => {
+          const col = document.createElement(GRID_COLUMN_TAG) as IgcGridLiteColumn<TestData>;
+          col.key = key;
+          return col;
+        })
+      );
+
+      // TDD.grid.columns = newKeys.map((key) => ({ key }));
       await elementUpdated(TDD.grid);
 
       for (const key of newKeys) {

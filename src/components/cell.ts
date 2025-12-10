@@ -1,5 +1,6 @@
 import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
+import { cache } from 'lit/directives/cache.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_CELL_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration, IgcCellContext, PropertyType } from '../internal/types.js';
@@ -54,9 +55,9 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
   }
 
   protected override render() {
-    return this.column.cellTemplate
-      ? this.column.cellTemplate(this.context as IgcCellContext<T> as any)
-      : html`${this.value}`;
+    return html`${cache(
+      this.column.cellTemplate ? this.column.cellTemplate(this.context as any) : html`${this.value}`
+    )}`;
   }
 }
 

@@ -1,7 +1,10 @@
 import { elementUpdated, fixture, fixtureCleanup, html, nextFrame } from '@open-wc/testing';
+import IgcFilterRow from '../../src/components/filter-row.js';
 import { IgcGridLite } from '../../src/components/grid.js';
 import IgcGridLiteHeaderRow from '../../src/components/header-row.js';
+import IgcVirtualizer from '../../src/components/virtualizer.js';
 import type { ColumnConfiguration, Keys } from '../../src/internal/types.js';
+import { isNumber } from '../../src/internal/utils.js';
 import type { FilterExpression } from '../../src/operations/filter/types.js';
 import type { SortExpression } from '../../src/operations/sort/types.js';
 import type CellTestFixture from './cell-fixture.js';
@@ -52,10 +55,25 @@ export default class GridTestFixture<T extends object> {
   }
 
   public setupTemplate() {
-    return html`<igc-grid-lite
-      .data=${this.data}
-      .columns=${this.columnConfig}
-    ></igc-grid-lite>`;
+    return html`
+      <igc-grid-lite .data=${this.data}>
+        ${this.columnConfig.map(
+          (col) =>
+            html`<igc-grid-lite-column
+              .key=${col.key}
+              .filter=${col.filter}
+              .sort=${col.sort}
+              .width=${col.width}
+              .headerText=${col.headerText}
+              .cellTemplate=${col.cellTemplate}
+              .headerTemplate=${col.headerTemplate}
+              .type=${col.type}
+              ?resizable=${col.resizable}
+              ?hidden=${col.hidden}
+            ></igc-grid-lite-column>`
+        )}
+      </igc-grid-lite>
+    `;
   }
 
   public async setUp() {
@@ -76,18 +94,18 @@ export default class GridTestFixture<T extends object> {
   }
 
   public get filterRow() {
-    // @ts-expect-error - Protected member access
-    return new FilterRowFixture(this.grid.filterRow);
+    return new FilterRowFixture<T>(
+      this.grid.renderRoot.querySelector(IgcFilterRow.tagName)! as unknown as IgcFilterRow<T>
+    );
   }
 
   public get gridBody() {
-    // @ts-expect-error - Protected member access
-    return this.grid.scrollContainer;
+    return this.grid.renderRoot.querySelector(IgcVirtualizer.tagName)!;
   }
 
   public get dataState() {
     // @ts-expect-error - Protected member access
-    return this.grid.dataState;
+    return this.grid._dataState;
   }
 
   public get resizePart() {
@@ -122,7 +140,7 @@ export default class GridTestFixture<T extends object> {
 
   protected getHeader(id: Keys<T> | number) {
     return new HeaderTestFixture(
-      typeof id === 'number'
+      isNumber(id)
         ? this.headerRow.headers.at(id)!
         : this.headerRow.headers.find(({ column }) => column.key === id)!
     );

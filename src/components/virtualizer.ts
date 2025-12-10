@@ -12,13 +12,6 @@ export default class IgcVirtualizer extends LitVirtualizer {
   }
 
   public override scroller = true;
-
-  public override async connectedCallback() {
-    await super.layoutComplete;
-
-    super.connectedCallback();
-    this.setAttribute('tabindex', '0');
-  }
 }
 
 declare global {

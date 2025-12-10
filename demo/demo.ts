@@ -1,6 +1,7 @@
 import {
   configureTheme,
   defineComponents,
+  IgcButtonComponent,
   IgcAvatarComponent,
   IgcCheckboxComponent,
   IgcRatingComponent,
@@ -8,7 +9,7 @@ import {
   IgcSwitchComponent,
 } from 'igniteui-webcomponents';
 import { html, render } from 'lit';
-import { ColumnConfiguration } from '../src/index';
+import { ColumnConfiguration, IgcGridLiteColumn } from '../src/index.js';
 import { IgcGridLite } from '../src/index.js';
 
 defineComponents(
@@ -17,6 +18,7 @@ defineComponents(
   IgcRatingComponent,
   IgcSelectComponent,
   IgcSwitchComponent,
+  IgcButtonComponent,
 );
 
 type User = {
@@ -68,7 +70,7 @@ function getAvatar() {
 }
 
 async function setTheme(theme?: string) {
-  theme = theme ?? (getElement<IgcSelectComponent>(IgcSelectComponent.tagName).value);
+  theme = theme ?? getElement<IgcSelectComponent>(IgcSelectComponent.tagName).value;
   const variant = getElement<IgcSwitchComponent>(IgcSwitchComponent.tagName).checked
     ? 'dark'
     : 'light';
@@ -80,7 +82,7 @@ async function setTheme(theme?: string) {
 
   Array.from(document.head.querySelectorAll('style[type="text/css"]'))
     .slice(0, -1)
-    .forEach(s => s.remove());
+    .forEach((s) => s.remove());
 
   configureTheme(theme as any);
 }
@@ -91,9 +93,9 @@ const themeChoose = html`
       value="bootstrap"
       outlined
       title="Choose theme"
-      @igcChange=${({ detail }) => setTheme(detail.value)}
+      @igcChange=${({ detail }: CustomEvent) => setTheme(detail.value)}
     >
-      ${themes.map(theme => html`<igc-select-item .value=${theme}>${theme}</igc-select-item>`)}
+      ${themes.map((theme) => html`<igc-select-item .value=${theme}>${theme}</igc-select-item>`)}
     </igc-select>
     <igc-switch
       label-position="after"
@@ -107,13 +109,13 @@ const columns: ColumnConfiguration<User>[] = [
   { key: 'id', headerText: 'User ID', resizable: true, type: 'number', filter: true, sort: true },
   {
     key: 'name',
-    cellTemplate: params => html`<igc-input .value=${params.value}></igc-input>`,
+    cellTemplate: (params) => html`<igc-input .value=${params.value}></igc-input>`,
     filter: true,
     sort: true,
   },
   {
     key: 'avatar',
-    cellTemplate: params =>
+    cellTemplate: (params) =>
       html`<igc-avatar
         shape="circle"
         .src=${params.value}
@@ -124,7 +126,7 @@ const columns: ColumnConfiguration<User>[] = [
     type: 'number',
     sort: true,
     filter: true,
-    cellTemplate: params =>
+    cellTemplate: (params) =>
       html`<igc-rating
         readonly
         style="--ig-size: 1"
@@ -133,13 +135,13 @@ const columns: ColumnConfiguration<User>[] = [
   },
   {
     key: 'priority',
-    cellTemplate: params =>
+    cellTemplate: (params) =>
       html`<igc-select
         outlined
         .value=${params.value}
         style="--ig-size: 1"
         >${choices.map(
-          choice => html`<igc-select-item .value=${choice}>${choice}</igc-select-item>`,
+          (choice) => html`<igc-select-item .value=${choice}>${choice}</igc-select-item>`,
         )}</igc-select
       >`,
     sort: {
@@ -157,7 +159,7 @@ const columns: ColumnConfiguration<User>[] = [
     type: 'boolean',
     sort: true,
     filter: true,
-    cellTemplate: params =>
+    cellTemplate: (params) =>
       html`<igc-checkbox
         label-position="before"
         ?checked=${params.value}
@@ -165,14 +167,65 @@ const columns: ColumnConfiguration<User>[] = [
   },
 ];
 
-const data = generateData(1e4);
+const data = generateData(1e3);
 IgcGridLite.register();
 
+const column = document.createElement(IgcGridLiteColumn.tagName) as IgcGridLiteColumn<User>;
+column.key = 'email';
+column.headerText = 'Toggle Me';
+
+const column2 = document.createElement(IgcGridLiteColumn.tagName) as IgcGridLiteColumn<User>;
+column2.headerText = 'Non-existent';
+
+const toggleColumn = () => {
+  const grid = getElement<IgcGridLite<User>>(IgcGridLite.tagName);
+  grid.contains(column) ? column.remove() : grid.prepend(column);
+  grid.contains(column2) ? column2.remove() : grid.prepend(column2);
+};
+
+const toggleFiltering = () => {
+  const grid = getElement<IgcGridLite<User>>(IgcGridLite.tagName);
+  const column = Array.from(grid.querySelectorAll(IgcGridLiteColumn.tagName)).find(
+    (col) => col.key === 'name',
+  )!;
+
+  column.filter = !column.filter;
+};
+
 render(
-  html`${themeChoose}<igc-grid-lite
+  html`
+    <igc-button
+      variant="outlined"
+      @click=${toggleColumn}
+      >Toggle column</igc-button
+    >
+    <igc-button
+      variant="outlined"
+      @click=${toggleFiltering}
+      >Toggle filtering</igc-button
+    >
+    ${themeChoose}
+    <igc-grid-lite .data=${data}>
+      ${columns.map(
+        (col) =>
+          html`<igc-grid-lite-column
+            .key=${col.key}
+            .dataType=${col.type}
+            .headerText=${col.headerText}
+            ?hidden=${col.hidden}
+            ?resizable=${col.resizable}
+            .sort=${col.sort}
+            .filter=${col.filter}
+            .cellTemplate=${col.cellTemplate}
+            .headerTemplate=${col.headerTemplate as any}
+          ></igc-grid-lite-column>`,
+      )}
+    </igc-grid-lite>
+    <igc-grid-lite
       .data=${data}
-      .columns=${columns}
-    ></igc-grid-lite>`,
+      auto-generate
+    ></igc-grid-lite>
+  `,
   document.getElementById('demo')!,
 );
 await setTheme('bootstrap');

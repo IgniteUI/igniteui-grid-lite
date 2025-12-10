@@ -16,21 +16,40 @@ class InitialDataStateFixture<T extends TestData> extends GridTestFixture<T> {
   ];
 
   public override setupTemplate() {
-    return html`<igc-grid-lite
-      .data=${this.data}
-      .columns=${this.columnConfig}
-      .sortExpressions=${this.sortState}
-      .filterExpressions=${this.filterState}
-    ></igc-grid-lite>`;
+    return html`
+      <igc-grid-lite
+        .data=${this.data}
+        .sortExpressions=${this.sortState}
+        .filterExpressions=${this.filterState}
+      >
+        ${this.columnConfig.map(
+          (col) =>
+            html`<igc-grid-lite-column
+              .key=${col.key}
+              .filter=${col.filter}
+              .sort=${col.sort}
+              .width=${col.width}
+              .headerText=${col.headerText}
+              .cellTemplate=${col.cellTemplate}
+              .headerTemplate=${col.headerTemplate}
+              .type=${col.type}
+              ?resizable=${col.resizable}
+              ?hidden=${col.hidden}
+            ></igc-grid-lite-column>`
+        )}
+      </igc-grid-lite>
+    `;
   }
 }
 
 class AutoGenerateFixture<T extends TestData> extends GridTestFixture<T> {
   public override setupTemplate() {
-    return html`<igc-grid-lite
-      auto-generate
-      .data=${this.data}
-    ></igc-grid-lite>`;
+    return html`
+      <igc-grid-lite
+        auto-generate
+        .data=${this.data}
+      ></igc-grid-lite>
+    `;
   }
 }
 
@@ -66,7 +85,7 @@ describe('Grid properties (initial bindings)', () => {
     const importanceValues = new Set(['low', 'high']);
 
     for (const row of dataStateTDD.grid.rows) {
-      expect(importanceValues.has(row.data.importance)).to.be.true;
+      expect(importanceValues.has(row.data!.importance)).to.be.true;
     }
   });
 });

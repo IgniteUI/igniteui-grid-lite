@@ -2,33 +2,31 @@ import type { StyleInfo } from 'lit/directives/style-map.js';
 import { BooleanOperands } from '../operations/filter/operands/boolean.js';
 import { NumberOperands } from '../operations/filter/operands/number.js';
 import { StringOperands } from '../operations/filter/operands/string.js';
-import type { ColumnConfiguration, DataType, GridHost } from './types.js';
+import type { ColumnConfiguration } from './types.js';
 
-// TODO: Revise if this is needed
 export function applyColumnWidths<T extends object>(
   columns: Array<ColumnConfiguration<T>>
 ): StyleInfo {
-  return {
-    'grid-template-columns': columns
-      .filter((each) => !each.hidden)
-      .map(({ width }) => width ?? 'minmax(136px, 1fr)')
-      .join(' '),
-  };
+  const iter = Iterator.from(columns)
+    .filter((each) => !each.hidden)
+    .map((each) => each.width ?? 'minmax(136px, 1fr)');
+
+  return { 'grid-template-columns': iter.toArray().join(' ') };
 }
 
-export function autoGenerateColumns<T extends object>(grid: GridHost<T>) {
-  if (grid.autoGenerate && grid.columns.length < 1) {
-    const record = grid.data[0] ?? {};
-
-    grid.columns = Object.entries(record).map(([key, value]) => {
-      const type: DataType =
-        typeof value === 'boolean' ? 'boolean' : typeof value === 'number' ? 'number' : 'string';
-      return { key, type } as ColumnConfiguration<T>;
-    });
-  }
+export function isBoolean(x: unknown): x is boolean {
+  return typeof x === 'boolean';
 }
 
-export function asArray<T>(value: T | T[]) {
+export function isNumber(x: unknown): x is number {
+  return typeof x === 'number' && !Number.isNaN(x);
+}
+
+export function isString(x: unknown): x is string {
+  return typeof x === 'string';
+}
+
+export function asArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
 
@@ -42,4 +40,42 @@ export function getFilterOperandsFor<T extends object>(column: ColumnConfigurati
     default:
       return StringOperands;
   }
+}
+
+function getColumnType(value: unknown): 'boolean' | 'number' | 'string' {
+  if (isBoolean(value)) {
+    return 'boolean';
+  }
+
+  if (isNumber(value)) {
+    return 'number';
+  }
+
+  return 'string';
+}
+
+export function setColumnsFromData<T extends object>(record: T): Array<ColumnConfiguration<T>> {
+  return Object.entries(record).map(([key, value]) => {
+    return createColumnConfiguration<T>({
+      key: key as keyof T,
+      type: getColumnType(value),
+    } as Partial<ColumnConfiguration<T>>);
+  });
+}
+
+export function createColumnConfiguration<T extends object>(
+  config: Partial<ColumnConfiguration<T>>
+): ColumnConfiguration<T> {
+  return {
+    key: config.key ?? '',
+    type: config.type ?? 'string',
+    headerText: config.headerText,
+    width: config.width,
+    hidden: config.hidden ?? false,
+    resizable: config.resizable ?? false,
+    sort: config.sort ?? false,
+    filter: config.filter ?? false,
+    headerTemplate: config.headerTemplate,
+    cellTemplate: config.cellTemplate,
+  } as ColumnConfiguration<T>;
 }

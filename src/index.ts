@@ -1,3 +1,4 @@
+export { IgcGridLiteColumn } from './components/column.js';
 export type {
   IgcFilteredEvent,
   IgcFilteringEvent,
