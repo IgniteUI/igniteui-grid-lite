@@ -62,21 +62,21 @@
     "concurrently": "^9.2.1",
     "globby": "^16.0.0",
     "husky": "^9.1.7",
-    "igniteui-theming": "^24.0.1",
+    "igniteui-theming": "^24.0.2",
     "lint-staged": "^16.2.7",
     "node-watch": "^0.7.4",
     "playwright": "^1.57.0",
     "postcss": "^8.5.6",
-    "sass-embedded": "^1.93.3",
+    "sass-embedded": "^1.95.1",
     "sinon": "^21.0.0",
     "stylelint": "^16.26.1",
     "stylelint-config-standard-scss": "^16.0.0",
     "stylelint-prettier": "^5.0.3",
-    "stylelint-scss": "^6.12.1",
+    "stylelint-scss": "^6.13.0",
     "tslib": "^2.8.1",
-    "typedoc": "^0.28.14",
+    "typedoc": "^0.28.15",
     "typescript": "^5.9.3",
-    "vite": "^7.2.4"
+    "vite": "^7.2.7"
   },
   "customElements": "custom-elements.json"
 }
