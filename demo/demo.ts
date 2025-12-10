@@ -218,7 +218,7 @@ render(
         (col) =>
           html`<igc-grid-lite-column
             .key=${col.key}
-            .dataType=${col.type}
+            .type=${col.type}
             .headerText=${col.headerText}
             ?hidden=${col.hidden}
             ?resizable=${col.resizable}
