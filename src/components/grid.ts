@@ -23,13 +23,13 @@ import { addThemingController } from '../internal/theming.js';
 import type {
   ColumnConfiguration,
   DataPipelineConfiguration,
-  GridSortConfiguration,
+  GridLiteSortingOptions,
   Keys,
 } from '../internal/types.js';
 import { asArray, getFilterOperandsFor, isNumber, isString } from '../internal/utils.js';
 import { watch } from '../internal/watch.js';
 import type { FilterExpression } from '../operations/filter/types.js';
-import type { SortExpression } from '../operations/sort/types.js';
+import type { SortingExpression } from '../operations/sort/types.js';
 import { styles } from '../styles/themes/grid.base.css.js';
 import { all } from '../styles/themes/grid-themes.js';
 import { styles as shared } from '../styles/themes/shared/grid.common.css.js';
@@ -95,14 +95,14 @@ export interface IgcGridLiteEventMap<T extends object> {
    *
    * @event
    */
-  sorting: CustomEvent<SortExpression<T>>;
+  sorting: CustomEvent<SortingExpression<T>>;
   /**
    * Emitted when a sort operation initiated through the UI has completed.
    * Returns the sort expression used for the operation.
    *
    * @event
    */
-  sorted: CustomEvent<SortExpression<T>>;
+  sorted: CustomEvent<SortingExpression<T>>;
   /**
    * Emitted when filtering is initiated through the UI.
    *
@@ -174,7 +174,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
     }) as any,
   });
 
-  private _initialSortExpressions: SortExpression<T>[] = [];
+  private _initialSortExpressions: SortingExpression<T>[] = [];
   private _initialFilterExpressions: FilterExpression<T>[] = [];
 
   private _updateObservers(): void {
@@ -221,9 +221,8 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
 
   /** Sort configuration property for the grid. */
   @property({ attribute: false })
-  public sortConfiguration: GridSortConfiguration = {
-    multiple: true,
-    triState: true,
+  public sortingOptions: GridLiteSortingOptions = {
+    mode: 'multiple',
   };
 
   /**
@@ -235,7 +234,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
   /**
    * Set the sort state for the grid.
    */
-  public set sortExpressions(expressions: SortExpression<T>[]) {
+  public set sortingExpressions(expressions: SortingExpression<T>[]) {
     if (this.hasUpdated && expressions.length) {
       this.sort(expressions);
     } else {
@@ -247,7 +246,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    * Get the sort state for the grid.
    */
   @property({ attribute: false })
-  public get sortExpressions(): SortExpression<T>[] {
+  public get sortingExpressions(): SortingExpression<T>[] {
     return Array.from(this._stateController.sorting.state.values());
   }
 
@@ -382,7 +381,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
   /**
    * Performs a sort operation in the grid based on the passed expression(s).
    */
-  public sort(expressions: SortExpression<T> | SortExpression<T>[]) {
+  public sort(expressions: SortingExpression<T> | SortingExpression<T>[]) {
     this._stateController.sorting.sort(expressions);
   }
 

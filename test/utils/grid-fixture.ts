@@ -6,7 +6,7 @@ import IgcVirtualizer from '../../src/components/virtualizer.js';
 import type { ColumnConfiguration, Keys } from '../../src/internal/types.js';
 import { isNumber } from '../../src/internal/utils.js';
 import type { FilterExpression } from '../../src/operations/filter/types.js';
-import type { SortExpression } from '../../src/operations/sort/types.js';
+import type { SortingExpression } from '../../src/operations/sort/types.js';
 import type CellTestFixture from './cell-fixture.js';
 import FilterRowFixture from './filter-row.fixture.js';
 import HeaderTestFixture from './header-fixture.js';
@@ -194,7 +194,7 @@ export default class GridTestFixture<T extends object> {
     return this;
   }
 
-  public async sort(config: SortExpression<T> | SortExpression<T>[]) {
+  public async sort(config: SortingExpression<T> | SortingExpression<T>[]) {
     this.grid.sort(config);
     await this.waitForUpdate();
     return this;

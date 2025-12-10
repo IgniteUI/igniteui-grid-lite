@@ -105,11 +105,8 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   protected renderSortPart() {
     const state = this.state.sorting.state.get(this.column.key);
     const idx = Array.from(this.state.sorting.state.values()).indexOf(state!);
-    const attr = this.state.host.sortConfiguration.multiple
-      ? idx > -1
-        ? idx + 1
-        : nothing
-      : nothing;
+    const attr =
+      this.state.host.sortingOptions.mode === 'multiple' ? (idx > -1 ? idx + 1 : nothing) : nothing;
     const icon = state
       ? state.direction === 'ascending'
         ? SORT_ICON_ASCENDING

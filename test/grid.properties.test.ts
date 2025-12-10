@@ -1,12 +1,12 @@
 import { expect, html } from '@open-wc/testing';
 import type { FilterExpression } from '../src/operations/filter/types.js';
-import type { SortExpression } from '../src/operations/sort/types.js';
+import type { SortingExpression } from '../src/operations/sort/types.js';
 import GridTestFixture from './utils/grid-fixture.js';
 import testData from './utils/test-data.js';
 import data, { type TestData } from './utils/test-data.js';
 
 class InitialDataStateFixture<T extends TestData> extends GridTestFixture<T> {
-  public sortState: SortExpression<TestData>[] = [
+  public sortState: SortingExpression<TestData>[] = [
     { key: 'active', direction: 'descending' },
     { key: 'id', direction: 'descending' },
   ];
@@ -19,7 +19,7 @@ class InitialDataStateFixture<T extends TestData> extends GridTestFixture<T> {
     return html`
       <igc-grid-lite
         .data=${this.data}
-        .sortExpressions=${this.sortState}
+        .sortingExpressions=${this.sortState}
         .filterExpressions=${this.filterState}
       >
         ${this.columnConfig.map(
@@ -95,7 +95,7 @@ describe('Grid properties', () => {
   afterEach(() => TDD.tearDown());
 
   it('Sort expressions late binding (set)', async () => {
-    await TDD.updateProperty('sortExpressions', [{ key: 'id', direction: 'descending' }]);
+    await TDD.updateProperty('sortingExpressions', [{ key: 'id', direction: 'descending' }]);
     expect(TDD.rows.first.data.id).to.equal(8);
   });
 
@@ -115,7 +115,7 @@ describe('Grid properties', () => {
       { key: 'id', direction: 'ascending' },
     ]);
 
-    expect(TDD.grid.sortExpressions).lengthOf(2);
+    expect(TDD.grid.sortingExpressions).lengthOf(2);
   });
 
   it('Filter expressions (get)', async () => {

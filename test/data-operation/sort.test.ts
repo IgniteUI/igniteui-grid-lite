@@ -1,6 +1,6 @@
 import { expect } from '@open-wc/testing';
 import type { Keys } from '../../src/internal/types.js';
-import type { SortExpression, SortState } from '../../src/operations/sort/types.js';
+import type { SortingExpression, SortState } from '../../src/operations/sort/types.js';
 import SortDataOperation from '../../src/operations/sort.js';
 import data, { importanceComparer } from '../utils/test-data.js';
 
@@ -31,11 +31,11 @@ class TDDSortState<T extends object> {
     this.#result = this.#operation.apply(structuredClone(this.data), this.#state);
   }
 
-  public setState(state: Partial<SortExpression<T>>) {
+  public setState(state: Partial<SortingExpression<T>>) {
     this.#state.set(state.key!, {
       ...{ direction: 'ascending', caseSensitive: false },
       ...state,
-    } as SortExpression<T>);
+    } as SortingExpression<T>);
     return this;
   }
 
