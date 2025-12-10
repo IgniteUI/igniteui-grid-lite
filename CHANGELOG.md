@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** This project is currently in initial development (0.0.x versions). Until version 1.0.0 is released, the public API is not considered stable and breaking changes may occur in any release without following semantic versioning conventions.
 
+## [0.2.0] - 2025-12-10
+
+### Changed
+
+- **BREAKING:** Column `sort` and `filter` properties have been replaced with separate boolean and configuration properties:
+  - `sort` → `sortable` (boolean) + `sortingCaseSensitive` (boolean) + `sortConfiguration` (object with `comparer` option)
+  - `filter` → `filterable` (boolean) + `filteringCaseSensitive` (boolean)
+
+- **BREAKING:** Removed `ColumnFilterConfiguration` type. Use `filteringCaseSensitive` boolean property directly on the column.
+
 ## [0.1.0] - 2025-12-10
 
 ### Changed
@@ -46,11 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   </igc-grid-lite>
   ```
 
-- **BREAKING:** Column `sort` and `filter` properties have been replaced with separate boolean and configuration properties:
-  - `sort` → `sortable` (boolean) + `sortingCaseSensitive` (boolean) + `sortConfiguration` (object with `comparer` option)
-  - `filter` → `filterable` (boolean) + `filteringCaseSensitive` (boolean)
-
-- **BREAKING:** Removed `ColumnFilterConfiguration` type. Use `filteringCaseSensitive` boolean property directly on the column.
 - **BREAKING:** Renamed `GridSortConfiguration` type to `GridLiteSortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortConfiguration` property to `sortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortExpressions` property to `sortingExpressions`.
