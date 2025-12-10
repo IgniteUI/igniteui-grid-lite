@@ -106,12 +106,19 @@ const themeChoose = html`
 `;
 
 const columns: ColumnConfiguration<User>[] = [
-  { key: 'id', headerText: 'User ID', resizable: true, type: 'number', filter: true, sort: true },
+  {
+    key: 'id',
+    headerText: 'User ID',
+    resizable: true,
+    type: 'number',
+    filterable: true,
+    sortable: true,
+  },
   {
     key: 'name',
     cellTemplate: (params) => html`<igc-input .value=${params.value}></igc-input>`,
-    filter: true,
-    sort: true,
+    filterable: true,
+    sortable: true,
   },
   {
     key: 'avatar',
@@ -124,8 +131,8 @@ const columns: ColumnConfiguration<User>[] = [
   {
     key: 'satisfaction',
     type: 'number',
-    sort: true,
-    filter: true,
+    sortable: true,
+    filterable: true,
     cellTemplate: (params) =>
       html`<igc-rating
         readonly
@@ -144,7 +151,8 @@ const columns: ColumnConfiguration<User>[] = [
           (choice) => html`<igc-select-item .value=${choice}>${choice}</igc-select-item>`,
         )}</igc-select
       >`,
-    sort: {
+    sortable: true,
+    sortConfiguration: {
       comparer: (a, b) => choices.indexOf(a) - choices.indexOf(b),
     },
   },
@@ -157,8 +165,8 @@ const columns: ColumnConfiguration<User>[] = [
   {
     key: 'subscribed',
     type: 'boolean',
-    sort: true,
-    filter: true,
+    sortable: true,
+    filterable: true,
     cellTemplate: (params) =>
       html`<igc-checkbox
         label-position="before"
@@ -189,7 +197,7 @@ const toggleFiltering = () => {
     (col) => col.key === 'name',
   )!;
 
-  column.filter = !column.filter;
+  column.filterable = !column.filterable;
 };
 
 render(
@@ -214,8 +222,9 @@ render(
             .headerText=${col.headerText}
             ?hidden=${col.hidden}
             ?resizable=${col.resizable}
-            .sort=${col.sort}
-            .filter=${col.filter}
+            ?sortable=${col.sortable}
+            .sortConfiguration=${col.sortConfiguration}
+            ?filterable=${col.filterable}
             .cellTemplate=${col.cellTemplate}
             .headerTemplate=${col.headerTemplate as any}
           ></igc-grid-lite-column>`,

@@ -71,7 +71,7 @@ export class FilterController<T extends object> implements ReactiveController {
   }
 
   public setActiveColumn(column?: ColumnConfiguration<T>) {
-    if (column?.filter && this.filterRow?.active) {
+    if (column?.filterable && this.filterRow?.active) {
       this.filterRow.column = column;
       this.filterRow.expression = this.getDefaultExpression(column);
       this.host.requestUpdate();
@@ -79,8 +79,7 @@ export class FilterController<T extends object> implements ReactiveController {
   }
 
   public getDefaultExpression(column: ColumnConfiguration<T>) {
-    const caseSensitive =
-      typeof column.filter === 'boolean' ? false : Boolean(column.filter?.caseSensitive);
+    const caseSensitive = Boolean(column.filterConfiguration?.caseSensitive);
     const operands = getFilterOperandsFor(column);
     const keys = Object.keys(operands) as Keys<typeof operands>[];
 

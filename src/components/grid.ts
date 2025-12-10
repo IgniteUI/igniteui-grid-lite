@@ -476,7 +476,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
 
   protected _renderFilterRow() {
     return html`${cache(
-      this._stateController.columns.some((column) => column.filter)
+      this._stateController.columns.some((column) => column.filterable)
         ? html`<igc-filter-row style=${styleMap(this._domController.columnSizes)}></igc-filter-row>`
         : nothing
     )}`;

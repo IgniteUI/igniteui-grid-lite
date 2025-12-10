@@ -377,7 +377,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
         ? nothing
         : html`
             <div part="filter-row-preview">
-              ${column.filter ? this.renderFilterState(column) : nothing}
+              ${column.filterable ? this.renderFilterState(column) : nothing}
             </div>
           `
     );

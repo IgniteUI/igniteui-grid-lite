@@ -62,13 +62,21 @@ export class IgcGridLiteColumn<T extends object>
   @property({ type: Boolean })
   public resizable = false;
 
+  /** Indicates whether the column is sortable. */
+  @property({ type: Boolean })
+  public sortable = false;
+
   /** Sort configuration for the column. */
   @property({ attribute: false })
-  public sort?: ColumnSortConfiguration<T> | boolean = false;
+  public sortConfiguration?: ColumnSortConfiguration<T>;
+
+  /** Indicates whether the column is filterable. */
+  @property({ type: Boolean })
+  public filterable = false;
 
   /** Filter configuration for the column. */
   @property({ attribute: false })
-  public filter?: ColumnFilterConfiguration | boolean = false;
+  public filterConfiguration?: ColumnFilterConfiguration;
 
   /** Custom header template for the column. */
   @property({ attribute: false })

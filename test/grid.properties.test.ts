@@ -26,8 +26,8 @@ class InitialDataStateFixture<T extends TestData> extends GridTestFixture<T> {
           (col) =>
             html`<igc-grid-lite-column
               .key=${col.key}
-              .filter=${col.filter}
-              .sort=${col.sort}
+              ?filterable=${col.filterable}
+              ?sortable=${col.sortable}
               .width=${col.width}
               .headerText=${col.headerText}
               .cellTemplate=${col.cellTemplate}

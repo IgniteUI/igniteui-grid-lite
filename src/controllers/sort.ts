@@ -24,13 +24,13 @@ export class SortController<T extends object> implements ReactiveController {
     return true;
   }
 
-  #resolveSortOptions(options?: boolean | ColumnSortConfiguration<T>) {
+  #resolveSortOptions(options?: ColumnSortConfiguration<T>) {
     const expr: Pick<SortingExpression<T>, 'caseSensitive' | 'comparer'> = {
       caseSensitive: false,
       comparer: undefined,
     };
 
-    if (!options || typeof options === 'boolean') {
+    if (!options) {
       return expr as Partial<SortingExpression<T>>;
     }
 
@@ -41,7 +41,7 @@ export class SortController<T extends object> implements ReactiveController {
   }
 
   #createDefaultExpression(key: Keys<T>) {
-    const options = this.host.getColumn(key)?.sort;
+    const options = this.host.getColumn(key)?.sortConfiguration;
 
     return {
       key,
@@ -93,13 +93,16 @@ export class SortController<T extends object> implements ReactiveController {
     this.#emitSortedEvent(expression);
   }
 
-  public prepareExpression({ key, sort: options }: ColumnConfiguration<T>): SortingExpression<T> {
+  public prepareExpression({
+    key,
+    sortConfiguration,
+  }: ColumnConfiguration<T>): SortingExpression<T> {
     if (this.state.has(key)) {
       const expr = this.state.get(key)!;
 
       return Object.assign(expr, {
         direction: this.#orderBy(expr.direction),
-        ...this.#resolveSortOptions(options),
+        ...this.#resolveSortOptions(sortConfiguration),
       });
     }
 

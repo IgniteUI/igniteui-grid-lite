@@ -36,7 +36,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   }
 
   protected get isSortable() {
-    return Boolean(this.column.sort);
+    return Boolean(this.column.sortable);
   }
 
   protected get resizeController() {

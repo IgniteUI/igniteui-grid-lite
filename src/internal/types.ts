@@ -110,13 +110,21 @@ export interface BaseColumnConfiguration<T extends object, K extends Keys<T> = K
    */
   resizable?: boolean;
   /**
-   * Whether the column can be sorted or not.
+   * Whether the column can be sorted.
    */
-  sort?: ColumnSortConfiguration<T, K> | boolean;
+  sortable?: boolean;
   /**
-   * Whether filter operation can be applied on the column or not.
+   * Sort configuration options for the column.
    */
-  filter?: ColumnFilterConfiguration | boolean;
+  sortConfiguration?: ColumnSortConfiguration<T, K>;
+  /**
+   * Whether the column can be filtered.
+   */
+  filterable?: boolean;
+  /**
+   * Filter configuration options for the column.
+   */
+  filterConfiguration?: ColumnFilterConfiguration;
   /**
    * Header template callback.
    */

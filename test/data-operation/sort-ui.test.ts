@@ -7,7 +7,7 @@ import data, { importanceComparer } from '../utils/test-data.js';
 
 class SortFixture<T extends object> extends GridTestFixture<T> {
   public override updateConfig(): void {
-    this.columnConfig = this.columnConfig.map((config) => ({ ...config, sort: true }));
+    this.columnConfig = this.columnConfig.map((config) => ({ ...config, sortable: true }));
   }
 
   public sortDOMExists(key: Keys<T>) {
@@ -74,7 +74,7 @@ describe('Grid UI sort', () => {
     });
 
     it('Non-sortable columns have no sort DOM', async () => {
-      await TDD.updateColumns({ key: 'id', sort: false });
+      await TDD.updateColumns({ key: 'id', sortable: false });
       TDD.sortDOMDoesNotExist('id');
     });
 
@@ -254,7 +254,7 @@ describe('Grid UI sort', () => {
     });
 
     it('Sort works on non-sortable columns', async () => {
-      await TDD.updateColumns({ key: 'id', sort: false });
+      await TDD.updateColumns({ key: 'id', sortable: false });
       await TDD.sort({ key: 'id', direction: 'descending' });
 
       expect(TDD.rows.first.data.id).to.equal(8);

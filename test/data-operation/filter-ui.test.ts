@@ -11,12 +11,12 @@ class FilterFixture<T extends object> extends GridTestFixture<T> {
   public override updateConfig(): void {
     this.columnConfig = this.columnConfig.map((config) => ({
       ...config,
-      filter: true,
+      filterable: true,
     }));
   }
 
   public get filterableColumns() {
-    return this.grid.columns.filter((each) => each.filter);
+    return this.grid.columns.filter((each) => each.filterable);
   }
 
   public get activeChips() {
@@ -109,7 +109,7 @@ describe('Grid UI filter', () => {
 
   describe('Default UI state', () => {
     it('Default state for no filterable columns', async () => {
-      await TDD.updateColumns(TDD.columnConfig.map((each) => ({ ...each, filter: false })));
+      await TDD.updateColumns(TDD.columnConfig.map((each) => ({ ...each, filterable: false })));
 
       expect(TDD.filterRow.element).to.not.exist;
     });
@@ -121,10 +121,10 @@ describe('Grid UI filter', () => {
     it('Correct number of UI elements', async () => {
       expect(TDD.filterableColumns).lengthOf(TDD.filterRow.inactiveStateChips.length);
 
-      await TDD.updateColumns({ key: 'name', filter: false });
+      await TDD.updateColumns({ key: 'name', filterable: false });
       expect(TDD.filterableColumns).lengthOf(TDD.filterRow.inactiveStateChips.length);
 
-      await TDD.updateColumns({ key: 'name', filter: true });
+      await TDD.updateColumns({ key: 'name', filterable: true });
       expect(TDD.filterableColumns).lengthOf(TDD.filterRow.inactiveStateChips.length);
     });
 
@@ -156,7 +156,7 @@ describe('Grid UI filter', () => {
     });
 
     it('Does not change header style when clicking on a non-filterable column', async () => {
-      await TDD.updateColumns({ key: 'active', filter: false });
+      await TDD.updateColumns({ key: 'active', filterable: false });
       await TDD.activateFilterRow('name');
       await TDD.clickHeader('active');
 
@@ -266,7 +266,11 @@ describe('Grid UI filter', () => {
     });
 
     it('String column, single filter [case sensitive]', async () => {
-      await TDD.updateColumns({ key: 'name', filter: { caseSensitive: true } });
+      await TDD.updateColumns({
+        key: 'name',
+        filterable: true,
+        filterConfiguration: { caseSensitive: true },
+      });
       await TDD.activateFilterRow('name');
       await TDD.filterByInput('a');
 
@@ -280,7 +284,7 @@ describe('Grid UI filter', () => {
     });
 
     it('Number column, single filter [correct type]', async () => {
-      await TDD.updateColumns({ key: 'id', type: 'number', filter: true });
+      await TDD.updateColumns({ key: 'id', type: 'number', filterable: true });
 
       await TDD.activateFilterRow('id');
       await TDD.filterByInput('3');
@@ -370,14 +374,22 @@ describe('Grid UI filter', () => {
 
   describe('API', () => {
     it('Honors column configuration parameters', async () => {
-      await TDD.updateColumns({ key: 'name', filter: { caseSensitive: true } });
+      await TDD.updateColumns({
+        key: 'name',
+        filterable: true,
+        filterConfiguration: { caseSensitive: true },
+      });
       await TDD.filter({ key: 'name', condition: 'contains', searchTerm: 'D' });
 
       expect(TDD.grid.totalItems).to.equal(1);
     });
 
     it('Honors overwriting column configuration parameters', async () => {
-      await TDD.updateColumns({ key: 'name', filter: { caseSensitive: true } });
+      await TDD.updateColumns({
+        key: 'name',
+        filterable: true,
+        filterConfiguration: { caseSensitive: true },
+      });
       await TDD.filter({
         key: 'name',
         condition: 'contains',

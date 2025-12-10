@@ -22,8 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   ```ts
   const columns: ColumnConfiguration<User>[] = [
-    { key: 'id', headerText: 'User ID', type: 'number', filter: true, sort: true },
-    { key: 'name', filter: true, sort: true },
+    { key: 'id', headerText: 'User ID', type: 'number', filterable: true, sortable: true },
+    { key: 'name', filterable: true, sortable: true },
   ];
   ```
 
@@ -35,17 +35,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
       key="id"
       header-text="User ID"
       type="number"
-      .filter=${true}
-      .sort=${true}
+      filterable
+      sortable
     ></igc-grid-lite-column>
     <igc-grid-lite-column
       key="name"
-      .filter=${true}
-      .sort=${true}
+      filterable
+      sortable
     ></igc-grid-lite-column>
   </igc-grid-lite>
   ```
 
+- **BREAKING:** Column `sort` and `filter` properties have been replaced with separate boolean and configuration properties:
+  - `sort` → `sortable` (boolean) + `sortConfiguration` (object with `caseSensitive` and `comparer` options)
+  - `filter` → `filterable` (boolean) + `filterConfiguration` (object with `caseSensitive` option)
 - **BREAKING:** Renamed `GridSortConfiguration` type to `GridLiteSortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortConfiguration` property to `sortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortExpressions` property to `sortingExpressions`.
