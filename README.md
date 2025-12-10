@@ -1,9 +1,9 @@
-# Ignite UI Grid Lite for Web Components
+# Ignite UI Grid Lite
 [![Node.js CI](https://github.com/IgniteUI/igniteui-grid-lite/actions/workflows/node.js.yml/badge.svg)](https://github.com/IgniteUI/igniteui-grid-lite/actions/workflows/node.js.yml)
 [![Coverage Status](https://coveralls.io/repos/github/IgniteUI/igniteui-grid-lite/badge.svg?branch=master)](https://coveralls.io/github/IgniteUI/igniteui-grid-lite?branch=master)
 [![npm version](https://badge.fury.io/js/igniteui-grid-lite.svg)](https://badge.fury.io/js/igniteui-grid-lite)
 
-Ignite UI Grid Lite for Web Components is a high-performance, lightweight data grid built as a web component using [Lit](https://lit.dev/). It provides essential grid functionality with a small footprint, making it perfect for applications that need fast, efficient data visualization without the overhead of a full-featured grid.
+Ignite UI Grid Lite is a high-performance, lightweight data grid built as a web component using [Lit](https://lit.dev/). It provides essential grid functionality with a small footprint, making it perfect for applications that need fast, efficient data visualization without the overhead of a full-featured grid.
 
 ## Table of Contents
 - [Features](#features)
@@ -20,7 +20,7 @@ Ignite UI Grid Lite for Web Components is a high-performance, lightweight data g
 
 ## Features
 
-Ignite UI Grid Lite for Web Components provides core data grid capabilities with an emphasis on performance and simplicity:
+Ignite UI Grid Lite provides core data grid capabilities with an emphasis on performance and simplicity:
 
 - **High Performance Row Virtualization** - Handles large datasets efficiently with built-in virtual scrolling
 - **Column Filtering** - Built-in column filtering capabilities
@@ -35,7 +35,7 @@ Ignite UI Grid Lite for Web Components provides core data grid capabilities with
 
 ## Browser Support
 
-Ignite UI Grid Lite for Web Components supports all modern browsers:
+Ignite UI Grid Lite supports all modern browsers:
 
 | ![chrome] | ![firefox] | ![edge] | ![safari] | ![opera] |
 |:---:|:---:|:---:|:---:|:---:|
@@ -148,7 +148,7 @@ Documentation will be available in the build output.
 
 Ignite UI Grid Lite is designed as a lightweight, open-source alternative to the full-featured <a href="https://www.infragistics.com/products/ignite-ui-web-components/web-components/components/grids/data-grid">Ignite UI for Web Components Data Grid</a>, while allowing for an easy swap with the full-featured grid, if application needs require it.
 
-### Ignite UI Grid Lite for Web Components (Open Source - MIT)
+### Ignite UI Grid Lite (Open Source - MIT)
 
 **Best for:**
 - Applications requiring basic grid functionality
