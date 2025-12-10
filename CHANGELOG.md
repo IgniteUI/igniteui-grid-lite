@@ -47,8 +47,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ```
 
 - **BREAKING:** Column `sort` and `filter` properties have been replaced with separate boolean and configuration properties:
-  - `sort` → `sortable` (boolean) + `sortConfiguration` (object with `caseSensitive` and `comparer` options)
-  - `filter` → `filterable` (boolean) + `filterConfiguration` (object with `caseSensitive` option)
+  - `sort` → `sortable` (boolean) + `sortingCaseSensitive` (boolean) + `sortConfiguration` (object with `comparer` option)
+  - `filter` → `filterable` (boolean) + `filteringCaseSensitive` (boolean)
+
+- **BREAKING:** Removed `ColumnFilterConfiguration` type. Use `filteringCaseSensitive` boolean property directly on the column.
 - **BREAKING:** Renamed `GridSortConfiguration` type to `GridLiteSortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortConfiguration` property to `sortingOptions`.
 - **BREAKING:** Renamed `IgcGridLite.sortExpressions` property to `sortingExpressions`.

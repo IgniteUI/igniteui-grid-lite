@@ -269,7 +269,7 @@ describe('Grid UI filter', () => {
       await TDD.updateColumns({
         key: 'name',
         filterable: true,
-        filterConfiguration: { caseSensitive: true },
+        filteringCaseSensitive: true,
       });
       await TDD.activateFilterRow('name');
       await TDD.filterByInput('a');
@@ -377,7 +377,7 @@ describe('Grid UI filter', () => {
       await TDD.updateColumns({
         key: 'name',
         filterable: true,
-        filterConfiguration: { caseSensitive: true },
+        filteringCaseSensitive: true,
       });
       await TDD.filter({ key: 'name', condition: 'contains', searchTerm: 'D' });
 
@@ -388,7 +388,7 @@ describe('Grid UI filter', () => {
       await TDD.updateColumns({
         key: 'name',
         filterable: true,
-        filterConfiguration: { caseSensitive: true },
+        filteringCaseSensitive: true,
       });
       await TDD.filter({
         key: 'name',

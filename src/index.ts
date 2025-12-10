@@ -11,7 +11,6 @@ export type {
   BaseIgcCellContext,
   BasePropertyType,
   ColumnConfiguration,
-  ColumnFilterConfiguration,
   ColumnSortConfiguration,
   DataPipelineConfiguration,
   DataPipelineHook,

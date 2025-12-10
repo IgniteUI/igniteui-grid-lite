@@ -1,11 +1,6 @@
 import type { ReactiveController } from 'lit';
 import { PIPELINE } from '../internal/constants.js';
-import type {
-  ColumnConfiguration,
-  ColumnSortConfiguration,
-  GridHost,
-  Keys,
-} from '../internal/types.js';
+import type { ColumnConfiguration, GridHost, Keys } from '../internal/types.js';
 import { asArray } from '../internal/utils.js';
 import type { SortingDirection, SortingExpression, SortState } from '../operations/sort/types.js';
 
@@ -24,29 +19,29 @@ export class SortController<T extends object> implements ReactiveController {
     return true;
   }
 
-  #resolveSortOptions(options?: ColumnSortConfiguration<T>) {
+  #resolveSortOptions(column?: ColumnConfiguration<T>) {
     const expr: Pick<SortingExpression<T>, 'caseSensitive' | 'comparer'> = {
       caseSensitive: false,
       comparer: undefined,
     };
 
-    if (!options) {
+    if (!column) {
       return expr as Partial<SortingExpression<T>>;
     }
 
     return Object.assign(expr, {
-      caseSensitive: options.caseSensitive,
-      comparer: options.comparer,
+      caseSensitive: column.sortingCaseSensitive,
+      comparer: column.sortConfiguration?.comparer,
     }) as Partial<SortingExpression<T>>;
   }
 
   #createDefaultExpression(key: Keys<T>) {
-    const options = this.host.getColumn(key)?.sortConfiguration;
+    const column = this.host.getColumn(key);
 
     return {
       key,
       direction: 'ascending',
-      ...this.#resolveSortOptions(options),
+      ...this.#resolveSortOptions(column),
     } as SortingExpression<T>;
   }
 
@@ -93,21 +88,18 @@ export class SortController<T extends object> implements ReactiveController {
     this.#emitSortedEvent(expression);
   }
 
-  public prepareExpression({
-    key,
-    sortConfiguration,
-  }: ColumnConfiguration<T>): SortingExpression<T> {
-    if (this.state.has(key)) {
-      const expr = this.state.get(key)!;
+  public prepareExpression(column: ColumnConfiguration<T>): SortingExpression<T> {
+    if (this.state.has(column.key)) {
+      const expr = this.state.get(column.key)!;
 
       return Object.assign(expr, {
         direction: this.#orderBy(expr.direction),
-        ...this.#resolveSortOptions(sortConfiguration),
+        ...this.#resolveSortOptions(column),
       });
     }
 
     // Initial state
-    return this.#createDefaultExpression(key);
+    return this.#createDefaultExpression(column.key);
   }
 
   public reset(key?: Keys<T>) {

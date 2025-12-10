@@ -74,9 +74,10 @@ export function createColumnConfiguration<T extends object>(
     hidden: config.hidden ?? false,
     resizable: config.resizable ?? false,
     sortable: config.sortable ?? false,
+    sortingCaseSensitive: config.sortingCaseSensitive ?? false,
     sortConfiguration: config.sortConfiguration,
     filterable: config.filterable ?? false,
-    filterConfiguration: config.filterConfiguration,
+    filteringCaseSensitive: config.filteringCaseSensitive ?? false,
     headerTemplate: config.headerTemplate,
     cellTemplate: config.cellTemplate,
   } as ColumnConfiguration<T>;

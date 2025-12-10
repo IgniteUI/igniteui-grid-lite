@@ -62,8 +62,9 @@ export default class GridTestFixture<T extends object> {
             html`<igc-grid-lite-column
               .key=${col.key}
               ?filterable=${col.filterable}
-              .filterConfiguration=${col.filterConfiguration}
+              ?filtering-case-sensitive=${col.filteringCaseSensitive}
               ?sortable=${col.sortable}
+              ?sorting-case-sensitive=${col.sortingCaseSensitive}
               .sortConfiguration=${col.sortConfiguration}
               .width=${col.width}
               .headerText=${col.headerText}
