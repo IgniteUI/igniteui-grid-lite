@@ -28,6 +28,6 @@ export default class RowTestFixture<T extends object> {
   }
 
   public get data() {
-    return this.element.data;
+    return this.element.data as T;
   }
 }

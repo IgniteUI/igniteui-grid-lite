@@ -5,7 +5,7 @@ import FilterDataOperation from '../operations/filter.js';
 import SortDataOperation from '../operations/sort.js';
 import type { StateController } from './state.js';
 
-export class DataOperationsController<T extends object> implements ReactiveController {
+class DataOperationsController<T extends object> implements ReactiveController {
   protected sorting = new SortDataOperation<T>();
   protected filtering = new FilterDataOperation<T>();
 
@@ -46,3 +46,12 @@ export class DataOperationsController<T extends object> implements ReactiveContr
     return transformed;
   }
 }
+
+function createDataOperationsController<T extends object>(
+  host: GridHost<T>
+): DataOperationsController<T> {
+  return new DataOperationsController<T>(host);
+}
+
+export { createDataOperationsController };
+export type { DataOperationsController };

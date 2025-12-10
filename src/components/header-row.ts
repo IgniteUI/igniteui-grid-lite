@@ -1,9 +1,11 @@
 import { consume } from '@lit/context';
-import { html, LitElement, nothing, type PropertyValueMap } from 'lit';
-import { property, queryAll } from 'lit/decorators.js';
+import { html, LitElement, nothing, type PropertyValues } from 'lit';
+import { property } from 'lit/decorators.js';
 import { map } from 'lit/directives/map.js';
-import { gridStateContext, type StateController } from '../controllers/state.js';
-import { partNameMap } from '../internal/part-map.js';
+import type { StateController } from '../controllers/state.js';
+import { GRID_STATE_CONTEXT } from '../internal/context.js';
+import { getElementFromEventPath } from '../internal/element-from-event-path.js';
+import { partMap } from '../internal/part-map.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_HEADER_ROW_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration } from '../internal/types.js';
@@ -20,40 +22,29 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
     registerComponent(IgcGridLiteHeaderRow, IgcGridLiteHeader);
   }
 
-  @queryAll(IgcGridLiteHeader.tagName)
-  protected _headers!: NodeListOf<IgcGridLiteHeader<T>>;
-
-  @consume({ context: gridStateContext, subscribe: true })
-  @property({ attribute: false })
-  public state!: StateController<T>;
+  @consume({ context: GRID_STATE_CONTEXT, subscribe: true })
+  private readonly _state?: StateController<T>;
 
   @property({ attribute: false })
-  public columns: Array<ColumnConfiguration<T>> = [];
+  public columns: ColumnConfiguration<T>[] = [];
 
-  public get headers() {
-    return Array.from(this._headers);
+  public get headers(): IgcGridLiteHeader<T>[] {
+    return Array.from(
+      this.renderRoot.querySelectorAll<IgcGridLiteHeader<T>>(IgcGridLiteHeader.tagName)
+    );
   }
 
   constructor() {
     super();
-    this.addEventListener('click', this.#activeFilterColumn);
+    this.addEventListener('click', this._setActiveFilterColumn);
   }
 
-  public override connectedCallback() {
-    super.connectedCallback();
-    this.setAttribute('tabindex', '0');
+  private _setActiveFilterColumn(event: PointerEvent): void {
+    const header = getElementFromEventPath<IgcGridLiteHeader<T>>(IgcGridLiteHeader.tagName, event);
+    this._state?.filtering.setActiveColumn(header?.column);
   }
 
-  #activeFilterColumn(event: MouseEvent) {
-    const header = event
-      .composedPath()
-      .filter((target) => target instanceof IgcGridLiteHeader)
-      .at(0) as IgcGridLiteHeader<T>;
-
-    this.state.filtering.setActiveColumn(header?.column);
-  }
-
-  protected override shouldUpdate(props: PropertyValueMap<this> | Map<PropertyKey, this>): boolean {
+  protected override shouldUpdate(props: PropertyValues<this>): boolean {
     for (const header of this.headers) {
       header.requestUpdate();
     }
@@ -62,17 +53,17 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
   }
 
   protected override render() {
-    const filterRow = this.state.filtering.filterRow;
+    const filterRow = this._state?.filtering.filterRow;
 
     return html`${map(this.columns, (column) =>
       column.hidden
         ? nothing
-        : html`<igc-grid-lite-header
-            part=${partNameMap({
-              filtered: column === filterRow?.column,
-            })}
-            .column=${column}
-          ></igc-grid-lite-header>`
+        : html`
+            <igc-grid-lite-header
+              part=${partMap({ filtered: column.key === filterRow?.column?.key })}
+              .column=${column}
+            ></igc-grid-lite-header>
+          `
     )}`;
   }
 }

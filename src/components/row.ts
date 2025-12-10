@@ -1,5 +1,5 @@
 import { html, LitElement, nothing } from 'lit';
-import { property, queryAll } from 'lit/decorators.js';
+import { property } from 'lit/decorators.js';
 import { map } from 'lit/directives/map.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_ROW_TAG } from '../internal/tags.js';
@@ -20,32 +20,27 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
     registerComponent(IgcGridLiteRow, IgcGridLiteCell);
   }
 
-  @queryAll(IgcGridLiteCell.tagName)
-  protected _cells!: NodeListOf<IgcGridLiteCell<T>>;
-
   @property({ attribute: false })
-  public data!: T;
+  public data?: T;
 
   @property({ attribute: false })
   public columns: Array<ColumnConfiguration<T>> = [];
 
-  public get cells() {
-    return Array.from(this._cells);
-  }
-
   @property({ attribute: false })
-  public activeNode!: ActiveNode<T>;
+  public activeNode?: ActiveNode<T>;
 
-  @property({ attribute: false, type: Number })
+  @property({ type: Number, attribute: false })
   public index = -1;
 
-  public override connectedCallback(): void {
-    super.connectedCallback();
-    this.setAttribute('exportparts', 'cell');
+  public get cells(): IgcGridLiteCell<T>[] {
+    return Array.from(
+      this.renderRoot.querySelectorAll<IgcGridLiteCell<T>>(IgcGridLiteCell.tagName)
+    );
   }
 
   protected override render() {
-    const { column: key, row: index } = this.activeNode;
+    const { column: key, row: index } = this.activeNode ?? {};
+    const data = this.data ?? ({} as T);
 
     return html`
       ${map(this.columns, (column) =>
@@ -56,7 +51,7 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
               .active=${key === column.key && index === this.index}
               .column=${column}
               .row=${this as IgcGridLiteRow<T>}
-              .value=${this.data[column.key]}
+              .value=${data[column.key]}
             ></igc-grid-lite-cell>`
       )}
     `;

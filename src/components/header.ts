@@ -2,13 +2,14 @@ import { consume } from '@lit/context';
 import { IgcIconComponent } from 'igniteui-webcomponents';
 import { html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
-import { gridStateContext, type StateController } from '../controllers/state.js';
+import type { StateController } from '../controllers/state.js';
 import {
   MIN_COL_RESIZE_WIDTH,
   SORT_ICON_ASCENDING,
   SORT_ICON_DESCENDING,
 } from '../internal/constants.js';
-import { partNameMap } from '../internal/part-map.js';
+import { GRID_STATE_CONTEXT } from '../internal/context.js';
+import { partMap } from '../internal/part-map.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_HEADER_TAG } from '../internal/tags.js';
 import { addThemingController } from '../internal/theming.js';
@@ -42,7 +43,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
     return this.state.resizing;
   }
 
-  @consume({ context: gridStateContext, subscribe: true })
+  @consume({ context: GRID_STATE_CONTEXT, subscribe: true })
   @property({ attribute: false })
   public state!: StateController<T>;
 
@@ -117,11 +118,11 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
 
     return state || this.isSortable
       ? html`<span
-          part=${partNameMap({ action: true, sorted: !!state?.direction })}
+          part=${partMap({ action: true, sorted: !!state?.direction })}
           @click=${this.isSortable ? this.#handleClick : nothing}
         >
           <igc-icon
-            part=${partNameMap({ 'sorting-action': !!state })}
+            part=${partMap({ 'sorting-action': !!state })}
             data-sortIndex=${attr}
             name=${icon}
             collection="internal"
@@ -154,7 +155,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   protected override render() {
     return html`
       <div
-        part=${partNameMap({
+        part=${partMap({
           content: true,
           sortable: this.isSortable,
           resizing: this.resizeController.indicatorActive,

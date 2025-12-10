@@ -84,6 +84,7 @@ describe('Column resizing', () => {
     it('Auto-size (header)', async () => {
       await TDD.updateColumns({
         key: 'name',
+        resizable: true,
         headerTemplate: () => html`<div style="width: 300px"></div>`,
       });
       await TDD.autoSizeHeader('name');
@@ -100,6 +101,7 @@ describe('Column resizing', () => {
     it('Auto size (cell)', async () => {
       await TDD.updateColumns({
         key: 'name',
+        resizable: true,
         cellTemplate: () => html`<div style="width: 600px"></div>`,
       });
       await TDD.autoSizeHeader('name');

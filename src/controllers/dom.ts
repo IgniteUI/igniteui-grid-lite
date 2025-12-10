@@ -1,51 +1,35 @@
-import type { RenderItemFunction } from '@lit-labs/virtualizer/virtualize.js';
-import { html, type ReactiveController } from 'lit';
-import { type StyleInfo, styleMap } from 'lit/directives/style-map.js';
+import type { ReactiveController } from 'lit';
+import type { StyleInfo } from 'lit/directives/style-map.js';
 import { registerGridIcons } from '../internal/icon-registry.js';
 import type { GridHost } from '../internal/types.js';
 import { applyColumnWidths } from '../internal/utils.js';
 import type { StateController } from './state.js';
 
-export class GridDOMController<T extends object> implements ReactiveController {
-  constructor(
-    protected host: GridHost<T>,
-    protected state: StateController<T>
-  ) {
-    this.host.addController(this);
-  }
+class GridDOMController<T extends object> implements ReactiveController {
+  protected readonly _host: GridHost<T>;
+  protected readonly _state: StateController<T>;
 
-  #initialSize = () => {
-    setTimeout(() => this.setScrollOffset());
-  };
-
-  public get container() {
-    // @ts-expect-error: protected member access
-    return this.host.scrollContainer;
+  constructor(host: GridHost<T>, state: StateController<T>) {
+    this._host = host;
+    this._state = state;
+    this._host.addController(this);
   }
 
   public columnSizes: StyleInfo = {};
 
-  public rowRenderer: RenderItemFunction<T> = (data: T, index: number) => {
-    return html`
-      <igc-grid-lite-row
-        part="row"
-        style=${styleMap({ ...this.columnSizes, ...this.getActiveRowStyles(index) })}
-        .index=${index}
-        .activeNode=${this.state.active}
-        .data=${data}
-        .columns=${this.host.columns}
-      >
-      </igc-grid-lite-row>
-    `;
-  };
-
-  public async hostConnected() {
+  public hostConnected(): void {
     registerGridIcons();
     this.setGridColumnSizes();
-    // Wait for the initial paint of the virtualizer and recalculate the scrollbar offset
-    // for the next one
-    await this.host.updateComplete;
-    this.container.addEventListener('visibilityChanged', this.#initialSize, { once: true });
+
+    this._host.updateComplete.then(() => {
+      this._state.virtualizer?.addEventListener(
+        'visibilityChanged',
+        () => {
+          this.setScrollOffset();
+        },
+        { once: true }
+      );
+    });
   }
 
   public hostUpdate(): void {
@@ -53,17 +37,28 @@ export class GridDOMController<T extends object> implements ReactiveController {
     this.setGridColumnSizes();
   }
 
-  public setScrollOffset() {
-    const size = this.container ? this.container.offsetWidth - this.container.clientWidth : 0;
-    this.host.style.setProperty('--scrollbar-offset', `${size}px`);
+  public setScrollOffset(): void {
+    const size = this._state.virtualizer
+      ? this._state.virtualizer.offsetWidth - this._state.virtualizer.clientWidth
+      : 0;
+    this._host.style.setProperty('--scrollbar-offset', `${size}px`);
   }
 
-  protected setGridColumnSizes() {
-    this.columnSizes = applyColumnWidths(this.host.columns);
+  protected setGridColumnSizes(): void {
+    this.columnSizes = applyColumnWidths(this._state.columns);
   }
 
   public getActiveRowStyles(index: number): StyleInfo {
-    const { row } = this.state.active;
-    return row === index ? { 'z-index': '3' } : {};
+    return this._state.active.row === index ? { 'z-index': '3' } : {};
   }
 }
+
+function createDomController<T extends object>(
+  host: GridHost<T>,
+  state: StateController<T>
+): GridDOMController<T> {
+  return new GridDOMController<T>(host, state);
+}
+
+export { createDomController };
+export type { GridDOMController };
