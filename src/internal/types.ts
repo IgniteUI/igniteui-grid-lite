@@ -58,9 +58,9 @@ export type ColumnSortConfiguration<T, K extends Keys<T> = Keys<T>> = K extends 
 /** Configuration object for grid columns. */
 export interface BaseColumnConfiguration<T extends object, K extends Keys<T> = Keys<T>> {
   /**
-   * The field for from the data the this column will reference.
+   * The field from the data for this column.
    */
-  key: K;
+  field: K;
   /**
    * The type of data this column will reference.
    *
@@ -70,12 +70,12 @@ export interface BaseColumnConfiguration<T extends object, K extends Keys<T> = K
    * If not passed, `string` is assumed to be the default type.
    *
    */
-  type?: DataType;
+  dataType?: DataType;
   /**
-   * Optional text to display in the column header. By default, the column key is used
+   * Optional text to display in the column header. By default, the column field is used
    * to render the header text.
    */
-  headerText?: string;
+  header?: string;
   /**
    * Width for the current column.
    *

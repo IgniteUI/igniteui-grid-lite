@@ -89,8 +89,8 @@ export class SortController<T extends object> implements ReactiveController {
   }
 
   public prepareExpression(column: ColumnConfiguration<T>): SortingExpression<T> {
-    if (this.state.has(column.key)) {
-      const expr = this.state.get(column.key)!;
+    if (this.state.has(column.field)) {
+      const expr = this.state.get(column.field)!;
 
       return Object.assign(expr, {
         direction: this.#orderBy(expr.direction),
@@ -99,7 +99,7 @@ export class SortController<T extends object> implements ReactiveController {
     }
 
     // Initial state
-    return this.#createDefaultExpression(column.key);
+    return this.#createDefaultExpression(column.field);
   }
 
   public reset(key?: Keys<T>) {

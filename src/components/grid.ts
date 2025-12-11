@@ -406,7 +406,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    */
   public getColumn(id: Keys<T> | number): ColumnConfiguration<T> | undefined {
     return this._stateController.columns.find((column, index) =>
-      isNumber(id) ? index === id : column.key === id
+      isNumber(id) ? index === id : column.field === id
     );
   }
 
@@ -422,7 +422,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
     const target = getElementFromEventPath<IgcGridLiteCell<T>>(IgcGridLiteCell.tagName, event);
 
     if (target) {
-      this._stateController.active = { column: target.column.key, row: target.row.index };
+      this._stateController.active = { column: target.column.field, row: target.row.index };
     }
   }
 

@@ -25,14 +25,14 @@ class InitialDataStateFixture<T extends TestData> extends GridTestFixture<T> {
         ${this.columnConfig.map(
           (col) =>
             html`<igc-grid-lite-column
-              .key=${col.key}
+              .field=${col.field}
               ?filterable=${col.filterable}
               ?sortable=${col.sortable}
               .width=${col.width}
-              .headerText=${col.headerText}
+              .header=${col.header}
               .cellTemplate=${col.cellTemplate}
               .headerTemplate=${col.headerTemplate}
-              .type=${col.type}
+              .dataType=${col.dataType}
               ?resizable=${col.resizable}
               ?hidden=${col.hidden}
             ></igc-grid-lite-column>`
@@ -63,8 +63,8 @@ describe('Grid auto-generate column configuration', () => {
   afterEach(() => autoGenerateTDD.tearDown());
 
   it('Default', async () => {
-    for (const { key } of autoGenerateTDD.grid.columns) {
-      expect(keys.has(key)).to.be.true;
+    for (const { field } of autoGenerateTDD.grid.columns) {
+      expect(keys.has(field)).to.be.true;
     }
 
     expect(autoGenerateTDD.grid.rows).lengthOf(testData.length);
@@ -100,7 +100,7 @@ describe('Grid properties', () => {
   });
 
   it('Filter expressions late binding (set)', async () => {
-    await TDD.updateColumns({ key: 'id', type: 'number' });
+    await TDD.updateColumns({ field: 'id', dataType: 'number' });
     await TDD.updateProperty('filterExpressions', [
       { key: 'id', condition: 'greaterThanOrEqual', searchTerm: 8 },
     ]);
@@ -119,7 +119,7 @@ describe('Grid properties', () => {
   });
 
   it('Filter expressions (get)', async () => {
-    await TDD.updateColumns({ key: 'id', type: 'number' });
+    await TDD.updateColumns({ field: 'id', dataType: 'number' });
     await TDD.filter([
       { key: 'name', condition: 'startsWith', searchTerm: 'a' },
       { key: 'name', condition: 'contains', searchTerm: 'a' },

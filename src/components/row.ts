@@ -48,10 +48,10 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
           ? nothing
           : html`<igc-grid-lite-cell
               part="cell"
-              .active=${key === column.key && index === this.index}
+              .active=${key === column.field && index === this.index}
               .column=${column}
               .row=${this as IgcGridLiteRow<T>}
-              .value=${data[column.key]}
+              .value=${data[column.field]}
             ></igc-grid-lite-cell>`
       )}
     `;

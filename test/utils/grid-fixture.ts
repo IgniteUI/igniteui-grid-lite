@@ -32,7 +32,9 @@ export default class GridTestFixture<T extends object> {
     protected data: T[],
     protected parentStyle?: Partial<CSSStyleDeclaration>
   ) {
-    this.columnConfig = Object.keys(data.at(0)!).map((key) => ({ key }) as ColumnConfiguration<T>);
+    this.columnConfig = Object.keys(data.at(0)!).map(
+      (field) => ({ field }) as ColumnConfiguration<T>
+    );
   }
 
   protected async waitForUpdate() {
@@ -60,17 +62,17 @@ export default class GridTestFixture<T extends object> {
         ${this.columnConfig.map(
           (col) =>
             html`<igc-grid-lite-column
-              .key=${col.key}
+              .field=${col.field}
               ?filterable=${col.filterable}
               ?filtering-case-sensitive=${col.filteringCaseSensitive}
               ?sortable=${col.sortable}
               ?sorting-case-sensitive=${col.sortingCaseSensitive}
               .sortConfiguration=${col.sortConfiguration}
               .width=${col.width}
-              .headerText=${col.headerText}
+              .header=${col.header}
               .cellTemplate=${col.cellTemplate}
               .headerTemplate=${col.headerTemplate}
-              .type=${col.type}
+              .dataType=${col.dataType}
               ?resizable=${col.resizable}
               ?hidden=${col.hidden}
             ></igc-grid-lite-column>`
@@ -145,7 +147,7 @@ export default class GridTestFixture<T extends object> {
     return new HeaderTestFixture(
       isNumber(id)
         ? this.headerRow.headers.at(id)!
-        : this.headerRow.headers.find(({ column }) => column.key === id)!
+        : this.headerRow.headers.find(({ column }) => column.field === id)!
     );
   }
 

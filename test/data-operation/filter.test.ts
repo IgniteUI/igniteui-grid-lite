@@ -34,7 +34,10 @@ class TDDFilterState<T extends object> {
     operand: OperandKeys<T[keyof T]>,
     opts: Partial<FilterExpression<T>> = {}
   ) {
-    const config = { key, type: typeof this.data[0][key] as DataType } as ColumnConfiguration<T>;
+    const config = {
+      field: key,
+      dataType: typeof this.data[0][key] as DataType,
+    } as ColumnConfiguration<T>;
 
     this.#state.set({
       key,

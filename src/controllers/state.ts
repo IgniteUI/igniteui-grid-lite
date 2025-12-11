@@ -94,7 +94,7 @@ class StateController<T extends object> implements ReactiveController {
 
   public updateColumnsConfiguration(config: ColumnConfiguration<T>[]): void {
     for (const columnConfig of config) {
-      const existing = this._columns.findIndex((column) => column.key === columnConfig.key);
+      const existing = this._columns.findIndex((column) => column.field === columnConfig.field);
       if (existing !== -1) {
         this._columns[existing] = {
           ...this._columns[existing],

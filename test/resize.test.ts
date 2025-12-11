@@ -40,7 +40,7 @@ describe('Column resizing', () => {
 
   describe('Default', () => {
     it('Resize element state with disabled resizing', async () => {
-      await TDD.updateColumns({ key: 'name', resizable: false });
+      await TDD.updateColumns({ field: 'name', resizable: false });
       expect(TDD.resizePart).to.not.exist;
       expect(TDD.headers.get('name').resizePart).to.not.exist;
     });
@@ -83,7 +83,7 @@ describe('Column resizing', () => {
 
     it('Auto-size (header)', async () => {
       await TDD.updateColumns({
-        key: 'name',
+        field: 'name',
         resizable: true,
         headerTemplate: () => html`<div style="width: 300px"></div>`,
       });
@@ -100,7 +100,7 @@ describe('Column resizing', () => {
 
     it('Auto size (cell)', async () => {
       await TDD.updateColumns({
-        key: 'name',
+        field: 'name',
         resizable: true,
         cellTemplate: () => html`<div style="width: 600px"></div>`,
       });

@@ -121,10 +121,10 @@ describe('Grid UI filter', () => {
     it('Correct number of UI elements', async () => {
       expect(TDD.filterableColumns).lengthOf(TDD.filterRow.inactiveStateChips.length);
 
-      await TDD.updateColumns({ key: 'name', filterable: false });
+      await TDD.updateColumns({ field: 'name', filterable: false });
       expect(TDD.filterableColumns).lengthOf(TDD.filterRow.inactiveStateChips.length);
 
-      await TDD.updateColumns({ key: 'name', filterable: true });
+      await TDD.updateColumns({ field: 'name', filterable: true });
       expect(TDD.filterableColumns).lengthOf(TDD.filterRow.inactiveStateChips.length);
     });
 
@@ -156,7 +156,7 @@ describe('Grid UI filter', () => {
     });
 
     it('Does not change header style when clicking on a non-filterable column', async () => {
-      await TDD.updateColumns({ key: 'active', filterable: false });
+      await TDD.updateColumns({ field: 'active', filterable: false });
       await TDD.activateFilterRow('name');
       await TDD.clickHeader('active');
 
@@ -267,7 +267,7 @@ describe('Grid UI filter', () => {
 
     it('String column, single filter [case sensitive]', async () => {
       await TDD.updateColumns({
-        key: 'name',
+        field: 'name',
         filterable: true,
         filteringCaseSensitive: true,
       });
@@ -284,7 +284,7 @@ describe('Grid UI filter', () => {
     });
 
     it('Number column, single filter [correct type]', async () => {
-      await TDD.updateColumns({ key: 'id', type: 'number', filterable: true });
+      await TDD.updateColumns({ field: 'id', dataType: 'number', filterable: true });
 
       await TDD.activateFilterRow('id');
       await TDD.filterByInput('3');
@@ -375,7 +375,7 @@ describe('Grid UI filter', () => {
   describe('API', () => {
     it('Honors column configuration parameters', async () => {
       await TDD.updateColumns({
-        key: 'name',
+        field: 'name',
         filterable: true,
         filteringCaseSensitive: true,
       });
@@ -386,7 +386,7 @@ describe('Grid UI filter', () => {
 
     it('Honors overwriting column configuration parameters', async () => {
       await TDD.updateColumns({
-        key: 'name',
+        field: 'name',
         filterable: true,
         filteringCaseSensitive: true,
       });
@@ -411,7 +411,7 @@ describe('Grid UI filter', () => {
     });
 
     it('Single expression (multiple columns)', async () => {
-      await TDD.updateColumns({ key: 'id', type: 'number' });
+      await TDD.updateColumns({ field: 'id', dataType: 'number' });
       await TDD.filter([
         { key: 'id', condition: 'greaterThan', searchTerm: 4 },
         { key: 'importance', condition: 'startsWith', searchTerm: 'medium' },
@@ -421,7 +421,7 @@ describe('Grid UI filter', () => {
     });
 
     it('Multiple expressions (single column)', async () => {
-      await TDD.updateColumns({ key: 'id', type: 'number' });
+      await TDD.updateColumns({ field: 'id', dataType: 'number' });
       await TDD.filter([
         { key: 'id', condition: 'greaterThan', searchTerm: 4 },
         { key: 'id', condition: 'lessThan', searchTerm: 6 },
@@ -431,7 +431,7 @@ describe('Grid UI filter', () => {
     });
 
     it('Multiple expressions (multiple columns)', async () => {
-      await TDD.updateColumns({ key: 'id', type: 'number' });
+      await TDD.updateColumns({ field: 'id', dataType: 'number' });
 
       await TDD.filter([
         { key: 'id', condition: 'greaterThan', searchTerm: 1 },
@@ -452,7 +452,7 @@ describe('Grid UI filter', () => {
     });
 
     it('API clear state (by key)', async () => {
-      await TDD.updateColumns({ key: 'active', type: 'boolean' });
+      await TDD.updateColumns({ field: 'active', dataType: 'boolean' });
       await TDD.filter([
         { key: 'name', condition: 'contains', searchTerm: 'a' },
         { key: 'name', condition: 'startsWith', searchTerm: 'a' },

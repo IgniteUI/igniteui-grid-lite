@@ -85,7 +85,7 @@ export class FilterController<T extends object> implements ReactiveController {
 
     // XXX: Types
     return {
-      key: column.key,
+      key: column.field,
       condition: operands[keys[0]],
       caseSensitive,
     } as unknown as FilterExpression<T>;

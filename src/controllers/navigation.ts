@@ -36,12 +36,12 @@ export class NavigationController<T extends object> implements ReactiveControlle
   }
 
   protected get _firstColumn() {
-    return this._state.host.getColumn(0)!.key ?? '';
+    return this._state.host.getColumn(0)!.field ?? '';
   }
 
   protected getPreviousColumn(key: Keys<T>) {
     return this._columns[Math.max(this._columns.indexOf(this._state.host.getColumn(key)!) - 1, 0)]
-      .key;
+      .field;
   }
 
   protected getNextColumn(key: Keys<T>) {
@@ -50,7 +50,7 @@ export class NavigationController<T extends object> implements ReactiveControlle
         this._columns.indexOf(this._state.host.getColumn(key)!) + 1,
         this._columns.length - 1
       )
-    ].key;
+    ].field;
   }
 
   protected scrollToCell(node: ActiveNode<T>) {
@@ -60,7 +60,7 @@ export class NavigationController<T extends object> implements ReactiveControlle
 
     if (row) {
       row.cells
-        .find((cell) => cell.column.key === node.column)
+        .find((cell) => cell.column.field === node.column)
         ?.scrollIntoView({ block: 'nearest' });
     }
   }

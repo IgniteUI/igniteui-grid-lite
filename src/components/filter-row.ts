@@ -53,7 +53,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   public state!: StateController<T>;
 
   protected get isNumeric() {
-    return this.column.type === 'number';
+    return this.column.dataType === 'number';
   }
 
   protected get filterController() {
@@ -99,7 +99,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   #handleConditionChanged(event: CustomEvent<IgcDropdownItemComponent>) {
     event.stopPropagation();
-    const key = event.detail.value as OperandKeys<T[typeof this.column.key]>;
+    const key = event.detail.value as OperandKeys<T[typeof this.column.field]>;
 
     // XXX: Types
     this.expression.condition = (getFilterOperandsFor(this.column) as any)[key] as FilterOperation<
@@ -150,7 +150,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   #handleResetClick() {
-    this.filterController.removeAllExpressions(this.column.key);
+    this.filterController.removeAllExpressions(this.column.field);
     this.requestUpdate();
   }
 
@@ -236,7 +236,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   protected renderActiveChips() {
-    const state = this.filterController.get(this.column.key);
+    const state = this.filterController.get(this.column.field);
 
     return !state
       ? nothing
@@ -350,7 +350,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   protected renderFilterState(column: ColumnConfiguration<T>) {
-    const state = this.filterController.get(column.key);
+    const state = this.filterController.get(column.field);
 
     const partial = state && state.length < 3;
     const hidden = state && state.length >= 3;
@@ -363,7 +363,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
     const count = hidden ? html`<span slot="suffix">${state.length}</span>` : nothing;
     const chip = html`<igc-chip
-      data-column=${column.key}
+      data-column=${column.field}
       @click=${open}
       >${prefixedIcon('filter')}Filter${count}</igc-chip
     >`;

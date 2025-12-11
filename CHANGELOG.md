@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** This project is currently in initial development (0.0.x versions). Until version 1.0.0 is released, the public API is not considered stable and breaking changes may occur in any release without following semantic versioning conventions.
 
+## [0.3.0] - 2025-12-11
+
+### Changed
+
+- **BREAKING:** Column properties have been renamed:
+  - `key` → `field` - The field from the data that the column references
+  - `type` → `dataType` - The data type of the column's values
+  - `headerText` → `header` - The header text of the column
+
 ## [0.2.0] - 2025-12-10
 
 ### Changed

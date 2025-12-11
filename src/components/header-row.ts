@@ -60,7 +60,7 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
         ? nothing
         : html`
             <igc-grid-lite-header
-              part=${partMap({ filtered: column.key === filterRow?.column?.key })}
+              part=${partMap({ filtered: column.field === filterRow?.column?.field })}
               .column=${column}
             ></igc-grid-lite-header>
           `

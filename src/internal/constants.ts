@@ -14,8 +14,8 @@ export const SENTINEL_NODE: Readonly<ActiveNode<any>> = Object.freeze({
   row: -1,
 });
 export const DEFAULT_COLUMN_CONFIG = Object.freeze<ColumnConfiguration<any>>({
-  key: columnKey,
-  type: 'string',
+  field: columnKey,
+  dataType: 'string',
   resizable: false,
   hidden: false,
   sortable: false,

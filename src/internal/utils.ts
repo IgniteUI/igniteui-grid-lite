@@ -32,7 +32,7 @@ export function asArray<T>(value: T | T[]): T[] {
 
 export function getFilterOperandsFor<T extends object>(column: ColumnConfiguration<T>) {
   // Check for custom class in the filter config
-  switch (column.type) {
+  switch (column.dataType) {
     case 'boolean':
       return BooleanOperands;
     case 'number':
@@ -57,8 +57,8 @@ function getColumnType(value: unknown): 'boolean' | 'number' | 'string' {
 export function setColumnsFromData<T extends object>(record: T): Array<ColumnConfiguration<T>> {
   return Object.entries(record).map(([key, value]) => {
     return createColumnConfiguration<T>({
-      key: key as keyof T,
-      type: getColumnType(value),
+      field: key as keyof T,
+      dataType: getColumnType(value),
     } as Partial<ColumnConfiguration<T>>);
   });
 }
@@ -67,9 +67,9 @@ export function createColumnConfiguration<T extends object>(
   config: Partial<ColumnConfiguration<T>>
 ): ColumnConfiguration<T> {
   return {
-    key: config.key ?? '',
-    type: config.type ?? 'string',
-    headerText: config.headerText,
+    field: config.field ?? '',
+    dataType: config.dataType ?? 'string',
+    header: config.header,
     width: config.width,
     hidden: config.hidden ?? false,
     resizable: config.resizable ?? false,

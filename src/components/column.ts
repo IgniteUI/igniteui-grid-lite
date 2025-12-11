@@ -37,17 +37,17 @@ export class IgcGridLiteColumn<T extends object>
   @consume({ context: COLUMN_UPDATE_CONTEXT })
   protected _setConfig?: (config: BaseColumnConfiguration<T>) => void;
 
-  /** The key of the column, used to identify the data field. */
+  /** The field from the data for this column. */
   @property()
-  public key!: keyof T;
+  public field!: keyof T;
 
   /** The data type of the column's values. */
   @property()
-  public type?: 'number' | 'string' | 'boolean' = 'string';
+  public dataType?: 'number' | 'string' | 'boolean' = 'string';
 
   /** The header text of the column. */
   @property()
-  public headerText?: string;
+  public header?: string;
 
   /** The width of the column. */
   @property()

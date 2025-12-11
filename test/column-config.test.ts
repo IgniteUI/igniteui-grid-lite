@@ -28,7 +28,7 @@ describe('Column configuration', () => {
       TDD.grid.replaceChildren(
         ...newKeys.map((key) => {
           const col = document.createElement(GRID_COLUMN_TAG) as IgcGridLiteColumn<TestData>;
-          col.key = key;
+          col.field = key;
           return col;
         })
       );
@@ -44,38 +44,38 @@ describe('Column configuration', () => {
 
     it('Updating configuration', async () => {
       await TDD.updateColumns([
-        { key: 'id', headerText: 'Primary' },
-        { key: 'name', headerText: 'Username' },
+        { field: 'id', header: 'Primary' },
+        { field: 'name', header: 'Username' },
       ]);
 
-      expect(TDD.grid.getColumn('id')?.headerText).to.equal('Primary');
-      expect(TDD.grid.getColumn('name')?.headerText).to.equal('Username');
+      expect(TDD.grid.getColumn('id')?.header).to.equal('Primary');
+      expect(TDD.grid.getColumn('name')?.header).to.equal('Username');
     });
   });
 
   describe('Properties', () => {
     it('Header text', async () => {
-      const headerText = 'Primary key';
+      const header = 'Primary key';
       expect(TDD.headers.first.text).to.equal('id');
 
-      await TDD.updateColumns({ key: 'id', headerText });
-      expect(TDD.headers.first.text).to.equal(headerText);
+      await TDD.updateColumns({ field: 'id', header });
+      expect(TDD.headers.first.text).to.equal(header);
     });
 
     it('Visibility', async () => {
       expect(TDD.headers.first.element).to.exist;
 
-      await TDD.updateColumns({ key: 'id', hidden: true });
+      await TDD.updateColumns({ field: 'id', hidden: true });
       expect(TDD.headers.get('id').element).to.not.exist;
 
-      await TDD.updateColumns({ key: 'id', hidden: false });
+      await TDD.updateColumns({ field: 'id', hidden: false });
       expect(TDD.headers.first.element).to.exist;
     });
 
     it('Header template', async () => {
       await TDD.updateColumns({
-        key: 'id',
-        headerTemplate: (props) => html`<h3>Custom template for ${props.column.key}</h3>`,
+        field: 'id',
+        headerTemplate: (props) => html`<h3>Custom template for ${props.column.field}</h3>`,
       });
       expect(TDD.headers.first.text).to.equal('Custom template for id');
       expect(TDD.headers.first.titlePart).dom.equal(
@@ -89,7 +89,7 @@ describe('Column configuration', () => {
 
     it('Cell template', async () => {
       await TDD.updateColumns({
-        key: 'name',
+        field: 'name',
         cellTemplate: (props: IgcCellContext<TestData, 'name'>) =>
           html`<input value=${props.value} />`,
       });
@@ -114,11 +114,11 @@ describe('Column configuration', () => {
       cellWidthEquals(250);
 
       // 0.5 * 1000 = 500
-      await TDD.updateColumns({ key: 'id', width: '50%' });
+      await TDD.updateColumns({ field: 'id', width: '50%' });
       headerWidthEquals(500);
       cellWidthEquals(500);
 
-      await TDD.updateColumns({ key: 'id', width: '200px' });
+      await TDD.updateColumns({ field: 'id', width: '200px' });
       headerWidthEquals(200);
       cellWidthEquals(200);
     });
@@ -126,7 +126,7 @@ describe('Column configuration', () => {
     it('Resize', async () => {
       expect(TDD.grid.getColumn('name')?.resizable).to.be.false;
 
-      await TDD.updateColumns({ key: 'name', resizable: true });
+      await TDD.updateColumns({ field: 'name', resizable: true });
 
       expect(TDD.grid.getColumn('name')?.resizable).to.be.true;
       expect(TDD.headers.get('name').resizePart).to.exist;

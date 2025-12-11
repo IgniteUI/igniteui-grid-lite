@@ -15,7 +15,7 @@ export default class RowTestFixture<T extends object> {
     return new CellTestFixture(
       typeof id === 'number'
         ? this.element.cells.at(id)!
-        : this.element.cells.find(({ column }) => column.key === id)!
+        : this.element.cells.find(({ column }) => column.field === id)!
     );
   }
 

@@ -14,7 +14,7 @@ export class ResizeController<T extends object> implements ReactiveController {
 
   #maxSize(key: Keys<T>, headerWidth: number) {
     const max = this.host.rows
-      .map((row) => row.cells.find((cell) => cell.column.key === key)!)
+      .map((row) => row.cells.find((cell) => cell.column.field === key)!)
       .reduce((prev, current) => (current.offsetWidth > prev ? current.offsetWidth : prev), 0);
 
     return Math.max(...[MIN_COL_RESIZE_WIDTH, max, headerWidth]);
@@ -54,7 +54,7 @@ export class ResizeController<T extends object> implements ReactiveController {
     this.host.requestUpdate();
     await this.host.updateComplete;
 
-    column.width = `${this.#maxSize(column.key, header.offsetWidth)}px`;
+    column.width = `${this.#maxSize(column.field, header.offsetWidth)}px`;
     this.host.requestUpdate();
   }
 

@@ -107,21 +107,21 @@ const themeChoose = html`
 
 const columns: ColumnConfiguration<User>[] = [
   {
-    key: 'id',
-    headerText: 'User ID',
+    field: 'id',
+    header: 'User ID',
     resizable: true,
-    type: 'number',
+    dataType: 'number',
     filterable: true,
     sortable: true,
   },
   {
-    key: 'name',
+    field: 'name',
     cellTemplate: (params) => html`<igc-input .value=${params.value}></igc-input>`,
     filterable: true,
     sortable: true,
   },
   {
-    key: 'avatar',
+    field: 'avatar',
     cellTemplate: (params) =>
       html`<igc-avatar
         shape="circle"
@@ -129,8 +129,8 @@ const columns: ColumnConfiguration<User>[] = [
       ></igc-avatar>`,
   },
   {
-    key: 'satisfaction',
-    type: 'number',
+    field: 'satisfaction',
+    dataType: 'number',
     sortable: true,
     filterable: true,
     cellTemplate: (params) =>
@@ -141,7 +141,7 @@ const columns: ColumnConfiguration<User>[] = [
       ></igc-rating>`,
   },
   {
-    key: 'priority',
+    field: 'priority',
     cellTemplate: (params) =>
       html`<igc-select
         outlined
@@ -157,14 +157,14 @@ const columns: ColumnConfiguration<User>[] = [
     },
   },
   {
-    key: 'age',
+    field: 'age',
   },
   {
-    key: 'email',
+    field: 'email',
   },
   {
-    key: 'subscribed',
-    type: 'boolean',
+    field: 'subscribed',
+    dataType: 'boolean',
     sortable: true,
     filterable: true,
     cellTemplate: (params) =>
@@ -179,11 +179,11 @@ const data = generateData(1e3);
 IgcGridLite.register();
 
 const column = document.createElement(IgcGridLiteColumn.tagName) as IgcGridLiteColumn<User>;
-column.key = 'email';
-column.headerText = 'Toggle Me';
+column.field = 'email';
+column.header = 'Toggle Me';
 
 const column2 = document.createElement(IgcGridLiteColumn.tagName) as IgcGridLiteColumn<User>;
-column2.headerText = 'Non-existent';
+column2.header = 'Non-existent';
 
 const toggleColumn = () => {
   const grid = getElement<IgcGridLite<User>>(IgcGridLite.tagName);
@@ -194,7 +194,7 @@ const toggleColumn = () => {
 const toggleFiltering = () => {
   const grid = getElement<IgcGridLite<User>>(IgcGridLite.tagName);
   const column = Array.from(grid.querySelectorAll(IgcGridLiteColumn.tagName)).find(
-    (col) => col.key === 'name',
+    (col) => col.field === 'name',
   )!;
 
   column.filterable = !column.filterable;
@@ -217,16 +217,16 @@ render(
       ${columns.map(
         (col) =>
           html`<igc-grid-lite-column
-            .key=${col.key}
-            .type=${col.type}
-            .headerText=${col.headerText}
+            .field=${col.field}
+            .dataType=${col.dataType}
+            .header=${col.header}
             ?hidden=${col.hidden}
             ?resizable=${col.resizable}
             ?sortable=${col.sortable}
             .sortConfiguration=${col.sortConfiguration}
             ?filterable=${col.filterable}
             .cellTemplate=${col.cellTemplate}
-            .headerTemplate=${col.headerTemplate as any}
+            .headerTemplate=${col.headerTemplate}
           ></igc-grid-lite-column>`,
       )}
     </igc-grid-lite>

@@ -103,7 +103,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   #handleAutosize = () => this.resizeController.autosize(this.column, this);
 
   protected renderSortPart() {
-    const state = this.state.sorting.state.get(this.column.key);
+    const state = this.state.sorting.state.get(this.column.field);
     const idx = Array.from(this.state.sorting.state.values()).indexOf(state!);
     const attr =
       this.state.host.sortingOptions.mode === 'multiple' ? (idx > -1 ? idx + 1 : nothing) : nothing;
@@ -129,7 +129,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   }
 
   protected renderContentPart() {
-    const defaultContent = this.column.headerText ?? this.column.key;
+    const defaultContent = this.column.header ?? this.column.field;
     const template = this.column.headerTemplate;
 
     return html`
