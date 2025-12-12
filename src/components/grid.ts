@@ -410,13 +410,6 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
     );
   }
 
-  /**
-   * Updates the column configuration of the grid.
-   */
-  public updateColumns(columns: ColumnConfiguration<T> | ColumnConfiguration<T>[]): void {
-    this._stateController.updateColumnsConfiguration(asArray(columns));
-  }
-
   @eventOptions({ capture: true })
   protected _bodyClickHandler(event: PointerEvent): void {
     const target = getElementFromEventPath<IgcGridLiteCell<T>>(IgcGridLiteCell.tagName, event);

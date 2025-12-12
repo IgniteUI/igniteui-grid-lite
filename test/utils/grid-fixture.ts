@@ -3,8 +3,9 @@ import IgcFilterRow from '../../src/components/filter-row.js';
 import { IgcGridLite } from '../../src/components/grid.js';
 import IgcGridLiteHeaderRow from '../../src/components/header-row.js';
 import IgcVirtualizer from '../../src/components/virtualizer.js';
+import { GRID_COLUMN_TAG } from '../../src/internal/tags.js';
 import type { ColumnConfiguration, Keys } from '../../src/internal/types.js';
-import { isNumber } from '../../src/internal/utils.js';
+import { asArray, isNumber } from '../../src/internal/utils.js';
 import type { FilterExpression } from '../../src/operations/filter/types.js';
 import type { SortingExpression } from '../../src/operations/sort/types.js';
 import type CellTestFixture from './cell-fixture.js';
@@ -194,7 +195,11 @@ export default class GridTestFixture<T extends object> {
   }
 
   public async updateColumns(columns: ColumnConfiguration<T> | ColumnConfiguration<T>[]) {
-    this.grid.updateColumns(columns);
+    const colElements = Array.from(this.grid.querySelectorAll(GRID_COLUMN_TAG));
+    for (const col of asArray(columns)) {
+      const elem = colElements.find((x) => x.field === col.field);
+      elem && Object.assign(elem, col);
+    }
     await this.waitForUpdate();
     return this;
   }
