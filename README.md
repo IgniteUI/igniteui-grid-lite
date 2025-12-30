@@ -162,6 +162,8 @@ Ignite UI Grid Lite is designed as a lightweight, open-source alternative to the
 - Lightweight and fast
 - MIT licensed and free for all use
 
+### Ignite UI for Web Components
+
 **Best for:**
 - Enterprise applications requiring advanced features
 - Complex data scenarios with editing, grouping, and aggregation
