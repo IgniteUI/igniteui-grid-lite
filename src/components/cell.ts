@@ -56,7 +56,9 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
 
   protected override render() {
     return html`${cache(
-      this.column.cellTemplate ? this.column.cellTemplate(this.context as any) : html`${this.value}`
+      this.column.cellTemplate
+        ? this.column.cellTemplate(this.context as any)
+        : html`<span part="text">${this.value}</span>`
     )}`;
   }
 }
