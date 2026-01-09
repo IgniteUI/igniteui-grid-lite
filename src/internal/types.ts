@@ -11,19 +11,25 @@ export type GridHost<T extends object> = ReactiveControllerHost & IgcGridLite<T>
 /**
  * Helper type for resolving keys of type T.
  */
-export type Keys<T> = keyof T;
+export type Keys<T> = {
+  [K in keyof T & string]: T[K] extends object
+    ? K | `${K}.${Keys<T[K]>}` // Note: this works because a `never` will collapse the entire string, leaving only valid paths
+    : K;
+}[keyof T & string];
+
+/** Recursive T[K] property type resolve with nested dot paths support */
+type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
+  ? K extends keyof T
+    ? PathValue<T[K], Rest>
+    : never
+  : P extends keyof T
+    ? T[P]
+    : never;
 
 /**
  * Helper type for resolving types of type T.
  */
-export type BasePropertyType<T, K extends Keys<T> = Keys<T>> = T[K];
-
-/**
- * Helper type for resolving types of type T.
- */
-export type PropertyType<T, K extends Keys<T> = Keys<T>> = K extends Keys<T>
-  ? BasePropertyType<T, K>
-  : never;
+export type PropertyType<T, K extends Keys<T> = Keys<T>> = PathValue<T, K>;
 
 /** The data for the current column. */
 export type DataType = 'number' | 'string' | 'boolean';

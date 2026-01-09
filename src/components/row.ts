@@ -4,6 +4,7 @@ import { map } from 'lit/directives/map.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_ROW_TAG } from '../internal/tags.js';
 import type { ActiveNode, ColumnConfiguration } from '../internal/types.js';
+import { resolveFieldValue } from '../internal/utils.js';
 import { styles } from '../styles/body-row/body-row.css.js';
 import IgcGridLiteCell from './cell.js';
 
@@ -51,7 +52,7 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
               .active=${key === column.field && index === this.index}
               .column=${column}
               .row=${this as IgcGridLiteRow<T>}
-              .value=${data[column.field]}
+              .value=${resolveFieldValue(data, column.field)}
             ></igc-grid-lite-cell>`
       )}
     `;
