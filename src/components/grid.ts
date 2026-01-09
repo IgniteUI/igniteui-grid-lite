@@ -402,6 +402,16 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
   }
 
   /**
+   * Navigates to a position in the grid based on provided row index and column field.
+   * @param row The row index to navigate to
+   * @param column The column field to navigate to, if any
+   * @param activate Optionally also activate the navigated cell
+   */
+  public async navigateTo(row: number, column?: Keys<T>, activate = false) {
+    await this._stateController.navigation.navigateTo(row, column, activate);
+  }
+
+  /**
    * Returns a {@link ColumnConfiguration} for a given column.
    */
   public getColumn(id: Keys<T> | number): ColumnConfiguration<T> | undefined {
