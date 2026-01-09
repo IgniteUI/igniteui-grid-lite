@@ -30,10 +30,16 @@ type User = {
   priority: string;
   email: string;
   avatar: string;
+  address: {
+    city: string;
+    country: string;
+  };
 };
 
 const choices = ['low', 'standard', 'high'];
 const themes = ['bootstrap', 'material', 'fluent', 'indigo'];
+const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'London', 'Paris', 'Berlin', 'Tokyo', 'Sydney'];
+const countries = ['USA', 'USA', 'USA', 'USA', 'USA', 'UK', 'France', 'Germany', 'Japan', 'Australia'];
 
 function getElement<T>(qs: string): T {
   return document.querySelector(qs) as T;
@@ -42,8 +48,9 @@ function getElement<T>(qs: string): T {
 function generateData(length: number): User[] {
   return Array.from(
     { length },
-    (_, idx) =>
-      ({
+    (_, idx) => {
+      const cityIndex = getRandomInt(cities.length);
+      return {
         id: idx,
         name: `User - ${getRandomInt(length)}`,
         age: getRandomInt(100),
@@ -52,7 +59,12 @@ function generateData(length: number): User[] {
         priority: oneOf(choices),
         email: `user${idx}@org.com`,
         avatar: getAvatar(),
-      }) as User,
+        address: {
+          city: cities[cityIndex],
+          country: countries[cityIndex],
+        },
+      } as User;
+    },
   );
 }
 
@@ -161,6 +173,18 @@ const columns: ColumnConfiguration<User>[] = [
   },
   {
     field: 'email',
+  },
+  {
+    field: 'address.city',
+    header: 'City',
+    sortable: true,
+    filterable: true,
+  },
+  {
+    field: 'address.country',
+    header: 'Country',
+    sortable: true,
+    filterable: true,
   },
   {
     field: 'subscribed',

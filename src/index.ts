@@ -9,7 +9,6 @@ export type {
   BaseColumnConfiguration,
   BaseColumnSortConfiguration,
   BaseIgcCellContext,
-  BasePropertyType,
   ColumnConfiguration,
   ColumnSortConfiguration,
   DataPipelineConfiguration,
