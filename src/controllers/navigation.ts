@@ -53,10 +53,14 @@ export class NavigationController<T extends object> implements ReactiveControlle
     ].field;
   }
 
-  protected scrollToCell(node: ActiveNode<T>) {
-    const row = Array.from(this._virtualizer?.querySelectorAll(GRID_ROW_TAG) ?? []).find(
-      (row) => row.index === node.row
+  protected queryRowByIndex(index: number) {
+    return Array.from(this._virtualizer?.querySelectorAll(GRID_ROW_TAG) ?? []).find(
+      (row) => row.index === index
     ) as unknown as IgcGridLiteRow<T>;
+  }
+
+  protected scrollToCell(node: ActiveNode<T>) {
+    const row = this.queryRowByIndex(node.row);
 
     if (row) {
       row.cells
@@ -127,5 +131,22 @@ export class NavigationController<T extends object> implements ReactiveControlle
       event.preventDefault();
       this.handlers.get(event.key)!.call(this);
     }
+  }
+
+  public async navigateTo(row: number, column?: Keys<T>, activate = false) {
+    if (activate) this.active = Object.assign(this.nextNode, { row, column });
+
+    // attempt to resolve row in DOM first as a check if layout change will be needed
+    let item: Pick<HTMLElement, 'scrollIntoView'> | undefined = this.queryRowByIndex(row);
+    let completePromise: Promise<void> | undefined;
+
+    if (!item) {
+      item = this._virtualizer?.element(row);
+      completePromise = item && this._virtualizer?.layoutComplete;
+    }
+
+    item?.scrollIntoView({ block: 'nearest' });
+    await completePromise;
+    if (column) this.scrollToCell({ row, column });
   }
 }
