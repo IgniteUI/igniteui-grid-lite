@@ -3,10 +3,10 @@ import type { IgcGridLiteColumn } from '../src/index.js';
 import { GRID_COLUMN_TAG } from '../src/internal/tags.js';
 import type { IgcCellContext, Keys } from '../src/internal/types.js';
 import GridTestFixture from './utils/grid-fixture.js';
-import data, { type TestData } from './utils/test-data.js';
+import data, { generateFieldPaths, type TestData } from './utils/test-data.js';
 
-const TDD = new GridTestFixture(data, { width: '1000px' });
-const defaultKeys = Object.keys(data[0]) as Array<Keys<TestData>>;
+const TDD = new GridTestFixture(data, { width: '1500px' });
+const defaultKeys = generateFieldPaths(data[0]);
 
 describe('Column configuration', () => {
   beforeEach(async () => await TDD.setUp());
@@ -14,7 +14,7 @@ describe('Column configuration', () => {
 
   describe('Binding', () => {
     it('Through attribute', async () => {
-      expect(TDD.grid.columns).lengthOf(defaultKeys.length);
+      expect(TDD.grid.columns).lengthOf(6);
 
       for (const key of defaultKeys) {
         expect(TDD.grid.getColumn(key)).to.exist;
@@ -108,15 +108,15 @@ describe('Column configuration', () => {
           expected
         );
 
-      // 4 columns * 1fr out of 1000px = 250px
+      // 6 columns * 1fr out of 1500px = 250px
 
       headerWidthEquals(250);
       cellWidthEquals(250);
 
-      // 0.5 * 1000 = 500
+      // 0.5 * 1500 = 750
       await TDD.updateColumns({ field: 'id', width: '50%' });
-      headerWidthEquals(500);
-      cellWidthEquals(500);
+      headerWidthEquals(750);
+      cellWidthEquals(750);
 
       await TDD.updateColumns({ field: 'id', width: '200px' });
       headerWidthEquals(200);
@@ -130,6 +130,44 @@ describe('Column configuration', () => {
 
       expect(TDD.grid.getColumn('name')?.resizable).to.be.true;
       expect(TDD.headers.get('name').resizePart).to.exist;
+    });
+  });
+
+  describe('Nested field columns', () => {
+    it('Renders nested string field values in cells', async () => {
+      const cityHeader = TDD.headers.get('address.city');
+      expect(cityHeader.text).to.equal('address.city');
+
+      const firstRowCell = TDD.rows.first.cells.get(4);
+      expect(firstRowCell.value).to.equal(data[0].address.city);
+    });
+
+    it('Renders nested number field values in cells', async () => {
+      const codeHeader = TDD.headers.get('address.code');
+      expect(codeHeader.text).to.equal('address.code');
+
+      const firstRowCell = TDD.rows.first.cells.get(5);
+      expect(firstRowCell.value).to.equal(data[0].address.code);
+    });
+
+    it('Nested field column with custom header', async () => {
+      await TDD.updateColumns({
+        field: 'address.city',
+        header: 'City',
+      });
+
+      expect(TDD.headers.get('address.city').text).to.equal('City');
+    });
+
+    it('Nested field column with custom cell template', async () => {
+      await TDD.updateColumns({
+        field: 'address.city',
+        cellTemplate: (props: any) => html`<strong>${props.value}</strong>`,
+      });
+
+      expect(TDD.rows.first.cells.get(4).element).shadowDom.equal(
+        `<strong>${data[0].address.city}</strong>`
+      );
     });
   });
 });

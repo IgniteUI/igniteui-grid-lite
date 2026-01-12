@@ -55,22 +55,23 @@ describe('Grid UI sort', () => {
   });
 
   describe('Default UI', () => {
-    it('Sort icons state', async () => {
-      const key = 'id';
+    const keys = ['id', 'address.city'] as const;
+    keys.forEach((key) => {
+      it('Sort icons state', async () => {
+        // Default sort DOM state
+        TDD.sortDOMExists(key);
+        TDD.columnIsNotSorted(key);
 
-      // Default sort DOM state
-      TDD.sortDOMExists(key);
-      TDD.columnIsNotSorted(key);
+        // Ascending state
+        await TDD.sortHeader(key);
+        TDD.indicatorIsAscending(key);
+        TDD.columnIsSorted(key);
 
-      // Ascending state
-      await TDD.sortHeader(key);
-      TDD.indicatorIsAscending(key);
-      TDD.columnIsSorted(key);
-
-      // Descending state
-      await TDD.sortHeader(key);
-      TDD.indicatorIsDescending(key);
-      TDD.columnIsSorted(key);
+        // Descending state
+        await TDD.sortHeader(key);
+        TDD.indicatorIsDescending(key);
+        TDD.columnIsSorted(key);
+      });
     });
 
     it('Non-sortable columns have no sort DOM', async () => {

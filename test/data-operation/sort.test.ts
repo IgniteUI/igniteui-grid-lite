@@ -180,4 +180,28 @@ describe('Sort operations', () => {
     expect(TDD.first.importance).to.equal('low');
     expect(TDD.last.importance).to.equal('high');
   });
+
+  describe('Nested field sort', () => {
+    it('type: string [nested path]', () => {
+      TDD.setState({ key: 'address.city', direction: 'ascending' }).run();
+
+      expect(TDD.first.address.city).to.equal('Chicago');
+      expect(TDD.last.address.city).to.equal('New York');
+
+      TDD.setState({ key: 'address.city', direction: 'descending' }).run();
+
+      expect(TDD.first.address.city).to.equal('New York');
+      expect(TDD.last.address.city).to.equal('Chicago');
+    });
+
+    it('type: number [nested path]', () => {
+      TDD.setState({ key: 'address.code', direction: 'ascending' }).run();
+
+      expect(TDD.first.address.code).to.equal(10001);
+
+      TDD.setState({ key: 'address.code', direction: 'descending' }).run();
+
+      expect(TDD.first.address.code).to.equal(90002);
+    });
+  });
 });

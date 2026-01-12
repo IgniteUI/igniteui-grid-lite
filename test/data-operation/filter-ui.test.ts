@@ -97,6 +97,7 @@ class FilterFixture<T extends object> extends GridTestFixture<T> {
 }
 
 const TDD = new FilterFixture(data);
+const keys = ['name', 'address.city'] as const;
 
 describe('Grid UI filter', () => {
   beforeEach(async () => {
@@ -128,19 +129,21 @@ describe('Grid UI filter', () => {
       expect(TDD.filterableColumns).lengthOf(TDD.filterRow.inactiveStateChips.length);
     });
 
-    it('Default state when clicking on a filter chip', async () => {
-      await TDD.activateFilterRow('name');
+    keys.forEach((key) => {
+      it('Default state when clicking on a filter chip', async () => {
+        await TDD.activateFilterRow(key);
 
-      TDD.assertActiveFilterRowState();
-      TDD.assertHasHeaderFilterStyle('name');
-    });
+        TDD.assertActiveFilterRowState();
+        TDD.assertHasHeaderFilterStyle(key);
+      });
 
-    it('Default state when exiting from active filter row state', async () => {
-      await TDD.activateFilterRow('name');
-      await TDD.closeFilterRow();
+      it('Default state when exiting from active filter row state', async () => {
+        await TDD.activateFilterRow(key);
+        await TDD.closeFilterRow();
 
-      TDD.assertInactiveFilterRowState();
-      TDD.assertDoesNotHaveHeaderFilterStyle('name');
+        TDD.assertInactiveFilterRowState();
+        TDD.assertDoesNotHaveHeaderFilterStyle(key);
+      });
     });
 
     it('Correctly changes header style for active column', async () => {
@@ -167,15 +170,17 @@ describe('Grid UI filter', () => {
   });
 
   describe('Default UI filtering', () => {
-    it('Chip state on input', async () => {
-      await TDD.activateFilterRow('name');
-      await TDD.filterByInput('a');
+    keys.forEach((key) => {
+      it('Chip state on input', async () => {
+        await TDD.activateFilterRow(key);
+        await TDD.filterByInput('a');
 
-      expect(TDD.activeChips).lengthOf(1);
-      expect(TDD.activeChips[0].textContent?.trim()).to.equal('a');
+        expect(TDD.activeChips).lengthOf(1);
+        expect(TDD.activeChips[0].textContent?.trim()).to.equal('a');
 
-      await TDD.filterByInput('');
-      expect(TDD.activeChips).to.be.empty;
+        await TDD.filterByInput('');
+        expect(TDD.activeChips).to.be.empty;
+      });
     });
 
     it('State on Enter keypress', async () => {

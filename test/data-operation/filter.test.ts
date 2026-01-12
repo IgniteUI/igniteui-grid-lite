@@ -276,4 +276,37 @@ describe('Filter operations', () => {
       expect(TDD.last.importance).to.equal('high');
     });
   });
+
+  describe('Nested field operands', () => {
+    it('`contains` on nested path [case insensitive]', () => {
+      TDD.addCondition('address.city', 'contains', { searchTerm: 'new' }).run();
+      // New York entries: id 1, 4, 7
+      expect(TDD.result).lengthOf(3);
+      expect(TDD.result.every((r) => r.address.city === 'New York')).to.be.true;
+    });
+
+    it('`equals` on nested path', () => {
+      TDD.addCondition('address.city', 'equals', { searchTerm: 'Chicago' }).run();
+      // Chicago entries: id 3, 5, 8
+      expect(TDD.result).lengthOf(3);
+      expect(TDD.result.every((r) => r.address.city === 'Chicago')).to.be.true;
+    });
+
+    it('`greaterThan` on nested number path', () => {
+      TDD.addCondition('address.code', 'greaterThan', { searchTerm: 80000 }).run();
+      // Codes > 80000: 90001, 90002
+      expect(TDD.result).lengthOf(2);
+      expect(TDD.result.every((r) => r.address.code > 80000)).to.be.true;
+    });
+
+    it('Multiple conditions with nested path', () => {
+      TDD.addCondition('address.city', 'equals', { searchTerm: 'Chicago' })
+        .addCondition('active', 'true')
+        .run();
+
+      // Chicago + active: id 3, 5, 8
+      expect(TDD.result).lengthOf(3);
+      expect(TDD.result.every((r) => r.address.city === 'Chicago' && r.active === true)).to.be.true;
+    });
+  });
 });

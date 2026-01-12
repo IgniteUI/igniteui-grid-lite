@@ -12,6 +12,7 @@ import type CellTestFixture from './cell-fixture.js';
 import FilterRowFixture from './filter-row.fixture.js';
 import HeaderTestFixture from './header-fixture.js';
 import RowTestFixture from './row-fixture.js';
+import { generateFieldPaths } from './test-data.js';
 
 interface RowCollection<T extends object> {
   first: RowTestFixture<T>;
@@ -33,7 +34,7 @@ export default class GridTestFixture<T extends object> {
     protected data: T[],
     protected parentStyle?: Partial<CSSStyleDeclaration>
   ) {
-    this.columnConfig = Object.keys(data.at(0)!).map(
+    this.columnConfig = generateFieldPaths(data.at(0)!).map(
       (field) => ({ field }) as ColumnConfiguration<T>
     );
   }
