@@ -11,7 +11,7 @@ export type GridHost<T extends object> = ReactiveControllerHost & IgcGridLite<T>
 type FlatKeys<T> = keyof T;
 type DotPaths<T> = {
   [K in keyof T & string]: T[K] extends object
-    ? K | `${K}.${DotPaths<T[K]>}` // Note: this works because a `never` will collapse the entire string, leaving only valid paths
+    ? K | `${K}.${DotPaths<T[K]>}` // Note: resolving `never` will collapse the entire interpolated string to never, leaving only valid paths
     : K;
 }[keyof T & string];
 type NestedKeys<T> = Exclude<DotPaths<T>, FlatKeys<T>>;

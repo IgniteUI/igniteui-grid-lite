@@ -138,7 +138,7 @@ describe('Column configuration', () => {
       const cityHeader = TDD.headers.get('address.city');
       expect(cityHeader.text).to.equal('address.city');
 
-      const firstRowCell = TDD.rows.first.cells.get(4);
+      const firstRowCell = TDD.rows.first.cells.get('address.city');
       expect(firstRowCell.value).to.equal(data[0].address.city);
     });
 
@@ -146,7 +146,7 @@ describe('Column configuration', () => {
       const codeHeader = TDD.headers.get('address.code');
       expect(codeHeader.text).to.equal('address.code');
 
-      const firstRowCell = TDD.rows.first.cells.get(5);
+      const firstRowCell = TDD.rows.first.cells.get('address.code');
       expect(firstRowCell.value).to.equal(data[0].address.code);
     });
 
@@ -165,7 +165,7 @@ describe('Column configuration', () => {
         cellTemplate: (props: any) => html`<strong>${props.value}</strong>`,
       });
 
-      expect(TDD.rows.first.cells.get(4).element).shadowDom.equal(
+      expect(TDD.rows.first.cells.get('address.city').element).shadowDom.equal(
         `<strong>${data[0].address.city}</strong>`
       );
     });
