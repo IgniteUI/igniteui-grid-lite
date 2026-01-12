@@ -16,7 +16,7 @@ function _isObject(entity: unknown): entity is Record<string, unknown> {
  * @param path - The path to the property, can be a simple key or dot-separated path.
  * @returns The resolved value, or undefined if the path cannot be resolved.
  */
-export function resolveFieldValue<T extends object>(obj: T, path: Keys<T>): PropertyType<T> {
+export function resolveFieldValue<T>(obj: T, path: Keys<T>): PropertyType<T> {
   if (typeof path === 'string' && path.includes('.')) {
     return path.split('.').reduce<unknown>((current, key) => {
       return _isObject(current) && key in current ? current[key] : undefined;

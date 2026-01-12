@@ -1,4 +1,4 @@
-import type { Keys } from '../../internal/types.js';
+import type { Keys, PropertyType } from '../../internal/types.js';
 import type { BooleanOperands } from './operands/boolean.js';
 import type { NumberOperands } from './operands/number.js';
 import type { StringOperands } from './operands/string.js';
@@ -38,7 +38,7 @@ export interface BaseFilterExpression<T, K extends Keys<T> = Keys<T>> {
   /**
    * The filter function which will be executed against the data records.
    */
-  condition: FilterOperation<T[K]> | OperandKeys<T[K]>;
+  condition: FilterOperation<PropertyType<T, K>> | OperandKeys<PropertyType<T, K>>;
 
   /**
    * The filtering value used in the filter condition function.
@@ -46,7 +46,7 @@ export interface BaseFilterExpression<T, K extends Keys<T> = Keys<T>> {
    * @remarks
    * Optional for unary conditions.
    */
-  searchTerm?: T[K];
+  searchTerm?: PropertyType<T, K>;
   /**
    * Dictates how this expression should resolve in the filter operation in relation to
    * other expressions.

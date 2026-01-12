@@ -1,4 +1,4 @@
-import type { Keys } from '../../internal/types.js';
+import type { Keys, PropertyType } from '../../internal/types.js';
 
 /**
  * Sort direction for a given sort expression.
@@ -11,7 +11,10 @@ export type SortingDirection = 'ascending' | 'descending' | 'none';
 /**
  * Custom comparer function for a given column used when sorting is performed.
  */
-export type BaseSortComparer<T, K extends Keys<T> = Keys<T>> = (a: T[K], b: T[K]) => number;
+export type BaseSortComparer<T, K extends Keys<T> = Keys<T>> = (
+  a: PropertyType<T, K>,
+  b: PropertyType<T, K>
+) => number;
 
 /**
  * See {@link BaseSortComparer} for the full documentation.

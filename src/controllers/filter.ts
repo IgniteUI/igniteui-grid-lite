@@ -81,7 +81,7 @@ export class FilterController<T extends object> implements ReactiveController {
   public getDefaultExpression(column: ColumnConfiguration<T>) {
     const caseSensitive = Boolean(column.filteringCaseSensitive);
     const operands = getFilterOperandsFor(column);
-    const keys = Object.keys(operands) as Keys<typeof operands>[];
+    const keys = Object.keys(operands) as (keyof typeof operands)[];
 
     // XXX: Types
     return {

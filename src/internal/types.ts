@@ -8,14 +8,18 @@ import type { SortComparer } from '../operations/sort/types.js';
 export type NavigationState = 'previous' | 'current';
 export type GridHost<T extends object> = ReactiveControllerHost & IgcGridLite<T>;
 
+type FlatKeys<T> = keyof T;
+type DotPaths<T> = {
+  [K in keyof T & string]: T[K] extends object
+    ? K | `${K}.${DotPaths<T[K]>}` // Note: this works because a `never` will collapse the entire string, leaving only valid paths
+    : K;
+}[keyof T & string];
+type NestedKeys<T> = Exclude<DotPaths<T>, FlatKeys<T>>;
+
 /**
  * Helper type for resolving keys of type T.
  */
-export type Keys<T> = {
-  [K in keyof T & string]: T[K] extends object
-    ? K | `${K}.${Keys<T[K]>}` // Note: this works because a `never` will collapse the entire string, leaving only valid paths
-    : K;
-}[keyof T & string];
+export type Keys<T> = FlatKeys<T> | NestedKeys<T>;
 
 /** Recursive T[K] property type resolve with nested dot paths support */
 type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
@@ -29,7 +33,11 @@ type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
 /**
  * Helper type for resolving types of type T.
  */
-export type PropertyType<T, K extends Keys<T> = Keys<T>> = PathValue<T, K>;
+export type PropertyType<T, K extends Keys<T> = Keys<T>> = K extends NestedKeys<T>
+  ? PathValue<T, K> // nested path
+  : K extends keyof T
+    ? T[K] // flat key
+    : never;
 
 /** The data for the current column. */
 export type DataType = 'number' | 'string' | 'boolean';

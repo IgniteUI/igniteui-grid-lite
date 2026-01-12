@@ -9,6 +9,7 @@ import type {
   ColumnSortConfiguration,
   IgcCellContext,
   IgcHeaderContext,
+  Keys,
 } from '../internal/types.js';
 
 /**
@@ -39,7 +40,7 @@ export class IgcGridLiteColumn<T extends object>
 
   /** The field from the data for this column. */
   @property()
-  public field!: keyof T;
+  public field!: Keys<T>;
 
   /** The data type of the column's values. */
   @property()

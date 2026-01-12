@@ -13,7 +13,7 @@ import { DEFAULT_COLUMN_CONFIG } from '../internal/constants.js';
 import { GRID_STATE_CONTEXT } from '../internal/context.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_FILTER_ROW_TAG } from '../internal/tags.js';
-import type { ColumnConfiguration } from '../internal/types.js';
+import type { ColumnConfiguration, PropertyType } from '../internal/types.js';
 import { getFilterOperandsFor } from '../internal/utils.js';
 import { watch } from '../internal/watch.js';
 import type { FilterExpressionTree } from '../operations/filter/tree.js';
@@ -99,11 +99,11 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   #handleConditionChanged(event: CustomEvent<IgcDropdownItemComponent>) {
     event.stopPropagation();
-    const key = event.detail.value as OperandKeys<T[typeof this.column.field]>;
+    const key = event.detail.value as OperandKeys<PropertyType<T, typeof this.column.field>>;
 
     // XXX: Types
     this.expression.condition = (getFilterOperandsFor(this.column) as any)[key] as FilterOperation<
-      T[keyof T]
+      PropertyType<T, keyof T>
     >;
 
     if (this.input.value || this.expression.condition.unary) {

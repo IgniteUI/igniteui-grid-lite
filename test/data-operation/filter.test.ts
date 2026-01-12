@@ -1,6 +1,6 @@
 import { expect } from '@open-wc/testing';
 import type { ColumnConfiguration, DataType, Keys } from '../../src/internal/types.js';
-import { getFilterOperandsFor } from '../../src/internal/utils.js';
+import { getFilterOperandsFor, resolveFieldValue } from '../../src/internal/utils.js';
 import { FilterState } from '../../src/operations/filter/state.js';
 import type { FilterExpression, OperandKeys } from '../../src/operations/filter/types.js';
 import FilterDataOperation from '../../src/operations/filter.js';
@@ -36,7 +36,7 @@ class TDDFilterState<T extends object> {
   ) {
     const config = {
       field: key,
-      dataType: typeof this.data[0][key] as DataType,
+      dataType: typeof resolveFieldValue(this.data[0], key) as DataType,
     } as ColumnConfiguration<T>;
 
     this.#state.set({
