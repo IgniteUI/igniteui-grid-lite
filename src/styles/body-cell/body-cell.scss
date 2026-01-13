@@ -31,6 +31,12 @@ $inset-shadow-width: #{rem(1px)};
     border-inline-end: none;
 }
 
+[part~="text"] {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
 igc-input {
 	position: absolute;
 	left: 0;
