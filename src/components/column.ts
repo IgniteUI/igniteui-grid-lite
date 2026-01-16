@@ -43,7 +43,7 @@ export class IgcGridLiteColumn<T extends object>
   public field!: Keys<T>;
 
   /** The data type of the column's values. */
-  @property()
+  @property({ attribute: 'data-type' })
   public dataType?: 'number' | 'string' | 'boolean' = 'string';
 
   /** The header text of the column. */
