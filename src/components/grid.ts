@@ -40,6 +40,14 @@ import IgcGridLiteHeaderRow from './header-row.js';
 import IgcGridLiteRow from './row.js';
 import IgcVirtualizer from './virtualizer.js';
 
+/** Column reducer matching either direct column element or one nested in container */
+function columnReducer<T extends Element>(acc: T[], el: T): T[] {
+  const tag = IgcGridLiteColumn.tagName;
+  const column = el.matches(tag) ? el : el.querySelector(tag);
+  if (column) acc.push(column as T);
+  return acc;
+}
+
 /**
  * Event object for the filtering event of the grid.
  */
@@ -348,7 +356,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
     const slot = this.renderRoot.querySelector('slot') as HTMLSlotElement;
     const assignedNodes = slot
       .assignedElements({ flatten: true })
-      .filter((element) => element.matches(IgcGridLiteColumn.tagName));
+      .reduce<Element[]>(columnReducer, []);
     return assignedNodes.length > 0;
   }
 
@@ -356,7 +364,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
     const slot = event.target as HTMLSlotElement;
     const assignedNodes = slot
       .assignedElements({ flatten: true })
-      .filter((element) => element.matches(IgcGridLiteColumn.tagName));
+      .reduce<Element[]>(columnReducer, []);
 
     this._stateController.setColumnConfiguration(
       assignedNodes as unknown as ColumnConfiguration<T>[]

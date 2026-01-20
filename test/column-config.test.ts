@@ -26,9 +26,14 @@ describe('Column configuration', () => {
       const newKeys: Array<Keys<TestData>> = ['id', 'name'];
 
       TDD.grid.replaceChildren(
-        ...newKeys.map((key) => {
+        ...newKeys.map((key, i) => {
           const col = document.createElement(GRID_COLUMN_TAG) as IgcGridLiteColumn<TestData>;
           col.field = key;
+          if (i % 2 === 0) {
+            const div = document.createElement('div');
+            div.appendChild(col);
+            return div;
+          }
           return col;
         })
       );
