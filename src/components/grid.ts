@@ -1,11 +1,11 @@
 import { ContextProvider } from '@lit/context';
 import type { RenderItemFunction } from '@lit-labs/virtualizer/virtualize.js';
 import {
+  θaddThemingController as addThemingController,
   IgcButtonComponent,
   IgcChipComponent,
   IgcDropdownComponent,
   IgcInputComponent,
-  θaddThemingController,
 } from 'igniteui-webcomponents';
 import { html, nothing } from 'lit';
 import { eventOptions, property, state } from 'lit/decorators.js';
@@ -319,7 +319,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
   constructor() {
     super();
 
-    θaddThemingController(this, all);
+    addThemingController(this, all);
   }
 
   protected override createRenderRoot(): HTMLElement | DocumentFragment {

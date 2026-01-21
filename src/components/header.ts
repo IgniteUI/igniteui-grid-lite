@@ -1,5 +1,8 @@
 import { consume } from '@lit/context';
-import { IgcIconComponent, θaddThemingController } from 'igniteui-webcomponents';
+import {
+  θaddThemingController as addThemingController,
+  IgcIconComponent,
+} from 'igniteui-webcomponents';
 import { html, LitElement, nothing } from 'lit';
 import { property } from 'lit/decorators.js';
 import type { StateController } from '../controllers/state.js';
@@ -52,8 +55,9 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   constructor() {
     super();
 
-    θaddThemingController(this, all);
+    addThemingController(this, all);
   }
+
   #addResizeEventHandlers() {
     const config: AddEventListenerOptions = { once: true };
 
