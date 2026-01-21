@@ -1,4 +1,5 @@
-import type { ReactiveControllerHost, TemplateResult } from 'lit';
+import type { Theme } from 'igniteui-webcomponents';
+import type { CSSResult, ReactiveControllerHost, TemplateResult } from 'lit';
 import type IgcGridLiteCell from '../components/cell.js';
 import type { IgcGridLite } from '../components/grid.js';
 import type IgcGridLiteHeader from '../components/header.js';
@@ -7,6 +8,15 @@ import type { SortComparer } from '../operations/sort/types.js';
 
 export type NavigationState = 'previous' | 'current';
 export type GridHost<T extends object> = ReactiveControllerHost & IgcGridLite<T>;
+
+export type Themes = {
+  light: {
+    [K in Theme | 'shared']?: CSSResult;
+  };
+  dark: {
+    [K in Theme | 'shared']?: CSSResult;
+  };
+};
 
 type FlatKeys<T> = keyof T;
 type DotPaths<T> = {

@@ -5,6 +5,7 @@ import {
   IgcChipComponent,
   IgcDropdownComponent,
   IgcInputComponent,
+  θaddThemingController,
 } from 'igniteui-webcomponents';
 import { html, nothing } from 'lit';
 import { eventOptions, property, state } from 'lit/decorators.js';
@@ -19,7 +20,6 @@ import { getElementFromEventPath } from '../internal/element-from-event-path.js'
 import { EventEmitterBase } from '../internal/mixins/event-emitter.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_TAG } from '../internal/tags.js';
-import { addThemingController } from '../internal/theming.js';
 import type {
   ColumnConfiguration,
   DataPipelineConfiguration,
@@ -319,7 +319,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
   constructor() {
     super();
 
-    addThemingController(this, all);
+    θaddThemingController(this, all);
   }
 
   protected override createRenderRoot(): HTMLElement | DocumentFragment {

@@ -1,6 +1,5 @@
 import { css } from 'lit';
-
-import type { Themes } from '../../internal/theming.js';
+import type { Themes } from '../../internal/types.js';
 // Dark Overrides
 import { styles as bootstrapDark } from './dark/grid.bootstrap.css.js';
 import { styles as fluentDark } from './dark/grid.fluent.css.js';
@@ -17,37 +16,37 @@ import { styles as bootstrap } from './shared/grid.common.css.js';
 
 const light = {
   shared: css`
-      ${shared}
+    ${shared}
   `,
   bootstrap: css`
-      ${bootstrap} ${bootstrapLight}
+    ${bootstrap} ${bootstrapLight}
   `,
   material: css`
-      ${materialLight}
+    ${materialLight}
   `,
   fluent: css`
-      ${fluentLight}
+    ${fluentLight}
   `,
   indigo: css`
-      ${indigoLight}
+    ${indigoLight}
   `,
 };
 
 const dark = {
   shared: css`
-      ${shared}
+    ${shared}
   `,
   bootstrap: css`
-      ${bootstrapDark}
+    ${bootstrapDark}
   `,
   material: css`
-      ${materialDark}
+    ${materialDark}
   `,
   fluent: css`
-      ${fluentDark}
+    ${fluentDark}
   `,
   indigo: css`
-      ${indigoDark}
+    ${indigoDark}
   `,
 };
 

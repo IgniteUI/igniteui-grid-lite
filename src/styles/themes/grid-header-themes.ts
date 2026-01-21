@@ -1,26 +1,25 @@
 import { css } from 'lit';
 
-import type { Themes } from '../../internal/theming.js';
-
+import type { Themes } from '../../internal/types.js';
 // Shared
 import { styles as bootstrap } from './shared/header.bootstrap.css.js';
 import { styles as fluent } from './shared/header.fluent.css.js';
 
 const light = {
   bootstrap: css`
-      ${bootstrap}
+    ${bootstrap}
   `,
   fluent: css`
-      ${fluent}
+    ${fluent}
   `,
 };
 
 const dark = {
   bootstrap: css`
-      ${bootstrap}
+    ${bootstrap}
   `,
   fluent: css`
-      ${fluent}
+    ${fluent}
   `,
 };
 
