@@ -1,0 +1,10 @@
+{
+  "ignoreRegExpList": [
+    "θ"
+  ],
+  "words": [
+    "exportparts",
+    "aria-labelledby",
+    "webcomponents"
+  ]
+}
