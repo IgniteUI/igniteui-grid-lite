@@ -51,7 +51,9 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
               part="cell"
               .active=${key === column.field && index === this.index}
               .column=${column}
+              .cellTemplate=${column.cellTemplate}
               .row=${this as IgcGridLiteRow<T>}
+              .rowIndex=${this.index}
               .value=${resolveFieldValue(data, column.field)}
             ></igc-grid-lite-cell>`
       )}

@@ -43,7 +43,14 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
   /**
    * The parent row component holding this cell.
    */
+  @property({ attribute: false })
   public row!: IgcGridLiteRow<T>;
+
+  @property({ attribute: false })
+  public rowIndex = -1;
+
+  @property({ attribute: false })
+  public cellTemplate?: (context: IgcCellContext<T>) => unknown;
 
   protected get context(): IgcCellContext<T> {
     return {
@@ -56,8 +63,8 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
 
   protected override render() {
     return html`${cache(
-      this.column.cellTemplate
-        ? this.column.cellTemplate(this.context as any)
+      this.cellTemplate
+        ? this.cellTemplate(this.context as any)
         : html`<span part="text">${this.value}</span>`
     )}`;
   }
