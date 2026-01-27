@@ -146,7 +146,7 @@ export class FilterController<T extends object> implements ReactiveController {
 
   public filter(expression: FilterExpression<T> | FilterExpression<T>[]) {
     this.#filter(
-      asArray(expression).map((expr) =>
+      asArray(expression).map<FilterExpression<T>>((expr) =>
         Object.assign(this.getDefaultExpression(this.host.getColumn(expr.key)!), expr)
       )
     );
