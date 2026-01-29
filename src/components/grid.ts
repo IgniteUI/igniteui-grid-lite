@@ -376,7 +376,7 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
    */
   public filter(config: FilterExpression<T> | FilterExpression<T>[]): void {
     this._stateController.filtering.filter(
-      asArray(config).map<FilterExpression<T>>((each) =>
+      asArray(config).map((each) =>
         isString(each.condition)
           ? Object.assign(each, {
               condition: (getFilterOperandsFor(this.getColumn(each.key)!) as any)[each.condition],

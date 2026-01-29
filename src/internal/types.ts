@@ -30,15 +30,17 @@ type NonTraversable =
   | Promise<any>;
 type Prev = [never, 0, 1, 2, 3, 4];
 
-type DotPaths<T, Depth extends number = 5> = {
-  [K in keyof T & string]: Depth extends 0
-    ? K
-    : T[K] extends object
-      ? T[K] extends NonTraversable
-        ? K
-        : K | `${K}.${DotPaths<T[K], Prev[Depth]>}` // Note: resolving `never` will collapse the entire interpolated string to never, leaving only valid paths
-      : K;
-}[keyof T & string];
+type DotPaths<T, Depth extends number = 5> = Depth extends 0
+  ? never
+  :
+      | {
+          [K in keyof T & string]: T[K] extends object
+            ? T[K] extends NonTraversable
+              ? never
+              : `${K}.${DotPaths<T[K], Prev[Depth]>}` // Note: resolving `never` will collapse the entire interpolated string to never, leaving only valid paths
+            : never;
+        }[keyof T & string]
+      | (keyof T & string);
 
 type NestedKeys<T> = Exclude<DotPaths<T>, FlatKeys<T>>;
 
