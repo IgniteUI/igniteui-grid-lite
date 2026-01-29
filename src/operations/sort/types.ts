@@ -54,7 +54,7 @@ export interface BaseSortingExpression<T, K extends Keys<T> = Keys<T>> {
 /**
  * See {@link BaseSortingExpression} for the full documentation.
  */
-export type SortingExpression<T, K extends Keys<T> = Keys<T>> = K extends Keys<T>
+export type SortingExpression<T = any, K extends Keys<T> = Keys<T>> = K extends Keys<T>
   ? BaseSortingExpression<T, K>
   : never;
 

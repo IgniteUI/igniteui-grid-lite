@@ -170,9 +170,10 @@ export interface BaseColumnConfiguration<T extends object, K extends Keys<T> = K
 /**
  * See {@link BaseColumnConfiguration} for the full documentation.
  */
-export type ColumnConfiguration<T extends object, K extends Keys<T> = Keys<T>> = K extends Keys<T>
-  ? BaseColumnConfiguration<T, K>
-  : never;
+export type ColumnConfiguration<
+  T extends object = any,
+  K extends Keys<T> = Keys<T>,
+> = K extends Keys<T> ? BaseColumnConfiguration<T, K> : never;
 
 export interface ActiveNode<T> {
   column: Keys<T>;
@@ -182,7 +183,7 @@ export interface ActiveNode<T> {
 /**
  * Context object for the column header template callback.
  */
-export interface IgcHeaderContext<T extends object> {
+export interface IgcHeaderContext<T extends object = any> {
   /**
    * The header element parent of the template.
    */
@@ -218,7 +219,7 @@ export interface BaseIgcCellContext<T extends object, K extends Keys<T> = Keys<T
 /**
  * See {@link BaseIgcCellContext} for the full documentation.
  */
-export type IgcCellContext<T extends object, K extends Keys<T> = Keys<T>> = K extends Keys<T>
+export type IgcCellContext<T extends object = any, K extends Keys<T> = Keys<T>> = K extends Keys<T>
   ? BaseIgcCellContext<T, K>
   : never;
 
