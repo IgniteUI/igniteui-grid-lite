@@ -15,7 +15,7 @@ import type {
 /**
  * @element igc-grid-lite-column
  */
-export class IgcGridLiteColumn<T extends object>
+export class IgcGridLiteColumn<T extends object = any>
   extends LitElement
   implements BaseColumnConfiguration<T>
 {
@@ -88,7 +88,7 @@ export class IgcGridLiteColumn<T extends object>
 
   /** Custom cell template for the column. */
   @property({ attribute: false })
-  public cellTemplate?: (params: IgcCellContext<T>) => unknown;
+  public cellTemplate?: (params: IgcCellContext<T, any>) => unknown;
 
   protected override update(props: PropertyValues<this>): void {
     if (this.hasUpdated && props.size > 0) {
@@ -105,6 +105,6 @@ export class IgcGridLiteColumn<T extends object>
 
 declare global {
   interface HTMLElementTagNameMap {
-    [IgcGridLiteColumn.tagName]: IgcGridLiteColumn<object>;
+    [IgcGridLiteColumn.tagName]: IgcGridLiteColumn;
   }
 }

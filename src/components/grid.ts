@@ -51,7 +51,7 @@ function columnReducer<T extends Element>(acc: T[], el: T): T[] {
 /**
  * Event object for the filtering event of the grid.
  */
-export interface IgcFilteringEvent<T extends object> {
+export interface IgcFilteringEvent<T extends object = any> {
   /**
    * The target column for the filter operation.
    */
@@ -77,7 +77,7 @@ export interface IgcFilteringEvent<T extends object> {
 /**
  * Event object for the filtered event of the grid.
  */
-export interface IgcFilteredEvent<T extends object> {
+export interface IgcFilteredEvent<T extends object = any> {
   /**
    * The target column for the filter operation.
    */
@@ -92,7 +92,7 @@ export interface IgcFilteredEvent<T extends object> {
 /**
  * Events for the igc-grid-lite.
  */
-export interface IgcGridLiteEventMap<T extends object> {
+export interface IgcGridLiteEventMap<T extends object = any> {
   /**
    * Emitted when sorting is initiated through the UI.
    * Returns the sort expression which will be used for the operation.
@@ -103,14 +103,14 @@ export interface IgcGridLiteEventMap<T extends object> {
    *
    * @event
    */
-  sorting: CustomEvent<SortingExpression<T>>;
+  sorting: CustomEvent<SortingExpression<T, any>>;
   /**
    * Emitted when a sort operation initiated through the UI has completed.
    * Returns the sort expression used for the operation.
    *
    * @event
    */
-  sorted: CustomEvent<SortingExpression<T>>;
+  sorted: CustomEvent<SortingExpression<T, any>>;
   /**
    * Emitted when filtering is initiated through the UI.
    *
@@ -144,7 +144,7 @@ export interface IgcGridLiteEventMap<T extends object> {
  * @fires filtered - Emitted when a filter operation initiated through the UI has completed.
  *
  */
-export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteEventMap<T>> {
+export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGridLiteEventMap<T>> {
   public static get tagName() {
     return GRID_TAG;
   }
@@ -504,6 +504,6 @@ export class IgcGridLite<T extends object> extends EventEmitterBase<IgcGridLiteE
 
 declare global {
   interface HTMLElementTagNameMap {
-    [IgcGridLite.tagName]: IgcGridLite<object>;
+    [IgcGridLite.tagName]: IgcGridLite;
   }
 }
