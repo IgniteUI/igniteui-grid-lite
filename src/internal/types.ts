@@ -22,12 +22,12 @@ type FlatKeys<T> = keyof T;
 
 type NonTraversable =
   | ((...args: never) => unknown)
-  | Array<any>
+  | Array<unknown>
   | Date
   | RegExp
-  | Map<any, any>
-  | Set<any>
-  | Promise<any>;
+  | Map<unknown, unknown>
+  | Set<unknown>
+  | Promise<unknown>;
 type Prev = [never, 0, 1, 2, 3, 4];
 
 type DotPaths<T, Depth extends number = 5> = Depth extends 0
