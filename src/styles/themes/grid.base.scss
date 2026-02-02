@@ -1,38 +1,42 @@
-@use "../common" as *;
+@use '../common' as *;
 
 :host {
-  --scrollbar-offset: 0;
-  --z-index-base: 1;
-
-  display: grid;
-  height: 100%;
-  position: relative;
-  font-family: var(--ig-font-family), serif;
-  overflow: auto hidden;
-  grid-template-rows: [header-row] max-content [filter-row] max-content [virtualized-container] auto;
+	@include sizable();
+	
+	--component-size: var(--ig-size, var(--ig-size-large));
+	
+	--scrollbar-offset: 0;
+	--z-index-base: 1;
+	
+	display: grid;
+	height: 100%;
+	position: relative;
+	font-family: var(--ig-font-family), serif;
+	overflow: auto hidden;
+	grid-template-rows: [header-row] max-content [filter-row] max-content [virtualized-container] auto;
 }
 
 igc-virtualizer {
-  grid-row: virtualized-container;
-  display: flex;
-  flex-flow: column;
-  flex: 1;
-  overflow: hidden auto !important;
-
-  &:focus {
-    outline: none;
-  }
+	grid-row: virtualized-container;
+	display: flex;
+	flex-flow: column;
+	flex: 1;
+	overflow: hidden auto !important;
+	
+	&:focus {
+		outline: none;
+	}
 }
 
-[part~="resize-indicator"] {
-  position: absolute;
-  height: 100%;
-  width: rem(2px);
-  inset-inline-start: 0;
-  top: 0;
-  z-index: calc(var(--z-index-base) + 1);
+[part~='resize-indicator'] {
+	position: absolute;
+	height: 100%;
+	width: rem(2px);
+	inset-inline-start: 0;
+	top: 0;
+	z-index: calc(var(--z-index-base) + 1);
 }
 
-[part="column-sink"] {
-  display: none;
+[part='column-sink'] {
+	display: none;
 }
