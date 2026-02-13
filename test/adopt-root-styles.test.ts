@@ -1,4 +1,4 @@
-import { expect, fixture, html } from '@open-wc/testing';
+import { expect, fixture, html, nextFrame } from '@open-wc/testing';
 import { html as litHtml } from 'lit';
 import type IgcGridLiteCell from '../src/components/cell.js';
 import type { IgcGridLite } from '../src/components/grid.js';
@@ -406,6 +406,71 @@ describe('Grid adopt-root-styles property', () => {
       expect(cell.adoptRootStyles).to.be.false;
       // @ts-expect-error - Accessing private controller for testing
       expect(cell._adoptedStylesController.hasAdoptedStyles).to.be.false;
+    });
+  });
+
+  describe('Dynamic templates toggling', () => {
+    beforeEach(async () => {
+      adoptRootStylesTDD.columnConfig = [{ field: 'name' }];
+      await adoptRootStylesTDD.setUp();
+    });
+
+    afterEach(() => adoptRootStylesTDD.tearDown());
+
+    it('should adopt styles when header template is set dynamically', async () => {
+      let header = adoptRootStylesTDD.headers.get('name');
+      let headerElement = header.element;
+
+      expect(headerElement.adoptRootStyles).to.be.true;
+      // @ts-expect-error - Accessing private controller for testing
+      expect(headerElement._adoptedStylesController.hasAdoptedStyles).to.be.false;
+
+      const column = adoptRootStylesTDD.grid.querySelector('igc-grid-lite-column')!;
+      column.headerTemplate = (ctx: IgcHeaderContext<TestData>) =>
+        litHtml`<div class="custom-header-class">${ctx.column.header || ctx.column.field}</div>`;
+      await adoptRootStylesTDD.grid.updateComplete;
+      await adoptRootStylesTDD.headerRow.updateComplete;
+
+      header = adoptRootStylesTDD.headers.get('name');
+      headerElement = header.element;
+
+      // @ts-expect-error - Accessing private controller for testing
+      expect(headerElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+
+      const customDiv = headerElement.shadowRoot!.querySelector('.custom-header-class');
+      expect(customDiv).to.exist;
+
+      const computedStyle = window.getComputedStyle(customDiv!);
+      expect(computedStyle.color).to.equal('rgb(0, 255, 0)');
+      expect(computedStyle.textTransform).to.equal('uppercase');
+    });
+
+    it('should adopt styles when cell template is set dynamically', async () => {
+      let cell = adoptRootStylesTDD.rows.first.cells.get(0);
+      let cellElement = cell.element;
+
+      expect(cellElement.adoptRootStyles).to.be.true;
+      // @ts-expect-error - Accessing private controller for testing
+      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.false;
+
+      const column = adoptRootStylesTDD.grid.querySelector('igc-grid-lite-column')!;
+      column.cellTemplate = (ctx: IgcCellContext<TestData>) =>
+        litHtml`<div class="custom-cell-class">${ctx.value}</div>`;
+      await adoptRootStylesTDD.grid.updateComplete;
+      await nextFrame();
+
+      cell = adoptRootStylesTDD.rows.first.cells.get(0);
+      cellElement = cell.element;
+
+      // @ts-expect-error - Accessing private controller for testing
+      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+
+      const customDiv = cellElement.shadowRoot!.querySelector('.custom-cell-class');
+      expect(customDiv).to.exist;
+
+      const computedStyle = window.getComputedStyle(customDiv!);
+      expect(computedStyle.color).to.equal('rgb(255, 0, 0)');
+      expect(computedStyle.fontWeight).to.equal('700');
     });
   });
 });
