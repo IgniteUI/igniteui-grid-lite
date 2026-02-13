@@ -1,7 +1,7 @@
 import { consume } from '@lit/context';
-import { html, LitElement, nothing, type PropertyValues } from 'lit';
+import { html, LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
-import { map } from 'lit/directives/map.js';
+import { repeat } from 'lit/directives/repeat.js';
 import type { StateController } from '../controllers/state.js';
 import { GRID_STATE_CONTEXT } from '../internal/context.js';
 import { getElementFromEventPath } from '../internal/element-from-event-path.js';
@@ -24,6 +24,9 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
 
   @consume({ context: GRID_STATE_CONTEXT, subscribe: true })
   private readonly _state?: StateController<T>;
+
+  @property({ attribute: false })
+  public adoptRootStyles = false;
 
   @property({ attribute: false })
   public columns: ColumnConfiguration<T>[] = [];
@@ -54,17 +57,21 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
 
   protected override render() {
     const filterRow = this._state?.filtering.filterRow;
+    const columns = this.columns.filter((column) => !column.hidden);
 
-    return html`${map(this.columns, (column) =>
-      column.hidden
-        ? nothing
-        : html`
-            <igc-grid-lite-header
-              part=${partMap({ filtered: column.field === filterRow?.column?.field })}
-              .column=${column}
-            ></igc-grid-lite-header>
-          `
-    )}`;
+    return html`
+      ${repeat(
+        columns,
+        (column) => column,
+        (column) => html`
+          <igc-grid-lite-header
+            part=${partMap({ filtered: column.field === filterRow?.column?.field })}
+            .adoptRootStyles=${this.adoptRootStyles}
+            .column=${column}
+          ></igc-grid-lite-header>
+        `
+      )}
+    `;
   }
 }
 

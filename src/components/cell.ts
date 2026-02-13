@@ -1,6 +1,7 @@
-import { html, LitElement } from 'lit';
+import { html, LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import { cache } from 'lit/directives/cache.js';
+import { AdoptedStylesController } from '../controllers/root-styles.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_CELL_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration, IgcCellContext, PropertyType } from '../internal/types.js';
@@ -20,6 +21,11 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
   public static register(): void {
     registerComponent(IgcGridLiteCell);
   }
+
+  private readonly _adoptedStylesController = new AdoptedStylesController(this);
+
+  @property({ attribute: false })
+  public adoptRootStyles = false;
 
   /**
    * The value which will be rendered by the component.
@@ -59,6 +65,16 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
       column: this.column,
       value: this.value,
     } as unknown as IgcCellContext<T>;
+  }
+
+  protected override update(props: PropertyValues<this>): void {
+    if (props.has('adoptRootStyles')) {
+      this._adoptedStylesController.shouldAdoptStyles(
+        this.adoptRootStyles && this.cellTemplate != null
+      );
+    }
+
+    super.update(props);
   }
 
   protected override render() {

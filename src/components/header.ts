@@ -3,8 +3,9 @@ import {
   θaddThemingController as addThemingController,
   IgcIconComponent,
 } from 'igniteui-webcomponents';
-import { html, LitElement, nothing } from 'lit';
+import { html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
+import { AdoptedStylesController } from '../controllers/root-styles.js';
 import type { StateController } from '../controllers/state.js';
 import {
   MIN_COL_RESIZE_WIDTH,
@@ -30,6 +31,8 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
     registerComponent(IgcGridLiteHeader, IgcIconComponent);
   }
 
+  private readonly _adoptedStylesController = new AdoptedStylesController(this);
+
   protected get context(): IgcHeaderContext<T> {
     return {
       parent: this,
@@ -52,10 +55,32 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   @property({ attribute: false })
   public column!: ColumnConfiguration<T>;
 
+  @property({ attribute: false })
+  public adoptRootStyles = false;
+
   constructor() {
     super();
 
-    addThemingController(this, all);
+    addThemingController(this, all, {
+      themeChange: this._handleThemeChange,
+    });
+  }
+
+  protected override update(props: PropertyValues<this>): void {
+    if (props.has('adoptRootStyles')) {
+      this._adoptedStylesController.shouldAdoptStyles(
+        this.adoptRootStyles && this.column.headerTemplate != null
+      );
+    }
+
+    super.update(props);
+  }
+
+  private _handleThemeChange() {
+    AdoptedStylesController.invalidateCache(this.ownerDocument);
+    this._adoptedStylesController.shouldAdoptStyles(
+      this.adoptRootStyles && this.column.headerTemplate != null
+    );
   }
 
   #addResizeEventHandlers() {
