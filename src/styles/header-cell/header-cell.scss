@@ -79,6 +79,7 @@ $theme: $material;
 }
 
 [part~='filtered'] {
+    color: var-get($theme, 'filtering-header-text-color');
     background: var-get($theme, 'filtering-header-background');
 }
 

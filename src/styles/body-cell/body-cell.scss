@@ -18,6 +18,26 @@ $inset-shadow-width: #{rem(1px)};
     &:last-of-type {
         border-right: 0;
     }
+	
+	igc-rating,
+	igc-select {
+		--ig-size: 1;
+	}
+	
+	igc-avatar {
+		--size: #{sizable(rem(28px), rem(36px), rem(46px))};
+	}
+	
+	igc-select,
+	igc-combo,
+	igc-input {
+		padding-block: rem(6px);
+	}
+	
+	// input overrides
+	igc-input::part(container) {
+		--background: transparent;
+	}
 }
 
 :host([active]) {
@@ -31,7 +51,7 @@ $inset-shadow-width: #{rem(1px)};
     border-inline-end: none;
 }
 
-[part~="text"] {
+[part~='text'] {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
@@ -57,7 +77,6 @@ igc-select {
 	&::part(container),
 	&::part(input) {
 		box-shadow: none;
-		height: 100%;
 		background: inherit;
 		border: 0;
 		color: inherit;

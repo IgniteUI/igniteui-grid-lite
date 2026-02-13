@@ -2,6 +2,8 @@ import {
   configureTheme,
   defineComponents,
   IgcButtonComponent,
+  IgcButtonGroupComponent,
+  IgcToggleButtonComponent,
   IgcAvatarComponent,
   IgcCheckboxComponent,
   IgcRatingComponent,
@@ -19,6 +21,8 @@ defineComponents(
   IgcSelectComponent,
   IgcSwitchComponent,
   IgcButtonComponent,
+  IgcButtonGroupComponent,
+  IgcToggleButtonComponent,
 );
 
 type User = {
@@ -83,7 +87,7 @@ function getAvatar() {
 
 async function setTheme(theme?: string) {
   theme = theme ?? getElement<IgcSelectComponent>(IgcSelectComponent.tagName).value;
-  const variant = getElement<IgcSwitchComponent>(IgcSwitchComponent.tagName).checked
+  const variant = getElement<IgcSwitchComponent>('#theme-variant').checked
     ? 'dark'
     : 'light';
 
@@ -110,6 +114,7 @@ const themeChoose = html`
       ${themes.map((theme) => html`<igc-select-item .value=${theme}>${theme}</igc-select-item>`)}
     </igc-select>
     <igc-switch
+      id="theme-variant"
       label-position="after"
       @igcChange=${() => setTheme()}
       >Dark variant</igc-switch
@@ -148,7 +153,7 @@ const columns: ColumnConfiguration<User>[] = [
     cellTemplate: (params) =>
       html`<igc-rating
         readonly
-        style="--ig-size: 1"
+        
         .value=${params.value}
       ></igc-rating>`,
   },
@@ -158,7 +163,6 @@ const columns: ColumnConfiguration<User>[] = [
       html`<igc-select
         outlined
         .value=${params.value}
-        style="--ig-size: 1"
         >${choices.map(
           (choice) => html`<igc-select-item .value=${choice}>${choice}</igc-select-item>`,
         )}</igc-select
@@ -224,19 +228,30 @@ const toggleFiltering = () => {
   column.filterable = !column.filterable;
 };
 
+const setSize = (size: number) => {
+  document.getElementById('demo')!.style.setProperty('--ig-size', String(size));
+};
+
 render(
   html`
-    <igc-button
-      variant="outlined"
-      @click=${toggleColumn}
-      >Toggle column</igc-button
-    >
-    <igc-button
-      variant="outlined"
-      @click=${toggleFiltering}
-      >Toggle filtering</igc-button
-    >
-    ${themeChoose}
+    <div class="actions-panel">
+      <igc-switch
+        label-position="after"
+        @igcChange=${toggleColumn}
+      >Toggle column</igc-switch
+      >
+      <igc-switch
+        label-position="after"
+        @igcChange=${toggleFiltering}
+      >Toggle filtering</igc-switch
+      >
+      <igc-button-group>
+        <igc-toggle-button @click=${() => setSize(1)}>Small</igc-toggle-button>
+        <igc-toggle-button @click=${() => setSize(2)}>Medium</igc-toggle-button>
+        <igc-toggle-button selected @click=${() => setSize(3)}>Large</igc-toggle-button>
+      </igc-button-group>
+      ${themeChoose}
+    </div>
     <igc-grid-lite .data=${data}>
       ${columns.map(
         (col) =>

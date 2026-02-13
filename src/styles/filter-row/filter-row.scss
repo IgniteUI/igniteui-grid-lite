@@ -7,8 +7,6 @@ $filtering-row-text-color: var-get($theme, 'filtering-row-text-color');
 $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
 
 :host {
-    --ig-size: 1;
-
     display: grid;
     grid-row: filter-row;
     min-height: $ig-cells-min-height;
@@ -16,7 +14,36 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
     color: var-get($theme, 'header-text-color');
     border-block-end: $border;
     z-index: var(--z-index-base);
-    padding-inline-end: var(--scrollbar-offset);
+	padding-inline-end: var(--scrollbar-offset);
+	position: relative ;
+	
+	&:has([part~='active-state']) {
+		&::after {
+			display: block;
+			position: absolute;
+			content: "";
+			background: inherit;
+			inset-inline-start: 0;
+			inset-inline-end: 0;
+			inset-block-start: rem(-1px);
+			bottom: 0;
+			box-shadow: 0 rem(1px) 0 var-get($theme, 'filtering-row-background'), 0 rem(4px) rem(10px) rgba(0, 0, 0, .12);
+			z-index: -1;
+			pointer-events: none;
+			user-select: none;
+		}
+	}
+	
+	igc-chip {
+		--component-size: var(--ig-size);
+		
+		// TODO FIX ON COMPONENT LEVEL
+		display: inline-flex;
+	}
+	
+	igc-input {
+		--ig-size: 1;
+	}
 }
 
 [part='filter-row-preview'] {
@@ -38,7 +65,6 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
     align-items: center;
     gap: rem(8px);
     position: relative;
-    inset-block-start: rem(-1px);
 }
 
 [part='filter-row-preview']:last-of-type {
