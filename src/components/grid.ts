@@ -196,6 +196,9 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   @state()
   protected _dataState: T[] = [];
 
+  @property({ type: Boolean, reflect: true, attribute: 'adopt-root-styles' })
+  public adoptRootStyles = false;
+
   /** The data source for the grid. */
   @property({ attribute: false })
   public data: T[] = [];
@@ -455,6 +458,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
         part="row"
         exportparts="cell"
         style=${styleMap(styles)}
+        .adoptRootStyles=${this.adoptRootStyles}
         .index=${index}
         .activeNode=${activeNode}
         .data=${item}
@@ -468,6 +472,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
       <igc-grid-lite-header-row
         tabindex="0"
         style=${styleMap(this._domController.columnSizes)}
+        .adoptRootStyles=${this.adoptRootStyles}
         .columns=${this._stateController.columns}
       ></igc-grid-lite-header-row>
     `;
