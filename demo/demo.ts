@@ -10,6 +10,7 @@ import {
   IgcSelectComponent,
   IgcSwitchComponent,
 } from 'igniteui-webcomponents';
+import { IgcGridComponent } from 'igniteui-webcomponents-grids';
 import { html, render } from 'lit';
 import { ColumnConfiguration, IgcGridLiteColumn } from '../src/index.js';
 import { IgcGridLite } from '../src/index.js';
@@ -23,6 +24,7 @@ defineComponents(
   IgcButtonComponent,
   IgcButtonGroupComponent,
   IgcToggleButtonComponent,
+  IgcGridComponent,
 );
 
 type User = {
@@ -96,8 +98,13 @@ async function setTheme(theme?: string) {
     `/node_modules/igniteui-webcomponents/themes/${variant}/${theme}.css?${Date.now()}`
   );
 
+  await import(
+    /* @vite-ignore */
+    `/node_modules/igniteui-webcomponents-grids/grids/themes/${variant}/${theme}.css?${Date.now()}`
+  );
+
   Array.from(document.head.querySelectorAll('style[type="text/css"]'))
-    .slice(0, -1)
+    .slice(0, -2)
     .forEach((s) => s.remove());
 
   configureTheme(theme as any);
@@ -153,7 +160,7 @@ const columns: ColumnConfiguration<User>[] = [
     cellTemplate: (params) =>
       html`<igc-rating
         readonly
-        
+
         .value=${params.value}
       ></igc-rating>`,
   },
@@ -252,23 +259,42 @@ render(
       </igc-button-group>
       ${themeChoose}
     </div>
-    <igc-grid-lite .data=${data}>
-      ${columns.map(
-        (col) =>
-          html`<igc-grid-lite-column
-            .field=${col.field}
-            .dataType=${col.dataType}
-            .header=${col.header}
-            ?hidden=${col.hidden}
-            ?resizable=${col.resizable}
-            ?sortable=${col.sortable}
-            .sortConfiguration=${col.sortConfiguration}
-            ?filterable=${col.filterable}
-            .cellTemplate=${col.cellTemplate}
-            .headerTemplate=${col.headerTemplate}
-          ></igc-grid-lite-column>`,
-      )}
-    </igc-grid-lite>
+    <div style="display: flex; flex-direction: row;">
+      <igc-grid-lite .data=${data}>
+        ${columns.map(
+          (col) =>
+            html`<igc-grid-lite-column
+              .field=${col.field}
+              .dataType=${col.dataType}
+              .header=${col.header}
+              ?hidden=${col.hidden}
+              ?resizable=${col.resizable}
+              ?sortable=${col.sortable}
+              .sortConfiguration=${col.sortConfiguration}
+              ?filterable=${col.filterable}
+              .cellTemplate=${col.cellTemplate}
+              .headerTemplate=${col.headerTemplate}
+            ></igc-grid-lite-column>`,
+        )}
+      </igc-grid-lite>
+      <igc-grid .data=${data} height="350px" allow-filtering class="ig-scrollbar">
+        ${columns.map(
+          (col) =>
+            html`<igc-column
+              .field=${col.field}
+              .dataType=${col.dataType}
+              .header=${col.header}
+              ?hidden=${col.hidden}
+              ?resizable=${col.resizable}
+              ?sortable=${col.sortable}
+              .sortConfiguration=${col.sortConfiguration}
+              ?filterable=${col.filterable}
+              .bodyTemplate=${col.cellTemplate ? (ctx: any) => col.cellTemplate!({ value: ctx.implicit } as any) : undefined}
+              .headerTemplate=${col.headerTemplate}
+            ></igc-column>`,
+        )}
+      </igc-grid>
+    </div>
     <igc-grid-lite
       .data=${data}
       auto-generate

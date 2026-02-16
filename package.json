@@ -47,6 +47,7 @@
     "@lit-labs/virtualizer": "^2.1.1",
     "@lit/context": "^1.1.6",
     "igniteui-webcomponents": "~6.5.0",
+    "igniteui-webcomponents-grids": "^6.2.2",
     "lit": "^3.3.2"
   },
   "devDependencies": {

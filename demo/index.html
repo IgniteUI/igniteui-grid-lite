@@ -23,8 +23,16 @@
           overflow: hidden;
       }
 
-      igc-grid-lite {
+      igc-grid-lite, igc-grid {
           flex: 1;
+      }
+
+      igc-grid {
+          igc-avatar,
+          igc-rating,
+          igc-select {
+            --ig-size: 1;
+          }
       }
 
       .actions-panel {
