@@ -4,7 +4,6 @@
 	@include sizable();
 	
 	--component-size: var(--ig-size, var(--ig-size-large));
-	
 	--scrollbar-offset: 0;
 	--z-index-base: 1;
 	

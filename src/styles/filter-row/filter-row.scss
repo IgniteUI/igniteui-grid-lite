@@ -23,11 +23,10 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 			position: absolute;
 			content: "";
 			background: inherit;
-			inset-inline-start: 0;
-			inset-inline-end: 0;
+			inset-inline: 0;
 			inset-block-start: rem(-1px);
 			bottom: 0;
-			box-shadow: 0 rem(1px) 0 var-get($theme, 'filtering-row-background'), 0 rem(4px) rem(10px) rgba(0, 0, 0, .12);
+			box-shadow: 0 rem(1px) 0 var-get($theme, 'filtering-row-background'), 0 rem(4px) rem(10px) rgb(0 0 0 / 12%);
 			z-index: -1;
 			pointer-events: none;
 			user-select: none;
