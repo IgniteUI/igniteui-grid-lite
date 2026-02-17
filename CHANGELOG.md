@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 
+## [0.5.0] - 2026-02-17
+
+### Added
+- Added `adopt-root-styles` property for adopting document-level styles into shadow DOM when using cell and header templates. [#46](https://github.com/IgniteUI/igniteui-grid-lite/pull/46)
+
 ## [0.4.0] - 2026-01-29
 
 ### Added
