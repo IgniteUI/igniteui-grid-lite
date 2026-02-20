@@ -8,7 +8,8 @@ $theme: $material;
     align-items: center;
     position: relative;
     border-inline-end: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
-    font-size: #{rem(12px)};
+	font-size: #{rem(12px)};
+	min-height: var-get($theme, 'header-size');
 }
 
 :host(:last-of-type) {
@@ -79,6 +80,7 @@ $theme: $material;
 }
 
 [part~='filtered'] {
+    color: var-get($theme, 'filtering-header-text-color');
     background: var-get($theme, 'filtering-header-background');
 }
 

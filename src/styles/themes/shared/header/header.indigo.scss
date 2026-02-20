@@ -1,0 +1,9 @@
+@use 'igniteui-theming' as *;
+
+:host {
+	min-height: sizable(rem(32px), rem(40px), rem(48px));
+}
+
+[part~='title'] {
+	font-weight: 800;
+}

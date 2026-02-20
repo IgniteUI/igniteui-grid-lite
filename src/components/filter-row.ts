@@ -1,13 +1,15 @@
 import { consume } from '@lit/context';
 import {
+  θaddThemingController as addThemingController,
   IgcDropdownComponent,
   type IgcDropdownItemComponent,
   type IgcIconComponent,
   IgcInputComponent,
 } from 'igniteui-webcomponents';
-import { html, LitElement, nothing } from 'lit';
+import { html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
+import { AdoptedStylesController } from '../controllers/root-styles.js';
 import type { StateController } from '../controllers/state.js';
 import { DEFAULT_COLUMN_CONFIG } from '../internal/constants.js';
 import { GRID_STATE_CONTEXT } from '../internal/context.js';
@@ -19,6 +21,7 @@ import { watch } from '../internal/watch.js';
 import type { FilterExpressionTree } from '../operations/filter/tree.js';
 import type { FilterExpression, FilterOperation, OperandKeys } from '../operations/filter/types.js';
 import { styles } from '../styles/filter-row/filter-row.css.js';
+import { all } from '../styles/themes/filtering-row-themes.js';
 
 type ExpressionChipProps<T> = {
   expression: FilterExpression<T>;
@@ -47,6 +50,8 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   public static register() {
     registerComponent(IgcFilterRow);
   }
+
+  private readonly _adoptedStylesController = new AdoptedStylesController(this);
 
   @consume({ context: GRID_STATE_CONTEXT, subscribe: true })
   @property({ attribute: false })
@@ -81,6 +86,34 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   @property({ attribute: false })
   public expression!: FilterExpression<T>;
+
+  @property({ attribute: false })
+  public adoptRootStyles = false;
+
+  constructor() {
+    super();
+
+    addThemingController(this, all, {
+      themeChange: this._handleThemeChange,
+    });
+  }
+
+  private _handleThemeChange() {
+    AdoptedStylesController.invalidateCache(this.ownerDocument);
+    this._adoptedStylesController.shouldAdoptStyles(
+      this.adoptRootStyles && this.column.headerTemplate != null
+    );
+  }
+
+  protected override update(props: PropertyValues<this>): void {
+    if (props.has('adoptRootStyles')) {
+      this._adoptedStylesController.shouldAdoptStyles(
+        this.adoptRootStyles && this.column.headerTemplate != null
+      );
+    }
+
+    super.update(props);
+  }
 
   #setDefaultExpression() {
     this.expression = this.filterController.getDefaultExpression(this.column);

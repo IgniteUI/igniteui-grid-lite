@@ -2,7 +2,6 @@
 @forward 'igniteui-theming';
 
 $ig-cells-padding: sizable(rem(8px), rem(16px), rem(24px));
-$ig-cells-min-height: sizable(rem(24px), rem(34px), rem(50px));
 
 @mixin ig-scrollbar($track-size, $track-bg, $thumb-bg) {
 	// Firefox only
@@ -22,11 +21,6 @@ $ig-cells-min-height: sizable(rem(24px), rem(34px), rem(50px));
 }
 
 :host {
-	@include sizable();
-	
-	--component-size: 3;
-	
-	
 	position: relative;
 	box-sizing: border-box;
 	
