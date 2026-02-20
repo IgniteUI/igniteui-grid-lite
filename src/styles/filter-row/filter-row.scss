@@ -10,14 +10,15 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
     display: grid;
     grid-row: filter-row;
     min-height: $ig-cells-min-height;
-    background: var-get($theme, 'header-background');
+    background: var-get($theme, 'filtering-row-background');
     color: var-get($theme, 'header-text-color');
-    border-block-end: $border;
+	box-shadow: inset 0 rem(-1px) 0 0 var-get($theme, 'header-border-color');
     z-index: var(--z-index-base);
 	padding-inline-end: var(--scrollbar-offset);
-	position: relative ;
+	position: relative;
 	
 	&:has([part~='active-state']) {
+		box-shadow: 0 rem(1px) 0 0 var-get($theme, 'header-border-color');
 		&::after {
 			display: block;
 			position: absolute;
@@ -25,7 +26,7 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 			background: inherit;
 			inset-inline: 0;
 			inset-block-start: rem(-1px);
-			bottom: 0;
+			height: 100%;
 			box-shadow: 0 rem(1px) 0 var-get($theme, 'filtering-row-background'), 0 rem(4px) rem(10px) rgb(0 0 0 / 12%);
 			z-index: -1;
 			pointer-events: none;
@@ -40,8 +41,37 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 		display: inline-flex;
 	}
 	
-	igc-input {
-		--ig-size: 1;
+	igc-input::part(input) {
+		border-inline-start: none;
+		padding-inline-start: 0;
+	}
+	
+	igc-input:focus::part(prefix),
+	igc-input:focus [slot="prefix"],
+	igc-input:focus::part(prefix),
+	igc-input:focus [slot="prefix"] {
+		border-color: var(--focused-border-color);
+	}
+	
+	igc-input [slot="prefix"] {
+		padding-inline-start: sizable(rem(4px), rem(6px));
+	}
+	
+	igc-input [slot="prefix"] {
+		padding-inline-end: sizable(rem(4px), rem(6px));;
+	}
+	
+	igc-input [slot="prefix"],
+	igc-input [slot="prefix"] {
+		cursor: pointer;
+	}
+	
+	igc-input:hover::part(input),
+	igc-input:hover::part(prefix),
+	igc-input:hover [slot="prefix"],
+	igc-input:hover::part(suffix),
+	igc-input:hover [slot="suffix"] {
+		border-color: var(--hover-border-color);
 	}
 }
 
@@ -50,7 +80,6 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
     align-items: center;
     overflow: hidden;
     padding: 0 $ig-cells-padding;
-    background: $filtering-row-background;
     color: $filtering-row-text-color;
     border-inline-end: $border;
 }
@@ -76,6 +105,10 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 
 [part~='filter-row-actions'] {
     padding-inline-end: $ig-cells-padding;
+	
+	igc-icon {
+		color: var-get($theme, 'sorted-header-icon-color');
+	}
 }
 
 [part~='filter-row-input'],
@@ -88,12 +121,4 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 [part~='filter-row-filters'] {
     flex: 1;
     overflow: hidden;
-}
-
-igc-input {
-    &::part(container),
-    &::part(input) {
-        background: inherit;
-        color: inherit;
-    }
 }

@@ -1,0 +1,10 @@
+@use 'igniteui-theming' as *;
+@use '../../../themes/light/themes' as *;
+
+$theme: $indigo;
+
+[part~='filter-row-input'] {
+	igc-input {
+		--size: #{sizable(rem(24px), rem(28px), rem(32px))};
+	}
+}
