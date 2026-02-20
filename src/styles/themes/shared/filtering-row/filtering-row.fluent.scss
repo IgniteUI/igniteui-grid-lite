@@ -1,4 +1,8 @@
 @use 'igniteui-theming' as *;
+@use '../../../themes/light/themes' as *;
+
+$theme: $fluent;
+
 
 [part~='filter-row-input'] {
 	igc-input {
@@ -31,5 +35,13 @@
 			background: inherit;
 			color: inherit;
 		}
+	}
+	
+	igc-input [slot="prefix"] {
+		padding-inline-start: sizable(rem(4px), rem(6px));
+	}
+	
+	igc-input [slot="prefix"] {
+		padding-inline-end: sizable(rem(4px), rem(6px));;
 	}
 }

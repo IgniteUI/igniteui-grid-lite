@@ -1,4 +1,8 @@
 @use 'igniteui-theming' as *;
+@use '../../../themes/light/themes' as *;
+
+$theme: $bootstrap;
+
 
 [part~='filter-row-input'] {
 	igc-input {

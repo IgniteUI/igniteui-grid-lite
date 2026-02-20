@@ -9,6 +9,7 @@ $theme: $material;
     position: relative;
     border-inline-end: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
     font-size: #{rem(12px)};
+	min-height: $ig-cells-min-height;
 }
 
 :host(:last-of-type) {

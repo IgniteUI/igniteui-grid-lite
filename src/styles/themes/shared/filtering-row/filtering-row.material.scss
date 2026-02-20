@@ -1,5 +1,12 @@
 @use 'igniteui-theming' as *;
 
+:host {
+	
+	&:has([part~='active-state']) {
+		box-shadow: 0 rem(-1px) rem(3px) 0 rgb(0 0 0 / 5%);
+	}
+}
+
 [part~='filter-row-input'] {
 	igc-input {
 		--ig-input-size: #{sizable(rem(26px), rem(34px), rem(44px))};
@@ -31,5 +38,13 @@
 			background: inherit;
 			color: inherit;
 		}
+	}
+	
+	igc-input [slot="prefix"] {
+		padding-inline-start: sizable(rem(4px), rem(6px));
+	}
+	
+	igc-input [slot="prefix"] {
+		padding-inline-end: sizable(rem(4px), rem(6px));;
 	}
 }

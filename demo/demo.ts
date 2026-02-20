@@ -219,6 +219,7 @@ const columns: ColumnConfiguration<User>[] = [
       html`<igc-checkbox
         label-position="before"
         ?checked=${params.value}
+        style="margin: 0 auto;"
       ></igc-checkbox>`,
   },
 ];
