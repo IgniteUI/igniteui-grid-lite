@@ -3,8 +3,22 @@
 
 $theme: $indigo;
 
+:host {
+	&:has([part~='active-state']) {
+		box-shadow: 0 rem(-1px) rem(5px) 0 rgb(0 0 0 / 12%);
+	}
+}
+
 [part~='filter-row-input'] {
 	igc-input {
 		--size: #{sizable(rem(24px), rem(28px), rem(32px))};
+	}
+	
+	igc-input [slot='prefix'] {
+		padding-inline-start: sizable(rem(4px), rem(6px));
+	}
+	
+	igc-input [slot='prefix'] {
+		padding-inline-end: sizable(rem(4px), rem(6px));;
 	}
 }

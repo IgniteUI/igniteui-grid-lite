@@ -14,7 +14,7 @@ $inset-shadow-width: #{rem(1px)};
     border-right: rem(1px) solid transparent;
     font-size: rem(13px);
     overflow-wrap: anywhere;
-	background-clip: padding-box !important;
+	min-height: $ig-cells-min-height;
 
     &:last-of-type {
         border-right: 0;
@@ -68,20 +68,7 @@ igc-select {
 
 igc-input,
 igc-select {
-	&::part(container) {
-		&::before {
-			box-shadow: none;
-		}
-	}
 	
-	&::part(container),
-	&::part(input) {
-		box-shadow: none;
-		background: inherit;
-		border: 0;
-		color: inherit;
-		font-size: rem(13px);
-	}
 	
 	&::part(helper-text),
 	&::part(container) {
