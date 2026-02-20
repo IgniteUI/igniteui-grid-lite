@@ -85,11 +85,16 @@ function getAvatar() {
   return `https://static.infragistics.com/xplatform/images/people/${type}/${idx}.jpg`;
 }
 
-async function setTheme(theme?: string) {
-  theme = theme ?? getElement<IgcSelectComponent>(IgcSelectComponent.tagName).value;
-  const variant = getElement<IgcSwitchComponent>('#theme-variant').checked
-    ? 'dark'
-    : 'light';
+let currentTheme = sessionStorage.getItem('theme') ?? 'bootstrap';
+let currentVariant = sessionStorage.getItem('theme-variant') === 'dark' ? 'dark' : 'light';
+const storedSize = Number(sessionStorage.getItem('size') ?? 3);
+
+async function setTheme(theme: string, variant: string) {
+  currentTheme = theme;
+  currentVariant = variant;
+
+  sessionStorage.setItem('theme', theme);
+  sessionStorage.setItem('theme-variant', variant);
 
   await import(
     /* @vite-ignore */
@@ -100,23 +105,30 @@ async function setTheme(theme?: string) {
     .slice(0, -1)
     .forEach((s) => s.remove());
 
-  configureTheme(theme as any);
+  configureTheme(theme as any, variant as any);
 }
 
 const themeChoose = html`
   <div class="sample-drop-down">
     <igc-select
-      value="bootstrap"
+      style="--ig-size: 1;"
+      value=${currentTheme}
       outlined
       title="Choose theme"
-      @igcChange=${({ detail }: CustomEvent) => setTheme(detail.value)}
+      @igcChange=${({ detail }: CustomEvent) => setTheme(detail.value, currentVariant)}
     >
       ${themes.map((theme) => html`<igc-select-item .value=${theme}>${theme}</igc-select-item>`)}
     </igc-select>
+    <igc-button-group selection="single-required" style="--ig-size: 1;">
+      <igc-toggle-button value="small" ?selected=${storedSize === 1} @click=${() => setSize(1)}>Small</igc-toggle-button>
+      <igc-toggle-button value="medium" ?selected=${storedSize === 2} @click=${() => setSize(2)}>Medium</igc-toggle-button>
+      <igc-toggle-button value="large" ?selected=${storedSize === 3} @click=${() => setSize(3)}>Large</igc-toggle-button>
+    </igc-button-group>
     <igc-switch
       id="theme-variant"
       label-position="after"
-      @igcChange=${() => setTheme()}
+      ?checked=${currentVariant === 'dark'}
+      @igcChange=${(e: CustomEvent) => setTheme(currentTheme, (e.target as IgcSwitchComponent).checked ? 'dark' : 'light')}
       >Dark variant</igc-switch
     >
   </div>
@@ -161,6 +173,7 @@ const columns: ColumnConfiguration<User>[] = [
     field: 'priority',
     cellTemplate: (params) =>
       html`<igc-select
+        style="padding-block: .4rem"
         outlined
         .value=${params.value}
         >${choices.map(
@@ -229,6 +242,7 @@ const toggleFiltering = () => {
 };
 
 const setSize = (size: number) => {
+  sessionStorage.setItem('size', String(size));
   document.getElementById('demo')!.style.setProperty('--ig-size', String(size));
 };
 
@@ -245,11 +259,7 @@ render(
         @igcChange=${toggleFiltering}
       >Toggle filtering</igc-switch
       >
-      <igc-button-group>
-        <igc-toggle-button @click=${() => setSize(1)}>Small</igc-toggle-button>
-        <igc-toggle-button @click=${() => setSize(2)}>Medium</igc-toggle-button>
-        <igc-toggle-button selected @click=${() => setSize(3)}>Large</igc-toggle-button>
-      </igc-button-group>
+      
       ${themeChoose}
     </div>
     <igc-grid-lite .data=${data}>
@@ -276,4 +286,5 @@ render(
   `,
   document.getElementById('demo')!,
 );
-await setTheme('bootstrap');
+setSize(storedSize);
+await setTheme(currentTheme, currentVariant);

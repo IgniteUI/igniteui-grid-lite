@@ -5,21 +5,20 @@ import { styles as bootstrapDark } from './dark/grid.bootstrap.css.js';
 import { styles as fluentDark } from './dark/grid.fluent.css.js';
 import { styles as indigoDark } from './dark/grid.indigo.css.js';
 import { styles as materialDark } from './dark/grid.material.css.js';
+import { styles as sharedDark } from './dark/grid.shared.css.js';
 // Light Overrides
 import { styles as bootstrapLight } from './light/grid.bootstrap.css.js';
 import { styles as fluentLight } from './light/grid.fluent.css.js';
 import { styles as indigoLight } from './light/grid.indigo.css.js';
 import { styles as materialLight } from './light/grid.material.css.js';
 import { styles as shared } from './light/grid.shared.css.js';
-// Shared
-import { styles as bootstrap } from './shared/grid.common.css.js';
 
 const light = {
   shared: css`
     ${shared}
   `,
   bootstrap: css`
-    ${bootstrap} ${bootstrapLight}
+    ${bootstrapLight}
   `,
   material: css`
     ${materialLight}
@@ -34,7 +33,7 @@ const light = {
 
 const dark = {
   shared: css`
-    ${shared}
+    ${sharedDark}
   `,
   bootstrap: css`
     ${bootstrapDark}
