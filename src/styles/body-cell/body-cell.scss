@@ -14,7 +14,7 @@ $inset-shadow-width: #{rem(1px)};
     border-right: rem(1px) solid transparent;
     font-size: rem(13px);
     overflow-wrap: anywhere;
-	min-height: $ig-cells-min-height;
+	min-height: sizable(rem(32px), rem(40px), rem(48px));
 
     &:last-of-type {
         border-right: 0;

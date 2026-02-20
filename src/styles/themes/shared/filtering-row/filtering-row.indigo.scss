@@ -7,6 +7,10 @@ $theme: $indigo;
 	&:has([part~='active-state']) {
 		box-shadow: 0 rem(-1px) rem(5px) 0 rgb(0 0 0 / 12%);
 	}
+	
+	igc-chip {
+		--ig-chip-size: #{sizable(rem(20px), rem(24px), rem(24px))};
+	}
 }
 
 [part~='filter-row-input'] {

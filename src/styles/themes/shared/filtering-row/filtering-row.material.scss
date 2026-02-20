@@ -1,7 +1,6 @@
 @use 'igniteui-theming' as *;
 
 :host {
-	
 	&:has([part~='active-state']) {
 		box-shadow: 0 rem(-1px) rem(3px) 0 rgb(0 0 0 / 5%);
 	}
