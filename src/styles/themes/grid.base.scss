@@ -13,6 +13,7 @@
 	font-family: var(--ig-font-family), serif;
 	overflow: auto hidden;
 	grid-template-rows: [header-row] max-content [filter-row] max-content [virtualized-container] auto;
+	box-shadow: 0 0 0 rem(1px) var(--grid-border-color);
 }
 
 igc-virtualizer {

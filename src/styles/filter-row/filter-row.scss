@@ -9,7 +9,7 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 :host {
     display: grid;
     grid-row: filter-row;
-    min-height: $ig-cells-min-height;
+	min-height: var-get($theme, 'header-size');
     background: var-get($theme, 'header-background');
     color: var-get($theme, 'header-text-color');
 	border-block-end: $border;
@@ -26,6 +26,8 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 	igc-chip {
 		// TODO FIX ON COMPONENT LEVEL
 		display: inline-flex;
+		
+		margin: rem(4px);
 	}
 	
 	igc-input::part(input) {
@@ -66,7 +68,7 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 [part~='active-state'] {
     background: $filtering-row-background;
     color: $filtering-row-text-color;
-    min-height: $ig-cells-min-height;
+	min-height: var-get($theme, 'header-size');
     min-width: 100%;
     display: flex;
     align-items: center;

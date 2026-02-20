@@ -6,7 +6,6 @@ $theme: $material;
 :host {
     display: grid;
     grid-row: header-row;
-    min-height: $ig-cells-min-height;
     background: var-get($theme, 'header-background');
     color: var-get($theme, 'header-text-color');
     contain: content;

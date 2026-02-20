@@ -8,8 +8,8 @@ $theme: $material;
     align-items: center;
     position: relative;
     border-inline-end: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
-    font-size: #{rem(12px)};
-	min-height: $ig-cells-min-height;
+	font-size: #{rem(12px)};
+	min-height: var-get($theme, 'header-size');
 }
 
 :host(:last-of-type) {
