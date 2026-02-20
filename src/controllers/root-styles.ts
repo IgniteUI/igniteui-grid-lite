@@ -65,7 +65,8 @@ export class AdoptedStylesController implements ReactiveController {
           }
 
           try {
-            constructed.insertRule(rule.cssText);
+            // insert last to keep rules/override order:
+            constructed.insertRule(rule.cssText, constructed.cssRules.length);
             hasRules = true;
           } catch {
             // Ignore rules that can't be adopted.
