@@ -15,6 +15,13 @@ $inset-shadow-width: #{rem(1px)};
     font-size: rem(13px);
     overflow-wrap: anywhere;
 	min-height: sizable(rem(32px), rem(40px), rem(48px));
+	
+	igc-avatar,
+	igc-rating,
+	igc-select,
+	igc-input {
+		--ig-size: var(--ig-size-small);
+	}
 
     &:last-of-type {
         border-right: 0;
