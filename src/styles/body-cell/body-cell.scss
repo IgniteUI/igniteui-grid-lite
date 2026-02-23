@@ -64,12 +64,7 @@ $inset-shadow-width: #{rem(1px)};
 igc-input,
 igc-select {
 	width: 100%;
-}
 
-igc-input,
-igc-select {
-	
-	
 	&::part(helper-text),
 	&::part(container) {
 		&::after {

@@ -26,7 +26,6 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 	igc-chip {
 		// TODO FIX ON COMPONENT LEVEL
 		display: inline-flex;
-		
 		margin: rem(4px);
 	}
 	
@@ -37,13 +36,13 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 	
 	igc-input:focus::part(prefix),
 	igc-input:focus [slot="prefix"],
-	igc-input:focus::part(prefix),
-	igc-input:focus [slot="prefix"] {
+	igc-input:focus::part(suffix),
+	igc-input:focus [slot="suffix"] {
 		border-color: var(--focused-border-color);
 	}
 	
 	igc-input [slot="prefix"],
-	igc-input [slot="prefix"] {
+	igc-input [slot="suffix"] {
 		cursor: pointer;
 	}
 	
