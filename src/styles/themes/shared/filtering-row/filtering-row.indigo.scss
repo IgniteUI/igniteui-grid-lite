@@ -22,7 +22,7 @@ $theme: $indigo;
 		padding-inline-start: sizable(rem(4px), rem(6px));
 	}
 	
-	igc-input [slot='prefix'] {
+	igc-input [slot='suffix'] {
 		padding-inline-end: sizable(rem(4px), rem(6px));;
 	}
 }
