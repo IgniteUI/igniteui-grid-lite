@@ -6,11 +6,11 @@ $theme: $material;
 :host {
     display: grid;
     width: 100%;
-    min-height: $ig-cells-min-height;
     border-block-end: rem(1px) solid var-get($theme, 'row-border-color');
     background: var-get($theme, 'content-background');
     color: var-get($theme, 'row-odd-text-color');
     z-index: var(--z-index-base);
+	min-height: var-get($theme, 'header-size');
 }
 
 :host(:last-of-type) {

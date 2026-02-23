@@ -1,0 +1,47 @@
+@use 'igniteui-theming' as *;
+
+:host {
+	&:has([part~='active-state']) {
+		box-shadow: 0 rem(-1px) rem(3px) 0 rgb(0 0 0 / 5%);
+	}
+}
+
+[part~='filter-row-input'] {
+	igc-input {
+		--ig-input-size: #{sizable(rem(26px), rem(34px), rem(44px))};
+		--border-border-radius: 0;
+		--input-prefix-background: transparent;
+		--input-prefix-background--filled: transparent;
+		--input-prefix-background--focused: transparent;
+		--input-suffix-background: transparent;
+		--input-suffix-background--filled: transparent;
+		--input-suffix-background--focused: transparent;
+		--idle-bottom-line-color: transparent;
+		--hover-bottom-line-color: transparent;
+		--focused-bottom-line-color: transparent;
+		--focused-secondary-color: transparent;
+		--hover-border-color: var(--ig-primary-500);
+		--focused-border-color: var(--ig-primary-500);
+		--border-background: transparent;
+		--search-background: var(--ig-input-search-background, transparent);
+		--box-background: transparent;
+		--box-background-hover: transparent;
+		--box-background-focus: transparent;
+		--box-border-radius: 0;
+		--search-border-radius: 0;
+		
+		&::part(container),
+		&::part(input) {
+			background: inherit;
+			color: inherit;
+		}
+	}
+	
+	igc-input [slot="prefix"] {
+		padding-inline-start: sizable(rem(4px), rem(6px));
+	}
+	
+	igc-input [slot="suffix"] {
+		padding-inline-end: sizable(rem(4px), rem(6px));;
+	}
+}
