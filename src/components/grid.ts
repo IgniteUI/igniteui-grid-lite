@@ -30,7 +30,7 @@ import { asArray, getFilterOperandsFor, isNumber, isString } from '../internal/u
 import { watch } from '../internal/watch.js';
 import type { FilterExpression } from '../operations/filter/types.js';
 import type { SortingExpression } from '../operations/sort/types.js';
-import { styles } from '../styles/themes/grid.base.css.js';
+import { styles as base } from '../styles/themes/grid.base.css.js';
 import { all } from '../styles/themes/grid-themes.js';
 import { styles as shared } from '../styles/themes/shared/grid.common.css.js';
 import IgcGridLiteCell from './cell.js';
@@ -149,7 +149,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
     return GRID_TAG;
   }
 
-  public static override styles = [styles, shared];
+  public static override styles = [base, shared];
 
   public static register(): void {
     registerComponent(

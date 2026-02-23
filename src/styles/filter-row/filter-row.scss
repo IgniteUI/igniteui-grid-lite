@@ -7,16 +7,52 @@ $filtering-row-text-color: var-get($theme, 'filtering-row-text-color');
 $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-style') var-get($theme, 'header-border-color');
 
 :host {
-    --ig-size: 1;
-
     display: grid;
     grid-row: filter-row;
-    min-height: $ig-cells-min-height;
+	min-height: var-get($theme, 'header-size');
     background: var-get($theme, 'header-background');
     color: var-get($theme, 'header-text-color');
-    border-block-end: $border;
+	border-block-end: $border;
     z-index: var(--z-index-base);
-    padding-inline-end: var(--scrollbar-offset);
+	padding-inline-end: var(--scrollbar-offset);
+	position: relative;
+	
+	&:has([part~='active-state']) {
+		background: var-get($theme, 'filtering-row-background');
+		box-shadow: inset 0 rem(-1px) 0 0 var-get($theme, 'header-border-color');
+		margin-block-start: calc(var-get($theme, 'header-border-width') * -1);
+	}
+	
+	igc-chip {
+		// TODO FIX ON COMPONENT LEVEL
+		display: inline-flex;
+		margin: rem(4px);
+	}
+	
+	igc-input::part(input) {
+		border-inline-start: none;
+		padding-inline-start: 0;
+	}
+	
+	igc-input:focus::part(prefix),
+	igc-input:focus [slot="prefix"],
+	igc-input:focus::part(suffix),
+	igc-input:focus [slot="suffix"] {
+		border-color: var(--focused-border-color);
+	}
+	
+	igc-input [slot="prefix"],
+	igc-input [slot="suffix"] {
+		cursor: pointer;
+	}
+	
+	igc-input:hover::part(input),
+	igc-input:hover::part(prefix),
+	igc-input:hover [slot="prefix"],
+	igc-input:hover::part(suffix),
+	igc-input:hover [slot="suffix"] {
+		border-color: var(--hover-border-color);
+	}
 }
 
 [part='filter-row-preview'] {
@@ -24,7 +60,6 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
     align-items: center;
     overflow: hidden;
     padding: 0 $ig-cells-padding;
-    background: $filtering-row-background;
     color: $filtering-row-text-color;
     border-inline-end: $border;
 }
@@ -32,13 +67,12 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 [part~='active-state'] {
     background: $filtering-row-background;
     color: $filtering-row-text-color;
-    min-height: $ig-cells-min-height;
+	min-height: var-get($theme, 'header-size');
     min-width: 100%;
     display: flex;
     align-items: center;
     gap: rem(8px);
     position: relative;
-    inset-block-start: rem(-1px);
 }
 
 [part='filter-row-preview']:last-of-type {
@@ -51,6 +85,10 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 
 [part~='filter-row-actions'] {
     padding-inline-end: $ig-cells-padding;
+	
+	igc-icon {
+		color: var-get($theme, 'sorted-header-icon-color');
+	}
 }
 
 [part~='filter-row-input'],
@@ -63,12 +101,4 @@ $border: var-get($theme, 'header-border-width') var-get($theme, 'header-border-s
 [part~='filter-row-filters'] {
     flex: 1;
     overflow: hidden;
-}
-
-igc-input {
-    &::part(container),
-    &::part(input) {
-        background: inherit;
-        color: inherit;
-    }
 }
