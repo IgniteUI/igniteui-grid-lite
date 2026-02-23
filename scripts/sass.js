@@ -1,6 +1,5 @@
-import { writeFile } from 'node:fs/promises';
+import { glob, writeFile } from 'node:fs/promises';
 import autoprefixer from 'autoprefixer';
-import { globby } from 'globby';
 import postcss from 'postcss';
 import * as sass from 'sass-embedded';
 
@@ -36,7 +35,10 @@ export async function compileSass(src, compiler) {
 }
 
 export async function buildComponents() {
-  const [compiler, paths] = await Promise.all([sass.initAsyncCompiler(), globby('src/**/*.scss')]);
+  const [compiler, paths] = await Promise.all([
+    sass.initAsyncCompiler(),
+    Array.fromAsync(glob('src/**/*.scss')),
+  ]);
 
   try {
     await Promise.all(
