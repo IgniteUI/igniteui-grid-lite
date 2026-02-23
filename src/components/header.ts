@@ -1,11 +1,11 @@
 import { consume } from '@lit/context';
 import {
+  θaddAdoptedStylesController as addAdoptedStylesController,
   θaddThemingController as addThemingController,
   IgcIconComponent,
 } from 'igniteui-webcomponents';
 import { html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
-import { AdoptedStylesController } from '../controllers/root-styles.js';
 import type { StateController } from '../controllers/state.js';
 import {
   MIN_COL_RESIZE_WIDTH,
@@ -31,7 +31,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
     registerComponent(IgcGridLiteHeader, IgcIconComponent);
   }
 
-  private readonly _adoptedStylesController = new AdoptedStylesController(this);
+  private readonly _adoptedStylesController = addAdoptedStylesController(this);
 
   protected get context(): IgcHeaderContext<T> {
     return {
@@ -77,7 +77,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   }
 
   private _handleThemeChange() {
-    AdoptedStylesController.invalidateCache(this.ownerDocument);
+    this._adoptedStylesController.invalidateCache(this.ownerDocument);
     this._adoptedStylesController.shouldAdoptStyles(
       this.adoptRootStyles && this.column.headerTemplate != null
     );

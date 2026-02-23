@@ -1,5 +1,6 @@
 import { consume } from '@lit/context';
 import {
+  θaddAdoptedStylesController as addAdoptedStylesController,
   θaddThemingController as addThemingController,
   IgcDropdownComponent,
   type IgcDropdownItemComponent,
@@ -9,7 +10,6 @@ import {
 import { html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
-import { AdoptedStylesController } from '../controllers/root-styles.js';
 import type { StateController } from '../controllers/state.js';
 import { DEFAULT_COLUMN_CONFIG } from '../internal/constants.js';
 import { GRID_STATE_CONTEXT } from '../internal/context.js';
@@ -51,7 +51,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     registerComponent(IgcFilterRow);
   }
 
-  private readonly _adoptedStylesController = new AdoptedStylesController(this);
+  private readonly _adoptedStylesController = addAdoptedStylesController(this);
 
   @consume({ context: GRID_STATE_CONTEXT, subscribe: true })
   @property({ attribute: false })
@@ -99,7 +99,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   private _handleThemeChange() {
-    AdoptedStylesController.invalidateCache(this.ownerDocument);
+    this._adoptedStylesController.invalidateCache(this.ownerDocument);
     this._adoptedStylesController.shouldAdoptStyles(
       this.adoptRootStyles && this.column.headerTemplate != null
     );

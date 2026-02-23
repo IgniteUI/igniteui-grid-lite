@@ -1,7 +1,7 @@
+import { θaddAdoptedStylesController as addAdoptedStylesController } from 'igniteui-webcomponents';
 import { html, LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import { cache } from 'lit/directives/cache.js';
-import { AdoptedStylesController } from '../controllers/root-styles.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_CELL_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration, IgcCellContext, PropertyType } from '../internal/types.js';
@@ -22,7 +22,7 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
     registerComponent(IgcGridLiteCell);
   }
 
-  private readonly _adoptedStylesController = new AdoptedStylesController(this);
+  private readonly _adoptedStylesController = addAdoptedStylesController(this);
 
   @property({ attribute: false })
   public adoptRootStyles = false;
