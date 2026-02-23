@@ -145,7 +145,7 @@ const columns: ColumnConfiguration<User>[] = [
   },
   {
     field: 'name',
-    cellTemplate: (params) => html`<igc-input .value=${params.value}></igc-input>`,
+    cellTemplate: (params) => html`<igc-input style="padding-block: .4rem" .value=${params.value}></igc-input>`,
     filterable: true,
     sortable: true,
   },

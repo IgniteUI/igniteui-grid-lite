@@ -20,11 +20,6 @@ $inset-shadow-width: #{rem(1px)};
         border-right: 0;
     }
 	
-	igc-rating,
-	igc-select {
-		--ig-size: 1;
-	}
-	
 	// input overrides
 	igc-input::part(container) {
 		--background: transparent;
