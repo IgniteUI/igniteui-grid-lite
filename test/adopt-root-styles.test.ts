@@ -15,8 +15,13 @@ class AdoptRootStylesFixture extends GridTestFixture<TestData> {
     this.styleElement = document.createElement('style');
     this.styleElement.textContent = `
       .custom-cell-class {
-        color: rgb(255, 0, 0);
+        color: rgb(255, 255, 0);
         font-weight: bold;
+      }
+
+      /* override */
+      .custom-cell-class {
+        color: rgb(255, 0, 0);
       }
 
       .custom-header-class {
