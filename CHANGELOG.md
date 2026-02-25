@@ -7,7 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** This project is currently in initial development (0.0.x versions). Until version 1.0.0 is released, the public API is not considered stable and breaking changes may occur in any release without following semantic versioning conventions.
 
-## [Unreleased]
+## Unreleased
+
+
+## [0.6.0] - 2026-02-25
+
+### Added
+
+- Updated theming and component size handling across grid styles. [#45](https://github.com/IgniteUI/igniteui-grid-lite/pull/45)
+
+### Changed
+
+- Bumped `igniteui-webcomponents` dependency to `7.0.0`. [#49](https://github.com/IgniteUI/igniteui-grid-lite/pull/49)
 
 
 ## [0.5.0] - 2026-02-17
@@ -111,3 +122,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - **BREAKING:** `triState` property has been removed from `GridLiteSortingOptions`. Tri-state sorting is now always enabled.
+
+[0.6.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.5.1...0.6.0
+[0.5.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.4.0...0.5.0
+[0.4.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.3.1...0.4.0
+[0.3.1]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.3.0...0.3.1
+[0.3.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.2.0...0.3.0
+[0.2.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.1.0...0.2.0
+[0.1.0]: https://github.com/IgniteUI/igniteui-grid-lite/releases/tag/0.1.0
