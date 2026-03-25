@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.7.0] - 2026-03-24
+
+### Changed
+
+- Bumped `igniteui-webcomponents` dependency to `7.1.0`. [#53](https://github.com/IgniteUI/igniteui-grid-lite/pull/53)
 
 ## [0.6.0] - 2026-02-25
 
