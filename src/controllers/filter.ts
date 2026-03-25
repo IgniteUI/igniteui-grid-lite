@@ -3,7 +3,7 @@ import type IgcFilterRow from '../components/filter-row.js';
 import type { IgcFilteredEvent } from '../components/grid.js';
 import { PIPELINE } from '../internal/constants.js';
 import type { ColumnConfiguration, Keys } from '../internal/types.js';
-import { asArray, getFilterOperandsFor } from '../internal/utils.js';
+import { asArray, getFilterOperandsFor, isString } from '../internal/utils.js';
 import { FilterState } from '../operations/filter/state.js';
 import type { FilterExpression } from '../operations/filter/types.js';
 import type { StateController } from './state.js';
@@ -150,5 +150,35 @@ export class FilterController<T extends object> implements ReactiveController {
         Object.assign(this.getDefaultExpression(this.host.getColumn(expr.key)!), expr)
       )
     );
+  }
+
+  /**
+   * Stores expressions directly in the filter state without requiring column configuration.
+   * Used when setting initial filter expressions before columns are available.
+   */
+  public setRaw(expressions: FilterExpression<T>[]) {
+    for (const expr of expressions) {
+      this.state.set(expr);
+    }
+  }
+
+  /**
+   * Resolves any string conditions in the current filter state using available column configuration.
+   * Called after columns become available to finalize deferred expressions.
+   */
+  public resolveConditions() {
+    for (const tree of this.state.values) {
+      const column = this.host.getColumn(tree.key);
+      if (!column) continue;
+      const defaults = this.getDefaultExpression(column);
+      for (const expr of tree.all) {
+        if (isString(expr.condition)) {
+          (expr as any).condition = (getFilterOperandsFor(column) as any)[expr.condition as string];
+        }
+        if (expr.caseSensitive === undefined) {
+          expr.caseSensitive = defaults.caseSensitive;
+        }
+      }
+    }
   }
 }
