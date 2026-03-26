@@ -129,7 +129,7 @@ describe('Grid UI filter', () => {
       expect(TDD.filterableColumns).lengthOf(TDD.filterRow.inactiveStateChips.length);
     });
 
-    keys.forEach((key) => {
+    for (const key of keys) {
       it('Default state when clicking on a filter chip', async () => {
         await TDD.activateFilterRow(key);
 
@@ -144,7 +144,7 @@ describe('Grid UI filter', () => {
         TDD.assertInactiveFilterRowState();
         TDD.assertDoesNotHaveHeaderFilterStyle(key);
       });
-    });
+    }
 
     it('Correctly changes header style for active column', async () => {
       await TDD.activateFilterRow('name');
@@ -170,7 +170,7 @@ describe('Grid UI filter', () => {
   });
 
   describe('Default UI filtering', () => {
-    keys.forEach((key) => {
+    for (const key of keys) {
       it('Chip state on input', async () => {
         await TDD.activateFilterRow(key);
         await TDD.filterByInput('a');
@@ -181,7 +181,7 @@ describe('Grid UI filter', () => {
         await TDD.filterByInput('');
         expect(TDD.activeChips).to.be.empty;
       });
-    });
+    }
 
     it('State on Enter keypress', async () => {
       await TDD.activateFilterRow('name');
