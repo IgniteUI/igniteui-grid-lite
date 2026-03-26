@@ -56,7 +56,8 @@ describe('Grid UI sort', () => {
 
   describe('Default UI', () => {
     const keys = ['id', 'address.city'] as const;
-    keys.forEach((key) => {
+
+    for (const key of keys) {
       it('Sort icons state', async () => {
         // Default sort DOM state
         TDD.sortDOMExists(key);
@@ -72,7 +73,7 @@ describe('Grid UI sort', () => {
         TDD.indicatorIsDescending(key);
         TDD.columnIsSorted(key);
       });
-    });
+    }
 
     it('Non-sortable columns have no sort DOM', async () => {
       await TDD.updateColumns({ field: 'id', sortable: false });

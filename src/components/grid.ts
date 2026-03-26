@@ -44,7 +44,7 @@ import IgcVirtualizer from './virtualizer.js';
 function columnReducer<T extends Element>(acc: T[], el: T): T[] {
   const tag = IgcGridLiteColumn.tagName;
   const column = el.matches(tag) ? el : el.querySelector(tag);
-  if (column) acc.push(column as T);
+  if (column) acc.push(column as unknown as T);
   return acc;
 }
 

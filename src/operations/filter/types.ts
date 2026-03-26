@@ -64,9 +64,8 @@ export interface BaseFilterExpression<T, K extends Keys<T> = Keys<T>> {
 /**
  * See {@link BaseFilterExpression} for the full documentation.
  */
-export type FilterExpression<T = any, K extends Keys<T> = Keys<T>> = K extends Keys<T>
-  ? BaseFilterExpression<T, K>
-  : never;
+export type FilterExpression<T = any, K extends Keys<T> = Keys<T>> =
+  K extends Keys<T> ? BaseFilterExpression<T, K> : never;
 
 export type OperandKeys<Type> = Type extends number
   ? keyof typeof NumberOperands

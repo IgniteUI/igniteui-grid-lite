@@ -3,7 +3,7 @@
   "printWidth": 100,
   "singleQuote": true,
   "singleAttributePerLine": true,
-  "trailingComma": "all",
+  "trailingComma": "es5",
   "overrides": [
     {
       "files": "*.{scss,css}",

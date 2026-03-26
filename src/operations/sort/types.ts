@@ -19,9 +19,8 @@ export type BaseSortComparer<T, K extends Keys<T> = Keys<T>> = (
 /**
  * See {@link BaseSortComparer} for the full documentation.
  */
-export type SortComparer<T, K extends Keys<T> = Keys<T>> = K extends Keys<T>
-  ? BaseSortComparer<T, K>
-  : never;
+export type SortComparer<T, K extends Keys<T> = Keys<T>> =
+  K extends Keys<T> ? BaseSortComparer<T, K> : never;
 
 /**
  * Represents a sort operation for a given column.
@@ -54,9 +53,8 @@ export interface BaseSortingExpression<T, K extends Keys<T> = Keys<T>> {
 /**
  * See {@link BaseSortingExpression} for the full documentation.
  */
-export type SortingExpression<T = any, K extends Keys<T> = Keys<T>> = K extends Keys<T>
-  ? BaseSortingExpression<T, K>
-  : never;
+export type SortingExpression<T = any, K extends Keys<T> = Keys<T>> =
+  K extends Keys<T> ? BaseSortingExpression<T, K> : never;
 
 /** Represents the sort state of the grid. */
 export type SortState<T> = Map<Keys<T>, SortingExpression<T>>;

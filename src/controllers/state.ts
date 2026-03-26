@@ -118,5 +118,5 @@ function createStateController<T extends object>(
   return new StateController<T>(host, observersCallback);
 }
 
-export { createStateController };
 export type { StateController };
+export { createStateController };

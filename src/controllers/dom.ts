@@ -60,5 +60,5 @@ function createDomController<T extends object>(
   return new GridDOMController<T>(host, state);
 }
 
-export { createDomController };
 export type { GridDOMController };
+export { createDomController };
