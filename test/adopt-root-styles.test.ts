@@ -478,4 +478,70 @@ describe('Grid adopt-root-styles property', () => {
       expect(computedStyle.fontWeight).to.equal('700');
     });
   });
+
+  describe('Virtualizer cell caching', () => {
+    beforeEach(async () => {
+      adoptRootStylesTDD.columnConfig = [
+        {
+          field: 'name',
+          sortable: true,
+          cellTemplate: (ctx: IgcCellContext<TestData>) =>
+            litHtml`<div class="custom-cell-class">${ctx.value}</div>`,
+        },
+        { field: 'id', sortable: true },
+      ];
+      await adoptRootStylesTDD.setUp();
+    });
+
+    afterEach(() => adoptRootStylesTDD.tearDown());
+
+    it('should preserve adopted styles when a cell is disconnected and reconnected by the virtualizer', async () => {
+      const cell = adoptRootStylesTDD.rows.first.cells.get('name');
+      const cellElement = cell.element as IgcGridLiteCell<TestData>;
+
+      // Verify initial adopted state
+      // @ts-expect-error - Accessing private controller for testing
+      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+
+      // Simulate virtualizer caching: disconnect the cell and reconnect it with
+      // properties already set (no Lit property-change cycle will fire in update)
+      const parentNode = cellElement.parentNode!;
+      parentNode.removeChild(cellElement);
+      await nextFrame();
+      parentNode.appendChild(cellElement);
+      await cellElement.updateComplete;
+
+      // connectedCallback must re-apply shouldAdoptStyles regardless of whether
+      // adoptRootStyles changed, because the property did not change so the
+      // update() guard (props.has('adoptRootStyles')) never fires
+      // @ts-expect-error - Accessing private controller for testing
+      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+
+      const customDiv = cellElement.shadowRoot!.querySelector('.custom-cell-class');
+      expect(customDiv).to.exist;
+      const computedStyle = window.getComputedStyle(customDiv!);
+      expect(computedStyle.color).to.equal('rgb(255, 0, 0)');
+    });
+
+    it('should preserve adopted styles after sorting already-sorted data across multiple columns', async () => {
+      // The test data IDs are 1–8 in ascending order, so sorting ascending by id
+      // produces no reordering. The virtualizer therefore recycles cells in-place
+      // without a full connected/disconnected lifecycle, meaning connectedCallback
+      // is never re-invoked and update()'s props.has('adoptRootStyles') guard
+      // does not fire — this is the exact scenario the connectedCallback fix covers.
+      await adoptRootStylesTDD.sortHeader('id');
+
+      // A second sort column keeps the order stable (all ids are unique, so the
+      // secondary key never kicks in), producing another no-op reorder pass.
+      await adoptRootStylesTDD.sortHeader('name');
+
+      for (let i = 0; i < adoptRootStylesTDD.grid.rows.length; i++) {
+        const cellElement = adoptRootStylesTDD.rows.get(i).cells.get('name')
+          .element as IgcGridLiteCell<TestData>;
+
+        // @ts-expect-error - Accessing private controller for testing
+        expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      }
+    });
+  });
 });

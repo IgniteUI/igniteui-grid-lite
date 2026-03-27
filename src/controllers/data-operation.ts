@@ -53,5 +53,5 @@ function createDataOperationsController<T extends object>(
   return new DataOperationsController<T>(host);
 }
 
-export { createDataOperationsController };
 export type { DataOperationsController };
+export { createDataOperationsController };

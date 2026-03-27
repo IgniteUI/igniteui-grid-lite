@@ -38,12 +38,11 @@
   "exclude": ["node_modules/**"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
-    "out": "dist/docs",
+    "json": "dist/docs/igniteui-grid-lite.json",
     "exclude": "**/*+(.test|-fixture|-styles).ts",
     "excludePrivate": true,
     "excludeProtected": true,
     "excludeExternals": true,
     "excludeNotDocumented": true,
-    "disableSources": true
   }
 }

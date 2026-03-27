@@ -67,11 +67,18 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
     } as unknown as IgcCellContext<T>;
   }
 
+  private get _shouldAdoptStyles(): boolean {
+    return this.adoptRootStyles && this.cellTemplate != null;
+  }
+
+  public override connectedCallback(): void {
+    super.connectedCallback();
+    this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
+  }
+
   protected override update(props: PropertyValues<this>): void {
     if (props.has('adoptRootStyles')) {
-      this._adoptedStylesController.shouldAdoptStyles(
-        this.adoptRootStyles && this.cellTemplate != null
-      );
+      this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
     }
 
     super.update(props);

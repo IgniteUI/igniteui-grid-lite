@@ -61,11 +61,12 @@ type PathValue<T, P extends string> = P extends `${infer K}.${infer Rest}`
 /**
  * Helper type for resolving types of type T.
  */
-export type PropertyType<T, K extends Keys<T> = Keys<T>> = K extends NestedKeys<T>
-  ? PathValue<T, K> // nested path
-  : K extends keyof T
-    ? T[K] // flat key
-    : never;
+export type PropertyType<T, K extends Keys<T> = Keys<T>> =
+  K extends NestedKeys<T>
+    ? PathValue<T, K> // nested path
+    : K extends keyof T
+      ? T[K] // flat key
+      : never;
 
 /** The data for the current column. */
 export type DataType = 'number' | 'string' | 'boolean';
@@ -93,9 +94,8 @@ export interface BaseColumnSortConfiguration<T, K extends Keys<T> = Keys<T>> {
 /**
  * See {@link BaseColumnSortConfiguration} for the full documentation.
  */
-export type ColumnSortConfiguration<T, K extends Keys<T> = Keys<T>> = K extends Keys<T>
-  ? BaseColumnSortConfiguration<T, K>
-  : never;
+export type ColumnSortConfiguration<T, K extends Keys<T> = Keys<T>> =
+  K extends Keys<T> ? BaseColumnSortConfiguration<T, K> : never;
 
 /** Configuration object for grid columns. */
 export interface BaseColumnConfiguration<T extends object, K extends Keys<T> = Keys<T>> {
@@ -170,10 +170,8 @@ export interface BaseColumnConfiguration<T extends object, K extends Keys<T> = K
 /**
  * See {@link BaseColumnConfiguration} for the full documentation.
  */
-export type ColumnConfiguration<
-  T extends object = any,
-  K extends Keys<T> = Keys<T>,
-> = K extends Keys<T> ? BaseColumnConfiguration<T, K> : never;
+export type ColumnConfiguration<T extends object = any, K extends Keys<T> = Keys<T>> =
+  K extends Keys<T> ? BaseColumnConfiguration<T, K> : never;
 
 export interface ActiveNode<T> {
   column: Keys<T>;
@@ -219,9 +217,8 @@ export interface BaseIgcCellContext<T extends object, K extends Keys<T> = Keys<T
 /**
  * See {@link BaseIgcCellContext} for the full documentation.
  */
-export type IgcCellContext<T extends object = any, K extends Keys<T> = Keys<T>> = K extends Keys<T>
-  ? BaseIgcCellContext<T, K>
-  : never;
+export type IgcCellContext<T extends object = any, K extends Keys<T> = Keys<T>> =
+  K extends Keys<T> ? BaseIgcCellContext<T, K> : never;
 
 /**
  * The parameters passed to a {@link DataPipelineHook} callback.
