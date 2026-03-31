@@ -243,8 +243,13 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    * Set the sort state for the grid.
    */
   public set sortingExpressions(expressions: SortingExpression<T>[]) {
-    if (this.hasUpdated && expressions.length) {
-      this.sort(expressions);
+    if (this.hasUpdated) {
+      this._stateController.sorting.reset();
+      if (expressions.length) {
+        this.sort(expressions);
+      } else {
+        this.requestUpdate(PIPELINE);
+      }
     } else {
       for (const expr of expressions) {
         this._stateController.sorting.state.set(expr.key, { ...expr });
@@ -264,8 +269,13 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    * Set the filter state for the grid.
    */
   public set filterExpressions(expressions: FilterExpression<T>[]) {
-    if (this.hasUpdated && expressions.length) {
-      this.filter(expressions);
+    if (this.hasUpdated) {
+      this._stateController.filtering.reset();
+      if (expressions.length) {
+        this.filter(expressions);
+      } else {
+        this.requestUpdate(PIPELINE);
+      }
     } else {
       this._stateController.filtering.setRaw(expressions);
     }

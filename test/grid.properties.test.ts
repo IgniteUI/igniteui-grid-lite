@@ -146,6 +146,52 @@ describe('Grid properties', () => {
     expect(TDD.rows.first.data.id).to.equal(8);
   });
 
+  it('Sort expressions late binding replaces previous state', async () => {
+    await TDD.updateProperty('sortingExpressions', [{ key: 'id', direction: 'descending' }]);
+    expect(TDD.grid.sortingExpressions).lengthOf(1);
+    expect(TDD.rows.first.data.id).to.equal(8);
+
+    await TDD.updateProperty('sortingExpressions', [{ key: 'name', direction: 'ascending' }]);
+    expect(TDD.grid.sortingExpressions).lengthOf(1);
+    expect(TDD.grid.sortingExpressions[0].key).to.equal('name');
+  });
+
+  it('Sort expressions late binding clears state with empty array', async () => {
+    await TDD.updateProperty('sortingExpressions', [{ key: 'id', direction: 'descending' }]);
+    expect(TDD.grid.sortingExpressions).lengthOf(1);
+
+    await TDD.updateProperty('sortingExpressions', []);
+    expect(TDD.grid.sortingExpressions).lengthOf(0);
+  });
+
+  it('Filter expressions late binding replaces previous state', async () => {
+    await TDD.updateColumns({ field: 'id', dataType: 'number' });
+    await TDD.updateProperty('filterExpressions', [
+      { key: 'id', condition: 'greaterThanOrEqual', searchTerm: 8 },
+    ]);
+    expect(TDD.grid.filterExpressions).lengthOf(1);
+    expect(TDD.grid.totalItems).to.equal(1);
+
+    await TDD.updateProperty('filterExpressions', [
+      { key: 'name', condition: 'startsWith', searchTerm: 'A' },
+    ]);
+    expect(TDD.grid.filterExpressions).lengthOf(1);
+    expect(TDD.grid.filterExpressions[0].key).to.equal('name');
+  });
+
+  it('Filter expressions late binding clears state with empty array', async () => {
+    await TDD.updateColumns({ field: 'id', dataType: 'number' });
+    await TDD.updateProperty('filterExpressions', [
+      { key: 'id', condition: 'greaterThanOrEqual', searchTerm: 8 },
+    ]);
+    expect(TDD.grid.filterExpressions).lengthOf(1);
+    expect(TDD.grid.totalItems).to.equal(1);
+
+    await TDD.updateProperty('filterExpressions', []);
+    expect(TDD.grid.filterExpressions).lengthOf(0);
+    expect(TDD.grid.totalItems).to.equal(data.length);
+  });
+
   it('Sort expressions (get)', async () => {
     await TDD.sort([
       { key: 'name', direction: 'descending' },
