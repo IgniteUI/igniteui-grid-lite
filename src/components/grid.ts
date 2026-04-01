@@ -245,11 +245,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   public set sortingExpressions(expressions: SortingExpression<T>[]) {
     if (this.hasUpdated) {
       this._stateController.sorting.reset();
-      if (expressions.length) {
-        this.sort(expressions);
-      } else {
-        this.requestUpdate(PIPELINE);
-      }
+      this.sort(expressions);
     } else {
       for (const expr of expressions) {
         this._stateController.sorting.state.set(expr.key, { ...expr });
@@ -271,11 +267,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   public set filterExpressions(expressions: FilterExpression<T>[]) {
     if (this.hasUpdated) {
       this._stateController.filtering.reset();
-      if (expressions.length) {
-        this.filter(expressions);
-      } else {
-        this.requestUpdate(PIPELINE);
-      }
+      this.filter(expressions);
     } else {
       this._stateController.filtering.setRaw(expressions);
     }
@@ -391,9 +383,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
       expr.condition = (getFilterOperandsFor(this.getColumn(expr.key)!) as any)[expr.condition];
     }
 
-    if (expressions.length) {
-      this._stateController.filtering.filter(expressions);
-    }
+    this._stateController.filtering.filter(expressions);
   }
 
   /**
