@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.7.1] - 2026-04-01
+
+### Fixed
+
+- `filterExpressions` and `sortExpressions` property setters now replace the existing state instead of being additive. [#60](https://github.com/IgniteUI/igniteui-grid-lite/pull/60)
+- Setting initial filter/sort state without column configuration no longer crashes. [#55](https://github.com/IgniteUI/igniteui-grid-lite/pull/55)
+- Adopted styles are now correctly applied on connected callback. [#58](https://github.com/IgniteUI/igniteui-grid-lite/pull/58)
+
 ## [0.7.0] - 2026-03-24
 
 ### Changed
