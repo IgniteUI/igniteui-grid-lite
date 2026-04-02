@@ -81,6 +81,7 @@ class StateController<T extends object> implements ReactiveController {
 
   public setColumnConfiguration(columns: ColumnConfiguration<T>[]): void {
     this._columns = columns.map((column) => createColumnConfiguration(column));
+    this.filtering.resolveConditions();
     this._observersCallback.call(this.host);
     this.host.requestUpdate(PIPELINE);
   }
@@ -88,6 +89,7 @@ class StateController<T extends object> implements ReactiveController {
   public setAutoColumnConfiguration(): void {
     if (this.host.autoGenerate && this.host.data.length > 0) {
       this._columns = setColumnsFromData(this.host.data[0]);
+      this.filtering.resolveConditions();
       this.host.requestUpdate(PIPELINE);
     }
   }

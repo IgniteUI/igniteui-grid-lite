@@ -182,9 +182,6 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
     }) as any,
   });
 
-  private _initialSortExpressions: SortingExpression<T>[] = [];
-  private _initialFilterExpressions: FilterExpression<T>[] = [];
-
   private _updateObservers(): void {
     this._stateProvider.updateObservers();
   }
@@ -246,10 +243,13 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    * Set the sort state for the grid.
    */
   public set sortingExpressions(expressions: SortingExpression<T>[]) {
-    if (this.hasUpdated && expressions.length) {
+    this._stateController.sorting.reset();
+    if (this.hasUpdated) {
       this.sort(expressions);
     } else {
-      this._initialSortExpressions = expressions;
+      for (const expr of expressions) {
+        this._stateController.sorting.state.set(expr.key, { ...expr });
+      }
     }
   }
 
@@ -265,10 +265,11 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    * Set the filter state for the grid.
    */
   public set filterExpressions(expressions: FilterExpression<T>[]) {
-    if (this.hasUpdated && expressions.length) {
+    this._stateController.filtering.reset();
+    if (this.hasUpdated) {
       this.filter(expressions);
     } else {
-      this._initialFilterExpressions = expressions;
+      this._stateController.filtering.setRaw(expressions);
     }
   }
 
@@ -344,14 +345,6 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
       if (this.autoGenerate && !this._hasAssignedColumns()) {
         this._stateController.setAutoColumnConfiguration();
       }
-
-      if (this._initialFilterExpressions.length) {
-        this.filter(this._initialFilterExpressions);
-      }
-
-      if (this._initialSortExpressions.length) {
-        this.sort(this._initialSortExpressions);
-      }
     });
   }
 
@@ -378,15 +371,19 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    * Performs a filter operation in the grid based on the passed expression(s).
    */
   public filter(config: FilterExpression<T> | FilterExpression<T>[]): void {
-    this._stateController.filtering.filter(
-      asArray(config).map((each) =>
-        isString(each.condition)
-          ? Object.assign(each, {
-              condition: (getFilterOperandsFor(this.getColumn(each.key)!) as any)[each.condition],
-            })
-          : each
-      )
-    );
+    const expressions = asArray(config).filter((expr) => {
+      const column = this.getColumn(expr.key);
+      return column !== undefined;
+    });
+
+    for (const expr of expressions) {
+      if (!isString(expr.condition)) {
+        continue;
+      }
+      expr.condition = (getFilterOperandsFor(this.getColumn(expr.key)!) as any)[expr.condition];
+    }
+
+    this._stateController.filtering.filter(expressions);
   }
 
   /**
