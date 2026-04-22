@@ -13,23 +13,21 @@ export default class FilterDataOperation<T extends object> extends DataOperation
     );
   }
 
-  protected match(record: T, ands: FilterExpression<T>[], ors: FilterExpression<T>[]): boolean {
-    for (const or of ors) {
-      if (this.resolveFilter(record, or)) {
-        return this.match(
-          record,
-          ands.filter((f) => f.key !== or.key),
-          []
-        );
-      }
+  protected matchTree(record: T, ors: FilterExpression<T>[], ands: FilterExpression<T>[]): boolean {
+    if (ors.length > 0 && ors.some((expr) => this.resolveFilter(record, expr))) {
+      return true;
     }
-    return ands.every((f) => this.resolveFilter(record, f));
+    return ands.every((expr) => this.resolveFilter(record, expr));
   }
 
   public apply(data: T[], state: FilterState<T>): T[] {
     if (state.empty) return data;
 
-    const { ands, ors } = state;
-    return data.filter((record) => this.match(record, ands, ors));
+    // Pre-compute ors/ands per tree once rather than re-deriving them per record
+    const trees = state.values.map((tree) => ({ ors: tree.ors, ands: tree.ands }));
+
+    return data.filter((record) =>
+      trees.every(({ ors, ands }) => this.matchTree(record, ors, ands))
+    );
   }
 }
