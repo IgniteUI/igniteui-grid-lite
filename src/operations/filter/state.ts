@@ -9,20 +9,8 @@ export class FilterState<T> {
     return this.state.size < 1;
   }
 
-  public get keys() {
-    return Array.from(this.state.keys());
-  }
-
   public get values() {
     return Array.from(this.state.values());
-  }
-
-  public get ands() {
-    return this.values.flatMap((each) => each.ands);
-  }
-
-  public get ors() {
-    return this.values.flatMap((each) => each.ors);
   }
 
   public has(key: Keys<T>) {
