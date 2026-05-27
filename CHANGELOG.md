@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.8.0] - 2026-05-27
+
+### Added
+
+- Filtering row input enhancements with updated styles and refactored common logic. [#54](https://github.com/IgniteUI/igniteui-grid-lite/pull/54)
+
+### Changed
+
+- Updated `igniteui-webcomponents` to 7.2.0 and other dependencies. [#65](https://github.com/IgniteUI/igniteui-grid-lite/pull/65), [#64](https://github.com/IgniteUI/igniteui-grid-lite/pull/64)
+- Updated Node.js engine requirement to 22+. [#65](https://github.com/IgniteUI/igniteui-grid-lite/pull/65)
+
 ## [0.7.1] - 2026-04-01
 
 ### Fixed
