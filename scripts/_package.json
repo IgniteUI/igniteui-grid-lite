@@ -25,7 +25,7 @@
     "url": "https://github.com/igniteui/igniteui-grid-lite/issues"
   },
   "engines": {
-    "node": ">=24"
+    "node": ">=22"
   },
   "customElements": "custom-elements.json",
   "dependencies": {

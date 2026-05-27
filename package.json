@@ -15,7 +15,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=24"
+    "node": ">=22"
   },
   "scripts": {
     "analyze": "cem analyze --litelement --globs \"src/**/*.{js,ts}\" --exclude \"src/styles/**/*\"",
