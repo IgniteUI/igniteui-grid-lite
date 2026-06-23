@@ -6,7 +6,7 @@ $theme: $material;
 :host {
     display: grid;
     width: 100%;
-    border-block-end: rem(1px) solid var-get($theme, 'row-border-color');
+    border-block-end: var-get($theme, 'row-border-width') var-get($theme, 'row-border-style') var-get($theme, 'row-border-color');
     background: var-get($theme, 'content-background');
     color: var-get($theme, 'row-odd-text-color');
     z-index: var(--z-index-base);
