@@ -13,7 +13,6 @@ $theme: $material;
     border-inline-end:
 	    var-get($theme, 'header-border-width')
 	    solid;
-	
     font-size: rem(13px);
     overflow-wrap: anywhere;
 	min-height: sizable(rem(32px), rem(40px), rem(48px));
