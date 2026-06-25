@@ -1,8 +1,7 @@
 @use '../common' as *;
 @use '../themes/light/themes' as *;
 
-$theme: $indigo;
-$inset-shadow-width: #{rem(1px)};
+$theme: $material;
 
 :host {
     position: relative;
@@ -11,7 +10,9 @@ $inset-shadow-width: #{rem(1px)};
     align-items: center;
     padding: 0 $ig-cells-padding;
     color: inherit;
-    border-right: rem(1px) solid transparent;
+    border-inline-end:
+	    var-get($theme, 'header-border-width')
+	    solid;
     font-size: rem(13px);
     overflow-wrap: anywhere;
 	min-height: sizable(rem(32px), rem(40px), rem(48px));
@@ -47,9 +48,13 @@ $inset-shadow-width: #{rem(1px)};
     outline: none;
 	color: var-get($theme, 'cell-selected-text-color');
 	background: var-get($theme, 'cell-selected-background');
+	background-clip: padding-box;
 	
 	&::after {
-		border: $inset-shadow-width solid var-get($theme, 'cell-active-border-color')
+		border:
+			var-get($theme, 'cell-active-border-width')
+			var-get($theme, 'active-state-border-style')
+			var-get($theme, 'cell-active-border-color')
 	}
 }
 

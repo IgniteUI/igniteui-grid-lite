@@ -6,7 +6,7 @@ $theme: $material;
 :host {
     display: grid;
     width: 100%;
-    border-block-end: rem(1px) solid var-get($theme, 'row-border-color');
+    border-block-end: var-get($theme, 'row-border-width') var-get($theme, 'row-border-style') var-get($theme, 'row-border-color');
     background: var-get($theme, 'content-background');
     color: var-get($theme, 'row-odd-text-color');
     z-index: var(--z-index-base);
@@ -20,14 +20,26 @@ $theme: $material;
 :host(:nth-of-type(odd)) {
 	background: var-get($theme, 'row-odd-background');
 	color: var-get($theme, 'row-odd-text-color');
+	
+	&::part(cell) {
+		border-inline-end-color: var-get($theme, 'body-column-border-color-odd');
+	}
 }
 
 :host(:nth-of-type(even)) {
     background: var-get($theme, 'row-even-background');
     color: var-get($theme, 'row-even-text-color');
+	
+	&::part(cell) {
+		border-inline-end-color: var-get($theme, 'body-column-border-color-even');
+	}
 }
 
 :host(:hover) {
     background: var-get($theme, 'row-hover-background');
     color: var-get($theme, 'row-hover-text-color');
+	
+	&::part(cell) {
+		border-inline-end-color: var-get($theme, 'body-column-hover-border-color');
+	}
 }
