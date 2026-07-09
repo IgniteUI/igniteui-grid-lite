@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.9.0] - 2026-07-09
+
+### Changed
+
+- Improved sort and filter performance for large data sets by precomputing sort keys and filter expression trees. [#63](https://github.com/IgniteUI/igniteui-grid-lite/pull/63)
+- Updated body cell and row theming to use the latest `igniteui-theming` variables and bumped `igniteui-theming` to `27.3.0`. [#66](https://github.com/IgniteUI/igniteui-grid-lite/pull/66)
+
+### Fixed
+
+- Body cell and row border styles now use the correct theme variables across default, odd, even, hover, and active states. [#66](https://github.com/IgniteUI/igniteui-grid-lite/pull/66)
+
 ## [0.8.0] - 2026-05-27
 
 ### Added
@@ -147,6 +158,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** `triState` property has been removed from `GridLiteSortingOptions`. Tri-state sorting is now always enabled.
 
+[0.9.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.6.0...0.7.0
