@@ -22,9 +22,9 @@ jobs:
           cache: 'npm'
           registry-url: https://registry.npmjs.org/
 
-      # Ensure npm 11.5.1 or later is installed in order to npm OIDC to work
-      - name: Update npm
-        run: npm install -g npm@latest
+      # Pin 11 for https://github.com/npm/cli/issues/9722
+      - name: Pin npm
+        run: npm install -g npm@11
 
       - run: npm ci
       - run: npm run build
