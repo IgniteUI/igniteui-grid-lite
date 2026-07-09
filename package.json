@@ -15,7 +15,7 @@
   },
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22"
   },
   "scripts": {
     "analyze": "cem analyze --litelement --globs \"src/**/*.{js,ts}\" --exclude \"src/styles/**/*\"",
@@ -46,11 +46,11 @@
   "dependencies": {
     "@lit-labs/virtualizer": "^2.1.1",
     "@lit/context": "^1.1.6",
-    "igniteui-webcomponents": "~7.1.1",
-    "lit": "^3.3.2"
+    "igniteui-webcomponents": "~7.2.0",
+    "lit": "^3.3.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.12",
+    "@biomejs/biome": "^2.4.15",
     "@custom-elements-manifest/analyzer": "^0.11.0",
     "@open-wc/testing": "^4.0.0",
     "@types/mocha": "^10.0.10",
@@ -60,21 +60,21 @@
     "autoprefixer": "^10.5.0",
     "concurrently": "^9.2.1",
     "husky": "^9.1.7",
-    "igniteui-theming": "^26.0.1",
-    "lint-staged": "^16.4.0",
+    "igniteui-theming": "^27.3.0",
+    "lint-staged": "^17.0.5",
     "node-watch": "^0.7.4",
-    "playwright": "^1.59.1",
-    "postcss": "^8.5.10",
-    "sass-embedded": "^1.99.0",
-    "sinon": "^21.1.2",
-    "stylelint": "^17.8.0",
+    "playwright": "^1.60.0",
+    "postcss": "^8.5.15",
+    "sass-embedded": "^1.100.0",
+    "sinon": "^22.0.0",
+    "stylelint": "^17.12.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-prettier": "^5.0.3",
-    "stylelint-scss": "^7.0.0",
+    "stylelint-scss": "^7.1.1",
     "tslib": "^2.8.1",
     "typedoc": "^0.28.19",
     "typescript": "^6.0.3",
-    "vite": "^8.0.9"
+    "vite": "^8.0.14"
   },
   "customElements": "custom-elements.json"
 }

@@ -25,13 +25,13 @@
     "url": "https://github.com/igniteui/igniteui-grid-lite/issues"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "customElements": "custom-elements.json",
   "dependencies": {
     "@lit-labs/virtualizer": "~2.1.0",
     "@lit/context": "~1.1.5",
-    "igniteui-webcomponents": "~7.1.0",
+    "igniteui-webcomponents": "~7.2.0",
     "lit": "^3.3.0"
   }
 }
