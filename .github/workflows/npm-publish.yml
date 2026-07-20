@@ -22,9 +22,8 @@ jobs:
           cache: 'npm'
           registry-url: https://registry.npmjs.org/
 
-      # Pin 11 for https://github.com/npm/cli/issues/9722
-      - name: Pin npm
-        run: npm install -g npm@11
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - run: npm ci
       - run: npm run build
@@ -42,5 +41,3 @@ jobs:
       - name: Publish the package
         run: npm publish --tag ${NPM_TAG}
         working-directory: dist
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
