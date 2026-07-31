@@ -50,7 +50,7 @@
     "lit": "^3.3.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.4",
+    "@biomejs/biome": "^2.5.6",
     "@custom-elements-manifest/analyzer": "^0.11.0",
     "@open-wc/testing": "^5.0.0",
     "@types/mocha": "^10.0.10",
@@ -58,14 +58,14 @@
     "@web/test-runner": "^1.0.0",
     "@web/test-runner-playwright": "^1.0.0",
     "autoprefixer": "^10.5.4",
-    "concurrently": "^10.0.3",
+    "concurrently": "^10.0.4",
     "husky": "^9.1.7",
     "igniteui-theming": "^27.4.0",
-    "lint-staged": "^17.1.0",
-    "playwright": "^1.61.1",
-    "postcss": "^8.5.20",
+    "lint-staged": "^17.3.0",
+    "playwright": "^1.62.1",
+    "postcss": "^8.5.25",
     "sass-embedded": "^1.100.0",
-    "sinon": "^22.0.0",
+    "sinon": "^22.1.0",
     "stylelint": "^17.14.1",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-prettier": "^5.0.3",
@@ -73,7 +73,7 @@
     "tslib": "^2.8.1",
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
-    "vite": "^8.1.5"
+    "vite": "^8.2.0"
   },
   "customElements": "custom-elements.json"
 }
