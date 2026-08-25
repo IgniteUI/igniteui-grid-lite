@@ -5,21 +5,20 @@ interface WatchOptions {
 export function watch(propName: string, options?: WatchOptions) {
   return (protoOrDescriptor: any, name: string): any => {
     const { willUpdate } = protoOrDescriptor;
-
-    const _options = Object.assign({ waitUntilFirstUpdate: false }, options) as WatchOptions;
+    const waitUntilFirstUpdate = options?.waitUntilFirstUpdate ?? false;
 
     protoOrDescriptor.willUpdate = function (changedProps: Map<string, any>) {
       willUpdate.call(this, changedProps);
 
-      if (changedProps.has(propName)) {
-        const oldValue = changedProps.get(propName);
-        const newValue = this[propName];
+      if (!changedProps.has(propName)) {
+        return;
+      }
 
-        if (oldValue !== newValue) {
-          if (!_options?.waitUntilFirstUpdate || this.hasUpdated) {
-            this[name].call(this, oldValue, newValue);
-          }
-        }
+      const oldValue = changedProps.get(propName);
+      const newValue = this[propName];
+
+      if (oldValue !== newValue && (!waitUntilFirstUpdate || this.hasUpdated)) {
+        this[name].call(this, oldValue, newValue);
       }
     };
   };

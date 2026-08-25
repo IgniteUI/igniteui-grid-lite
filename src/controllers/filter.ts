@@ -3,7 +3,7 @@ import type IgcFilterRow from '../components/filter-row.js';
 import type { IgcFilteredEvent } from '../components/grid.js';
 import { PIPELINE } from '../internal/constants.js';
 import type { ColumnConfiguration, Keys } from '../internal/types.js';
-import { asArray, getFilterOperandsFor, isString } from '../internal/utils.js';
+import { asArray, getFilterOperandsFor, isString, resolveCondition } from '../internal/utils.js';
 import { FilterState } from '../operations/filter/state.js';
 import type { FilterExpression } from '../operations/filter/types.js';
 import type { GridDOMController } from './dom.js';
@@ -79,49 +79,53 @@ export class FilterController<T extends object> implements ReactiveController {
   }
 
   public getDefaultExpression(column: ColumnConfiguration<T>) {
-    const caseSensitive = Boolean(column.filteringCaseSensitive);
-    const operands = getFilterOperandsFor(column);
-    const keys = Object.keys(operands) as (keyof typeof operands)[];
-
     // XXX: Types
     return {
       key: column.field,
-      condition: operands[keys[0]],
-      caseSensitive,
+      condition: Object.values(getFilterOperandsFor(column))[0],
+      caseSensitive: Boolean(column.filteringCaseSensitive),
     } as unknown as FilterExpression<T>;
   }
 
-  public async removeAllExpressions(key: Keys<T>) {
-    const state = this.get(key)?.all ?? [];
-
-    if (!this.#emitFilteringEvent(key, state, 'remove')) {
+  /**
+   * Emits `filtering` and, if it passes, runs `commit`, waits for the pipeline
+   * and emits `filtered` with the resulting state of the column.
+   */
+  async #applyWithEvents(
+    key: Keys<T>,
+    expressions: FilterExpression<T>[],
+    type: FilterEventType,
+    commit: () => void
+  ) {
+    if (!this.#emitFilteringEvent(key, expressions, type)) {
       return;
     }
 
-    this.reset(key);
-    this.#filter([]);
+    commit();
 
     await this.host._pipelineComplete;
     this.#emitFilteredEvent({ key, state: this.get(key)?.all ?? [] });
   }
 
+  public async removeAllExpressions(key: Keys<T>) {
+    await this.#applyWithEvents(key, this.get(key)?.all ?? [], 'remove', () => {
+      this.reset(key);
+      this.#filter([]);
+    });
+  }
+
   public async removeExpression(expression: FilterExpression<T>) {
     const state = this.get(expression.key);
 
-    if (!this.#emitFilteringEvent(expression.key, [expression], 'remove')) {
-      return;
-    }
+    await this.#applyWithEvents(expression.key, [expression], 'remove', () => {
+      state?.remove(expression);
 
-    state?.remove(expression);
+      if (state?.empty) {
+        this.reset(state.key);
+      }
 
-    if (state?.empty) {
-      this.reset(state.key);
-    }
-
-    this.#filter([]);
-
-    await this.host._pipelineComplete;
-    this.#emitFilteredEvent({ key: expression.key, state: state?.all ?? [] });
+      this.#filter([]);
+    });
   }
 
   /**
@@ -138,18 +142,13 @@ export class FilterController<T extends object> implements ReactiveController {
     type: FilterEventType,
     target: FilterExpression<T> = expression
   ) {
-    if (!this.#emitFilteringEvent(expression.key, [expression], type)) {
-      return;
-    }
+    await this.#applyWithEvents(expression.key, [expression], type, () => {
+      if (target !== expression) {
+        Object.assign(target, expression);
+      }
 
-    if (target !== expression) {
-      Object.assign(target, expression);
-    }
-
-    this.#filter(target);
-
-    await this.host._pipelineComplete;
-    this.#emitFilteredEvent({ key: target.key, state: this.get(target.key)?.all ?? [] });
+      this.#filter(target);
+    });
   }
 
   public filter(expression: FilterExpression<T> | FilterExpression<T>[]) {
@@ -185,7 +184,7 @@ export class FilterController<T extends object> implements ReactiveController {
       const defaults = this.getDefaultExpression(column);
       for (const expr of tree.all) {
         if (isString(expr.condition)) {
-          (expr as any).condition = (getFilterOperandsFor(column) as any)[expr.condition as string];
+          (expr as any).condition = resolveCondition(column, expr.condition);
         }
         if (expr.caseSensitive === undefined) {
           expr.caseSensitive = defaults.caseSensitive;

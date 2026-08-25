@@ -15,7 +15,7 @@ export class FilterExpressionTree<T> {
   }
 
   public get all() {
-    return Array.from(this.iterator());
+    return [...this.operands];
   }
 
   public get ands() {
@@ -47,13 +47,7 @@ export class FilterExpressionTree<T> {
     return this;
   }
 
-  protected *iterator() {
-    for (const operand of this.operands) {
-      yield operand;
-    }
-  }
-
   public [Symbol.iterator]() {
-    return this.iterator();
+    return this.operands.values();
   }
 }

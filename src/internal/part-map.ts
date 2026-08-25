@@ -37,36 +37,27 @@ class PartMapDirective extends Directive {
 
   public override update(part: AttributePart, [partMapInfo]: DirectiveParameters<this>) {
     const partList = part.element.part;
+    const firstRender = this._previousParts === undefined;
+    const previous = this._previousParts ?? new Set<string>();
+    this._previousParts = previous;
 
-    if (this._previousParts === undefined) {
-      this._previousParts = new Set();
-
-      for (const name in partMapInfo) {
-        if (partMapInfo[name]) {
-          partList.add(name);
-          this._previousParts.add(name);
-        }
-      }
-
-      return this.render(partMapInfo);
-    }
-
-    for (const name of this._previousParts) {
-      if (!(name in partMapInfo) || !partMapInfo[name]) {
+    for (const name of previous) {
+      if (!partMapInfo[name]) {
         partList.remove(name);
-        this._previousParts.delete(name);
+        previous.delete(name);
       }
     }
 
     for (const name in partMapInfo) {
-      const value = !!partMapInfo[name];
-      if (value && !this._previousParts.has(name)) {
+      if (partMapInfo[name] && !previous.has(name)) {
         partList.add(name);
-        this._previousParts.add(name);
+        previous.add(name);
       }
     }
 
-    return noChange;
+    // The first render must produce the attribute value; later ones patch the
+    // part list directly.
+    return firstRender ? this.render(partMapInfo) : noChange;
   }
 }
 

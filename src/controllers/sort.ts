@@ -5,6 +5,13 @@ import { asArray } from '../internal/utils.js';
 import type { SortingDirection, SortingExpression, SortState } from '../operations/sort/types.js';
 import type { StateController } from './state.js';
 
+/** Tri-state cycle: ascending -> descending -> none -> ascending. */
+const NEXT_DIRECTION: Record<SortingDirection, SortingDirection> = {
+  ascending: 'descending',
+  descending: 'none',
+  none: 'ascending',
+};
+
 export class SortController<T extends object> implements ReactiveController {
   constructor(protected _state: StateController<T>) {
     this.host.addController(this);
@@ -20,20 +27,11 @@ export class SortController<T extends object> implements ReactiveController {
     return this.host.sortingOptions.mode === 'multiple';
   }
 
-  #resolveSortOptions(column?: ColumnConfiguration<T>) {
-    const expr: Pick<SortingExpression<T>, 'caseSensitive' | 'comparer'> = {
-      caseSensitive: false,
-      comparer: undefined,
-    };
-
-    if (!column) {
-      return expr as Partial<SortingExpression<T>>;
-    }
-
-    return Object.assign(expr, {
-      caseSensitive: column.sortingCaseSensitive,
-      comparer: column.sortConfiguration?.comparer,
-    }) as Partial<SortingExpression<T>>;
+  #resolveSortOptions(column?: ColumnConfiguration<T>): Partial<SortingExpression<T>> {
+    return {
+      caseSensitive: column?.sortingCaseSensitive ?? false,
+      comparer: column?.sortConfiguration?.comparer,
+    } as Partial<SortingExpression<T>>;
   }
 
   #createDefaultExpression(key: Keys<T>) {
@@ -44,19 +42,6 @@ export class SortController<T extends object> implements ReactiveController {
       direction: 'ascending',
       ...this.#resolveSortOptions(column),
     } as SortingExpression<T>;
-  }
-
-  /** Tri-state cycle: ascending -> descending -> none. */
-  #orderBy(dir?: SortingDirection): SortingDirection {
-    if (dir === 'ascending') {
-      return 'descending';
-    }
-
-    if (dir === 'descending') {
-      return 'none';
-    }
-
-    return 'ascending';
   }
 
   #emitSortingEvent(detail: SortingExpression<T>) {
@@ -103,7 +88,7 @@ export class SortController<T extends object> implements ReactiveController {
 
       return {
         ...expr,
-        direction: this.#orderBy(expr.direction),
+        direction: NEXT_DIRECTION[expr.direction],
         ...this.#resolveSortOptions(column),
       };
     }

@@ -19,10 +19,10 @@ import { GRID_STATE_CONTEXT } from '../internal/context.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_FILTER_ROW_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration, Keys, PropertyType } from '../internal/types.js';
-import { getFilterOperandsFor } from '../internal/utils.js';
+import { getFilterOperandsFor, resolveCondition } from '../internal/utils.js';
 import { watch } from '../internal/watch.js';
 import type { FilterExpressionTree } from '../operations/filter/tree.js';
-import type { FilterExpression, FilterOperation, OperandKeys } from '../operations/filter/types.js';
+import type { FilterExpression, FilterOperation } from '../operations/filter/types.js';
 import { styles } from '../styles/filter-row/filter-row.css.js';
 import { all } from '../styles/themes/filtering-row-themes.js';
 
@@ -126,18 +126,18 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     });
   }
 
+  private get _shouldAdoptStyles(): boolean {
+    return this.adoptRootStyles && this.column.headerTemplate != null;
+  }
+
   private _handleThemeChange() {
     this._adoptedStylesController.invalidateCache(this.ownerDocument);
-    this._adoptedStylesController.shouldAdoptStyles(
-      this.adoptRootStyles && this.column.headerTemplate != null
-    );
+    this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
   }
 
   protected override update(props: PropertyValues<this>): void {
     if (props.has('adoptRootStyles')) {
-      this._adoptedStylesController.shouldAdoptStyles(
-        this.adoptRootStyles && this.column.headerTemplate != null
-      );
+      this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
     }
 
     super.update(props);
@@ -160,10 +160,8 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   #handleConditionChanged(event: CustomEvent<IgcDropdownItemComponent>) {
     event.stopPropagation();
-    const key = event.detail.value as OperandKeys<PropertyType<T, typeof this.column.field>>;
 
-    // XXX: Types
-    const condition = (getFilterOperandsFor(this.column) as any)[key] as FilterOperation<
+    const condition = resolveCondition(this.column, event.detail.value) as FilterOperation<
       PropertyType<T, keyof T>
     >;
 
@@ -334,23 +332,27 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     `;
   }
 
+  /** Chip list for a column's filter state. `onSelectFor` builds each chip's select action. */
+  #renderChips(
+    state: FilterExpressionTree<T>,
+    onSelectFor: (expression: FilterExpression<T>) => (e: Event) => Promise<void>
+  ) {
+    return Array.from(state).map((expression, idx) => {
+      const props: ExpressionChipProps<T> = {
+        expression,
+        selected: this.active && this.expression === expression,
+        onRemove: this.#chipRemoveFor(expression),
+        onSelect: onSelectFor(expression),
+      };
+
+      return html`${this.renderCriteriaButton(expression, idx)}${this.renderExpressionChip(props)}`;
+    });
+  }
+
   protected renderActiveChips() {
     const state = this.filterController.get(this.column.field);
 
-    return !state
-      ? nothing
-      : Array.from(state).map((expression, idx) => {
-          const props: ExpressionChipProps<T> = {
-            expression,
-            selected: this.expression === expression,
-            onRemove: this.#chipRemoveFor(expression),
-            onSelect: this.#chipSelectFor(expression),
-          };
-
-          return html`${this.renderCriteriaButton(expression, idx)}${this.renderExpressionChip(
-            props
-          )}`;
-        });
+    return state ? this.#renderChips(state, (expr) => this.#chipSelectFor(expr)) : nothing;
   }
 
   protected renderFilterActions() {
@@ -443,28 +445,22 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   protected renderInactiveChips(column: ColumnConfiguration<T>, state: FilterExpressionTree<T>) {
-    return Array.from(state).map((expression, idx) => {
-      const props: ExpressionChipProps<T> = {
-        expression,
-        selected: false,
-        onRemove: this.#chipRemoveFor(expression),
-        onSelect: async (e: Event) => {
-          e.stopPropagation();
-          this.column = column;
-          this.expression = expression;
-          this.#show();
-        },
-      };
-
-      return html`${this.renderCriteriaButton(expression, idx)}${this.renderExpressionChip(props)}`;
+    return this.#renderChips(state, (expression) => async (e: Event) => {
+      e.stopPropagation();
+      this.column = column;
+      this.expression = expression;
+      this.#show();
     });
   }
 
   protected renderFilterState(column: ColumnConfiguration<T>) {
     const state = this.filterController.get(column.field);
 
-    const partial = state && state.length < MAX_PREVIEW_CHIPS;
-    const hidden = state && state.length >= MAX_PREVIEW_CHIPS;
+    // A short expression list renders inline. A longer one collapses into a
+    // single chip carrying the expression count.
+    if (state && state.length < MAX_PREVIEW_CHIPS) {
+      return this.renderInactiveChips(column, state);
+    }
 
     const open = () => {
       this.column = column;
@@ -472,15 +468,14 @@ export default class IgcFilterRow<T extends object> extends LitElement {
       this.#show();
     };
 
-    const count = hidden ? html`<span slot="suffix">${state.length}</span>` : nothing;
-    const chip = html`<igc-chip
+    const count = state ? html`<span slot="suffix">${state.length}</span>` : nothing;
+
+    return html`<igc-chip
       data-column=${column.field}
       aria-label=${`Filter ${this.#nameFor(column.field)}`}
       @click=${open}
       >${prefixedIcon('filter')}Filter${count}</igc-chip
     >`;
-
-    return partial ? this.renderInactiveChips(column, state) : chip;
   }
 
   protected renderInactiveState() {

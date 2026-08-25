@@ -22,7 +22,7 @@ import type {
   Keys,
   NavigateToOptions,
 } from '../internal/types.js';
-import { asArray, getFilterOperandsFor, isNumber, isString } from '../internal/utils.js';
+import { asArray, isNumber, isString, resolveCondition } from '../internal/utils.js';
 import { watch } from '../internal/watch.js';
 import type { FilterExpression } from '../operations/filter/types.js';
 import type { SortingExpression } from '../operations/sort/types.js';
@@ -35,19 +35,6 @@ import IgcFilterRow from './filter-row.js';
 import IgcGridLiteHeaderRow from './header-row.js';
 import IgcGridLiteRow from './row.js';
 import IgcVirtualizer from './virtualizer.js';
-
-/** Column reducer matching either a direct column element or every one nested in a container */
-function columnReducer<T extends Element>(acc: T[], el: T): T[] {
-  const tag = IgcGridLiteColumn.tagName;
-
-  if (el.matches(tag)) {
-    acc.push(el);
-    return acc;
-  }
-
-  acc.push(...(Array.from(el.querySelectorAll(tag)) as unknown as T[]));
-  return acc;
-}
 
 /**
  * Event object for the filtering event of the grid.
@@ -439,22 +426,23 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
     });
   }
 
-  private _hasAssignedColumns(): boolean {
+  /** The column elements assigned to the slot, either direct or nested in a container. */
+  private _assignedColumns(): Element[] {
     const slot = this.renderRoot.querySelector('slot') as HTMLSlotElement;
-    const assignedNodes = slot
+    const tag = IgcGridLiteColumn.tagName;
+
+    return slot
       .assignedElements({ flatten: true })
-      .reduce<Element[]>(columnReducer, []);
-    return assignedNodes.length > 0;
+      .flatMap((el) => (el.matches(tag) ? el : Array.from(el.querySelectorAll(tag))));
   }
 
-  private _handleSlotChange(event: Event): void {
-    const slot = event.target as HTMLSlotElement;
-    const assignedNodes = slot
-      .assignedElements({ flatten: true })
-      .reduce<Element[]>(columnReducer, []);
+  private _hasAssignedColumns(): boolean {
+    return this._assignedColumns().length > 0;
+  }
 
+  private _handleSlotChange(): void {
     this._stateController.setColumnConfiguration(
-      assignedNodes as unknown as ColumnConfiguration<T>[]
+      this._assignedColumns() as unknown as ColumnConfiguration<T>[]
     );
   }
 
@@ -468,10 +456,9 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
       .map((expr) => ({ ...expr }));
 
     for (const expr of expressions) {
-      if (!isString(expr.condition)) {
-        continue;
+      if (isString(expr.condition)) {
+        expr.condition = resolveCondition(this.getColumn(expr.key)!, expr.condition);
       }
-      expr.condition = (getFilterOperandsFor(this.getColumn(expr.key)!) as any)[expr.condition];
     }
 
     this._stateController.filtering.filter(expressions);
@@ -513,9 +500,8 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    * Returns a {@link ColumnConfiguration} for a given column.
    */
   public getColumn(id: Keys<T> | number): ColumnConfiguration<T> | undefined {
-    return this._stateController.columns.find((column, index) =>
-      isNumber(id) ? index === id : column.field === id
-    );
+    const columns = this._stateController.columns;
+    return isNumber(id) ? columns[id] : columns.find((column) => column.field === id);
   }
 
   @eventOptions({ capture: true })

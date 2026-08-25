@@ -2,7 +2,10 @@ import type { StyleInfo } from 'lit/directives/style-map.js';
 import { BooleanOperands } from '../operations/filter/operands/boolean.js';
 import { NumberOperands } from '../operations/filter/operands/number.js';
 import { StringOperands } from '../operations/filter/operands/string.js';
+import type { FilterOperation } from '../operations/filter/types.js';
 import type { ColumnConfiguration, Keys, PropertyType } from './types.js';
+
+const DEFAULT_COLUMN_WIDTH = 'minmax(136px, 1fr)';
 
 function _isObject(entity: unknown): entity is Record<string, unknown> {
   return entity != null && typeof entity === 'object';
@@ -45,11 +48,11 @@ export function resolveFieldValue<T>(obj: T, path: Keys<T>): PropertyType<T> {
 export function applyColumnWidths<T extends object>(
   columns: Array<ColumnConfiguration<T>>
 ): StyleInfo {
-  const iter = Iterator.from(columns)
+  const widths = columns
     .filter((each) => !each.hidden)
-    .map((each) => each.width ?? 'minmax(136px, 1fr)');
+    .map((each) => each.width ?? DEFAULT_COLUMN_WIDTH);
 
-  return { 'grid-template-columns': iter.toArray().join(' ') };
+  return { 'grid-template-columns': widths.join(' ') };
 }
 
 export function isBoolean(x: unknown): x is boolean {
@@ -78,6 +81,14 @@ export function getFilterOperandsFor<T extends object>(column: ColumnConfigurati
     default:
       return StringOperands;
   }
+}
+
+/** Resolves a raw operand name (e.g. 'contains') to the column's filter operation. */
+export function resolveCondition<T extends object>(
+  column: ColumnConfiguration<T>,
+  name: string
+): FilterOperation<any> {
+  return (getFilterOperandsFor(column) as Record<string, FilterOperation<any>>)[name];
 }
 
 function getColumnType(value: unknown): 'boolean' | 'number' | 'string' {

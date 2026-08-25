@@ -77,6 +77,9 @@ class StateController<T extends object> {
   }
 
   public updateColumnsConfiguration(config: ColumnConfiguration<T>[]): void {
+    // NOTE: The in-place writes are load-bearing. Consumers holding the current
+    // array (header row, DOM controller) must see the new column objects in this
+    // update cycle; rebuilding the array delivers them one cycle late.
     for (const columnConfig of config) {
       const existing = this._columns.findIndex((column) => column.field === columnConfig.field);
       if (existing !== -1) {

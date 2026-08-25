@@ -30,11 +30,7 @@ export class FilterState<T> {
   }
 
   public set(expression: FilterExpression<T>) {
-    if (this.has(expression.key)) {
-      this.get(expression.key)?.add(expression);
-      return;
-    }
-
-    this.state.set(expression.key, new FilterExpressionTree<T>(expression.key).add(expression));
+    const tree = this.state.get(expression.key) ?? new FilterExpressionTree<T>(expression.key);
+    this.state.set(expression.key, tree.add(expression));
   }
 }

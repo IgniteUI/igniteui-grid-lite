@@ -1,6 +1,6 @@
 import type { ReactiveController } from 'lit';
 import { SENTINEL_NODE } from '../internal/constants.js';
-import type { ActiveNode, Keys, NavigateToOptions } from '../internal/types.js';
+import type { ActiveNode, NavigateToOptions } from '../internal/types.js';
 import type { GridDOMController } from './dom.js';
 import type { StateController } from './state.js';
 
@@ -35,22 +35,6 @@ export class NavigationController<T extends object> implements ReactiveControlle
 
   protected get _firstColumn() {
     return this._columns.at(0)?.field ?? SENTINEL_NODE.column;
-  }
-
-  // Both lookups clamp at the ends; a hidden or missing key (index -1) lands on the
-  // first visible column.
-  protected getPreviousColumn(key: Keys<T>) {
-    const columns = this._columns;
-    const index = columns.findIndex((column) => column.field === key);
-
-    return columns[Math.max(index - 1, 0)].field;
-  }
-
-  protected getNextColumn(key: Keys<T>) {
-    const columns = this._columns;
-    const index = columns.findIndex((column) => column.field === key);
-
-    return columns[Math.min(index + 1, columns.length - 1)].field;
   }
 
   protected queryRowByIndex(index: number) {
@@ -118,41 +102,51 @@ export class NavigationController<T extends object> implements ReactiveControlle
     this._state.host.addController(this);
   }
 
+  /** Activates `row` (clamped to the data range) and scrolls it into view. */
+  #moveToRow(row: number) {
+    const clamped = Math.min(Math.max(row, 0), this._state.host.totalItems - 1);
+
+    this.active = Object.assign(this.nextNode, { row: clamped });
+    this._virtualizer?.element(clamped)?.scrollIntoView({ block: 'nearest' });
+  }
+
+  /**
+   * Steps the active column by `offset`, clamping at the visible ends. A hidden
+   * or missing key (index -1) lands on the first visible column.
+   */
+  #moveToColumn(offset: -1 | 1) {
+    const next = this.nextNode;
+    const columns = this._columns;
+
+    const index = columns.findIndex((column) => column.field === next.column);
+    const target = Math.min(Math.max(index + offset, 0), columns.length - 1);
+
+    this.active = Object.assign(next, { column: columns[target].field });
+    this.scrollToCell(this.active);
+  }
+
   protected home() {
-    this.active = Object.assign(this.nextNode, { row: 0 });
-    this._virtualizer?.element(this.active.row)?.scrollIntoView({ block: 'nearest' });
+    this.#moveToRow(0);
   }
 
   protected end() {
-    this.active = Object.assign(this.nextNode, { row: this._state.host.totalItems - 1 });
-    this._virtualizer?.element(this.active.row)?.scrollIntoView({ block: 'nearest' });
+    this.#moveToRow(this._state.host.totalItems - 1);
   }
 
   protected arrowDown() {
-    const next = this.nextNode;
-
-    this.active = Object.assign(next, {
-      row: Math.min(next.row + 1, this._state.host.totalItems - 1),
-    });
-    this._virtualizer?.element(next.row)?.scrollIntoView({ block: 'nearest' });
+    this.#moveToRow(this.nextNode.row + 1);
   }
 
   protected arrowUp() {
-    const next = this.nextNode;
-    this.active = Object.assign(next, { row: Math.max(0, next.row - 1) });
-    this._virtualizer?.element(next.row)?.scrollIntoView({ block: 'nearest' });
+    this.#moveToRow(this.nextNode.row - 1);
   }
 
   protected arrowLeft() {
-    const next = this.nextNode;
-    this.active = Object.assign(next, { column: this.getPreviousColumn(next.column) });
-    this.scrollToCell(this.active);
+    this.#moveToColumn(-1);
   }
 
   protected arrowRight() {
-    const next = this.nextNode;
-    this.active = Object.assign(next, { column: this.getNextColumn(next.column) });
-    this.scrollToCell(this.active);
+    this.#moveToColumn(1);
   }
 
   public hostDisconnected() {

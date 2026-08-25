@@ -4,14 +4,12 @@ import type { SortState } from './sort/types.js';
 // A single collator is reused across comparisons - `localeCompare` builds one per call.
 const collator = new Intl.Collator();
 
-export default class SortDataOperation<T> extends DataOperation<T> {
-  protected orderBy = new Map(
-    Object.entries({
-      ascending: 1,
-      descending: -1,
-    })
-  );
+const DIRECTION_MULTIPLIERS: Record<string, number> = {
+  ascending: 1,
+  descending: -1,
+};
 
+export default class SortDataOperation<T> extends DataOperation<T> {
   protected compareValues<U>(first: U, second: U) {
     if (typeof first === 'string' && typeof second === 'string') {
       return collator.compare(first, second);
@@ -24,7 +22,7 @@ export default class SortDataOperation<T> extends DataOperation<T> {
     const length = expressions.length;
 
     // Pre-compute direction multipliers once to avoid Map lookups in the comparator
-    const multipliers = expressions.map(({ direction }) => this.orderBy.get(direction)!);
+    const multipliers = expressions.map(({ direction }) => DIRECTION_MULTIPLIERS[direction]);
 
     // Store as flat tuples [item, key0, key1, ...] to avoid per-row object allocation
     // and transform only once before sorting, then extract the original items after sorting.

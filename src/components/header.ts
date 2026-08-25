@@ -77,11 +77,13 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
     });
   }
 
+  private get _shouldAdoptStyles(): boolean {
+    return this.adoptRootStyles && this.column.headerTemplate != null;
+  }
+
   protected override update(props: PropertyValues<this>): void {
     if (props.has('adoptRootStyles') || props.has('column')) {
-      this._adoptedStylesController.shouldAdoptStyles(
-        this.adoptRootStyles && this.column.headerTemplate != null
-      );
+      this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
     }
 
     // Sort state reaches the header as a context ping, not a property change, so
@@ -102,9 +104,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
 
   private _handleThemeChange() {
     this._adoptedStylesController.invalidateCache(this.ownerDocument);
-    this._adoptedStylesController.shouldAdoptStyles(
-      this.adoptRootStyles && this.column.headerTemplate != null
-    );
+    this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
   }
 
   #addResizeEventHandlers() {
@@ -156,28 +156,27 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
 
   protected renderSortPart() {
     const state = this.state.sorting.state.get(this.column.field);
-    const idx = Array.from(this.state.sorting.state.values()).indexOf(state!);
-    const attr =
-      this.state.host.sortingOptions.mode === 'multiple' ? (idx > -1 ? idx + 1 : nothing) : nothing;
-    const icon = state
-      ? state.direction === 'ascending'
-        ? SORT_ICON_ASCENDING
-        : SORT_ICON_DESCENDING
-      : SORT_ICON_ASCENDING;
 
-    return state || this.isSortable
-      ? html`<span
-          part=${partMap({ action: true, sorted: !!state?.direction })}
-          @click=${this.isSortable ? this.#handleClick : nothing}
-        >
-          <igc-icon
-            part=${partMap({ 'sorting-action': !!state })}
-            data-sortIndex=${attr}
-            name=${icon}
-            collection="internal"
-          ></igc-icon>
-        </span>`
-      : nothing;
+    if (!(state || this.isSortable)) {
+      return nothing;
+    }
+
+    // The 1-based position of the column in the multi-sort order.
+    const position = Array.from(this.state.sorting.state.keys()).indexOf(this.column.field);
+    const multiple = this.state.host.sortingOptions.mode === 'multiple';
+    const icon = state?.direction === 'descending' ? SORT_ICON_DESCENDING : SORT_ICON_ASCENDING;
+
+    return html`<span
+      part=${partMap({ action: true, sorted: !!state?.direction })}
+      @click=${this.isSortable ? this.#handleClick : nothing}
+    >
+      <igc-icon
+        part=${partMap({ 'sorting-action': !!state })}
+        data-sortIndex=${multiple && position > -1 ? position + 1 : nothing}
+        name=${icon}
+        collection="internal"
+      ></igc-icon>
+    </span>`;
   }
 
   protected renderContentPart() {
