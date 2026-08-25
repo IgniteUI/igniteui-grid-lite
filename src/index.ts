@@ -19,6 +19,7 @@ export type {
   IgcCellContext,
   IgcHeaderContext,
   Keys,
+  NavigateToOptions,
   PropertyType,
 } from './internal/types.js';
 export { BooleanOperands } from './operations/filter/operands/boolean.js';

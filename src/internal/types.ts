@@ -178,6 +178,20 @@ export interface ActiveNode<T> {
 }
 
 /**
+ * Options for the navigateTo API of the grid.
+ */
+export interface NavigateToOptions<T> {
+  /**
+   * The column field to navigate to. Without it, only the row scrolls into view.
+   */
+  column?: Keys<T>;
+  /**
+   * When true, the navigated cell becomes the active cell.
+   */
+  activate?: boolean;
+}
+
+/**
  * Context object for the column header template callback.
  */
 export interface IgcHeaderContext<T extends object = any> {

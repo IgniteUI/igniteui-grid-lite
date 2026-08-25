@@ -1,25 +1,39 @@
 import type { ReactiveController } from 'lit';
 import type { StyleInfo } from 'lit/directives/style-map.js';
+import type IgcFilterRow from '../components/filter-row.js';
+import type IgcGridLiteHeaderRow from '../components/header-row.js';
+import type IgcGridLiteRow from '../components/row.js';
 import type IgcVirtualizer from '../components/virtualizer.js';
 import { registerGridIcons } from '../internal/icon-registry.js';
-import type { GridHost } from '../internal/types.js';
+import {
+  GRID_FILTER_ROW_TAG,
+  GRID_HEADER_ROW_TAG,
+  GRID_ROW_TAG,
+  GRID_VIRTUALIZER_TAG,
+} from '../internal/tags.js';
+import type { ColumnConfiguration, GridHost } from '../internal/types.js';
 import { applyColumnWidths } from '../internal/utils.js';
-import type { StateController } from './state.js';
 
 const SCROLLBAR_OFFSET_VAR = '--scrollbar-offset';
 const VISIBILITY_CHANGED = 'visibilityChanged';
 
+/**
+ * Owns the DOM concerns of the grid: element queries into the render root, the
+ * derived column track sizes, and the scrollbar offset measurement.
+ */
 class GridDOMController<T extends object> implements ReactiveController {
   protected readonly _host: GridHost<T>;
-  protected readonly _state: StateController<T>;
 
   /** The virtualizer currently being tracked for scrollbar changes. */
   #observed?: IgcVirtualizer;
   #resizeObserver?: ResizeObserver;
 
-  /** Last written offset in pixels. -1 marks "never measured". */
+  /** Last written offset in pixels. -1 means not measured yet. */
   #scrollOffset = -1;
   #pendingFrame?: number;
+
+  /** The column configuration `columnSizes` was derived from. */
+  #columns?: ColumnConfiguration<T>[];
 
   #onScrollbarChange = (): void => {
     if (this.#pendingFrame !== undefined) {
@@ -32,19 +46,37 @@ class GridDOMController<T extends object> implements ReactiveController {
     });
   };
 
-  constructor(host: GridHost<T>, state: StateController<T>) {
+  constructor(host: GridHost<T>) {
     this._host = host;
-    this._state = state;
     this._host.addController(this);
   }
 
   public columnSizes: StyleInfo = {};
 
+  /** Returns the header row element of the grid. */
+  public get headerRow(): IgcGridLiteHeaderRow<T> | null {
+    return this._host.renderRoot.querySelector<IgcGridLiteHeaderRow<T>>(GRID_HEADER_ROW_TAG);
+  }
+
+  /** Returns the filter row element of the grid. */
+  public get filterRow(): IgcFilterRow<T> | null {
+    return this._host.renderRoot.querySelector<IgcFilterRow<T>>(GRID_FILTER_ROW_TAG);
+  }
+
+  /** Returns the data row elements of the grid. */
+  public get rows(): IgcGridLiteRow<T>[] {
+    return Array.from(this._host.renderRoot.querySelectorAll<IgcGridLiteRow<T>>(GRID_ROW_TAG));
+  }
+
+  /** Returns the virtualizer element of the grid. */
+  public get virtualizer(): IgcVirtualizer | null {
+    return this._host.renderRoot.querySelector(GRID_VIRTUALIZER_TAG);
+  }
+
   public hostConnected(): void {
     registerGridIcons();
-    this.setGridColumnSizes();
 
-    // The virtualizer is part of the host template - wait for it before observing.
+    // The virtualizer is part of the host template. Observe it after the first render.
     this._host.updateComplete.then(() => {
       this.#observeVirtualizer();
     });
@@ -63,18 +95,13 @@ class GridDOMController<T extends object> implements ReactiveController {
     this.#observed = undefined;
   }
 
-  public hostUpdate(): void {
-    this.setGridColumnSizes();
-  }
-
   /**
-   * Watches the virtualizer for anything which can toggle its scrollbar: a new
-   * visible range, or a content box resize - the scrollbar itself shrinks the
-   * content box. Keeping the measurement here avoids a forced layout on every
-   * host update.
+   * Watches the virtualizer for changes that can toggle its scrollbar: a new
+   * visible range, or a content box resize (the scrollbar itself shrinks the
+   * content box). Measurement here prevents a forced layout on each host update.
    */
   #observeVirtualizer(): void {
-    const virtualizer = this._state.virtualizer;
+    const virtualizer = this.virtualizer;
 
     if (!virtualizer || virtualizer === this.#observed) {
       return;
@@ -87,7 +114,7 @@ class GridDOMController<T extends object> implements ReactiveController {
     this.#resizeObserver.observe(virtualizer);
   }
 
-  /** Writes the scrollbar offset CSS variable, but only when the measurement changed. */
+  /** Writes the scrollbar offset CSS variable only when the measurement changed. */
   #applyScrollOffset(): void {
     const virtualizer = this.#observed;
     const offset = virtualizer ? virtualizer.offsetWidth - virtualizer.clientWidth : 0;
@@ -100,20 +127,27 @@ class GridDOMController<T extends object> implements ReactiveController {
     this._host.style.setProperty(SCROLLBAR_OFFSET_VAR, `${offset}px`);
   }
 
-  protected setGridColumnSizes(): void {
-    this.columnSizes = applyColumnWidths(this._state.columns);
+  /** Scrolls the data area back to the top. */
+  public resetScrollPosition(): void {
+    this.virtualizer?.scrollTo({ top: 0 });
   }
 
-  public getActiveRowStyles(index: number): StyleInfo {
-    return this._state.active.row === index ? { 'z-index': '3' } : {};
+  /**
+   * Re-derives the column track sizes. Column configurations are immutable: an
+   * unchanged array identity means the current sizes are still correct.
+   */
+  public setColumns(columns: ColumnConfiguration<T>[]): void {
+    if (columns === this.#columns) {
+      return;
+    }
+
+    this.#columns = columns;
+    this.columnSizes = applyColumnWidths(columns);
   }
 }
 
-function createDomController<T extends object>(
-  host: GridHost<T>,
-  state: StateController<T>
-): GridDOMController<T> {
-  return new GridDOMController<T>(host, state);
+function createDomController<T extends object>(host: GridHost<T>): GridDOMController<T> {
+  return new GridDOMController<T>(host);
 }
 
 export type { GridDOMController };

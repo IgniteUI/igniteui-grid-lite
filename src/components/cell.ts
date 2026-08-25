@@ -2,6 +2,7 @@ import { θaddAdoptedStylesController as addAdoptedStylesController } from 'igni
 import { html, LitElement, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import { cache } from 'lit/directives/cache.js';
+import { addA11y } from '../internal/a11y.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_CELL_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration, IgcCellContext, PropertyType } from '../internal/types.js';
@@ -23,9 +24,19 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
   }
 
   private readonly _adoptedStylesController = addAdoptedStylesController(this);
+  private readonly _a11y = addA11y(this, 'gridcell');
 
   @property({ attribute: false })
   public adoptRootStyles = false;
+
+  /**
+   * Position of the cell among the visible columns. Written as its 1-based
+   * `aria-colindex`.
+   *
+   * @internal
+   */
+  @property({ attribute: false })
+  public _colIndex = -1;
 
   /**
    * The value which will be rendered by the component.
@@ -73,6 +84,10 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
 
   public override connectedCallback(): void {
     super.connectedCallback();
+
+    // Roving focus target. Navigation moves DOM focus here so that assistive
+    // technology announces the cell.
+    this.tabIndex = -1;
     this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
   }
 
@@ -80,6 +95,12 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
     if (props.has('adoptRootStyles') || props.has('cellTemplate')) {
       this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
     }
+
+    // The grid has no cell selection. `aria-selected` marks only the active cell.
+    this._a11y.set({
+      ariaColIndex: `${this._colIndex}`,
+      ariaSelected: this.active ? 'true' : null,
+    });
 
     super.update(props);
   }

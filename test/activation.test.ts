@@ -218,7 +218,7 @@ describe('Grid activation', () => {
     });
 
     it('navigates to a specific row and column', async () => {
-      await TDD.grid.navigateTo(testData.length - 2, 'name');
+      await TDD.grid.navigateTo(testData.length - 2, { column: 'name' });
 
       const cell = TDD.rows.get(-2).cells.get('name');
       expect(cell.active).to.be.false;
@@ -226,7 +226,7 @@ describe('Grid activation', () => {
     });
 
     it('navigates to a cell within already scrolled-to row', async () => {
-      await TDD.grid.navigateTo(testData.length - 1, 'id');
+      await TDD.grid.navigateTo(testData.length - 1, { column: 'id' });
 
       let cell = TDD.rows.last.cells.get('id');
       expect(isVisibleGrid(cell.element)).to.be.true;
@@ -234,24 +234,24 @@ describe('Grid activation', () => {
       // last cell
       cell = TDD.rows.last.cells.last;
       expect(isVisibleGrid(cell.element)).to.be.false;
-      await TDD.grid.navigateTo(testData.length - 1, keys.at(-1));
+      await TDD.grid.navigateTo(testData.length - 1, { column: keys.at(-1) });
 
       expect(isVisibleGrid(cell.element)).to.be.true;
     });
 
     it('navigates through all columns', async () => {
       for (const key of keys) {
-        await TDD.grid.navigateTo(0, key);
+        await TDD.grid.navigateTo(0, { column: key });
         const cell = TDD.rows.first.cells.get(key);
         expect(isVisibleGrid(cell.element)).to.be.true;
       }
     });
 
     it('updates active state when navigating', async () => {
-      await TDD.grid.navigateTo(0, 'id', true);
+      await TDD.grid.navigateTo(0, { column: 'id', activate: true });
       expect(TDD.rows.first.cells.get('id').active).to.be.true;
 
-      await TDD.grid.navigateTo(1, 'name', true);
+      await TDD.grid.navigateTo(1, { column: 'name', activate: true });
       expect(TDD.rows.first.cells.get('id').active).to.be.false;
 
       let cell = TDD.rows.get(1).cells.get('name');
@@ -259,7 +259,7 @@ describe('Grid activation', () => {
       expect(isVisibleGrid(cell.element)).to.be.true;
 
       // last cell
-      await TDD.grid.navigateTo(testData.length - 1, keys.at(-1), true);
+      await TDD.grid.navigateTo(testData.length - 1, { column: keys.at(-1), activate: true });
 
       cell = TDD.rows.last.cells.last;
       expect(cell.active).to.be.true;
@@ -270,7 +270,7 @@ describe('Grid activation', () => {
       await TDD.clickCell(TDD.rows.first.cells.first);
       expect(TDD.rows.first.cells.first.active).to.be.true;
 
-      await TDD.grid.navigateTo(3, 'active', true);
+      await TDD.grid.navigateTo(3, { column: 'active', activate: true });
       expect(TDD.rows.first.cells.first.active).to.be.false;
 
       const cell = TDD.rows.get(3).cells.get('active');
@@ -279,7 +279,7 @@ describe('Grid activation', () => {
     });
 
     it('keyboard navigation works after navigateTo', async () => {
-      await TDD.grid.navigateTo(2, 'id', true);
+      await TDD.grid.navigateTo(2, { column: 'id', activate: true });
       expect(TDD.rows.get(2).cells.get('id').active).to.be.true;
 
       await TDD.fireNavigationEvent({ key: 'ArrowRight' });

@@ -1,23 +1,22 @@
-import type { ReactiveController } from 'lit';
-import type IgcFilterRow from '../components/filter-row.js';
-import type IgcGridLiteHeaderRow from '../components/header-row.js';
-import type IgcGridLiteRow from '../components/row.js';
-import type IgcVirtualizer from '../components/virtualizer.js';
 import { PIPELINE } from '../internal/constants.js';
-import {
-  GRID_BODY,
-  GRID_FILTER_ROW_TAG,
-  GRID_HEADER_ROW_TAG,
-  GRID_ROW_TAG,
-} from '../internal/tags.js';
-import type { ActiveNode, ColumnConfiguration, GridHost } from '../internal/types.js';
+import type { ActiveNode, ColumnConfiguration, GridHost, Keys } from '../internal/types.js';
 import { createColumnConfiguration, setColumnsFromData } from '../internal/utils.js';
+import type { GridDOMController } from './dom.js';
 import { FilterController } from './filter.js';
 import { NavigationController } from './navigation.js';
 import { ResizeController } from './resize.js';
 import { SortController } from './sort.js';
 
-class StateController<T extends object> implements ReactiveController {
+/**
+ * Holds the column configuration of the grid and owns the controllers for its
+ * data operations. Column objects are immutable: each change produces new objects
+ * and a new array, so consumers can dirty-check by identity.
+ *
+ * @remarks
+ * Not a reactive controller: it has no host lifecycle. All DOM concerns live in
+ * {@link GridDOMController}.
+ */
+class StateController<T extends object> {
   private _columns: ColumnConfiguration<T>[] = [];
   private readonly _observersCallback: () => void;
 
@@ -33,26 +32,6 @@ class StateController<T extends object> implements ReactiveController {
     return this._columns;
   }
 
-  /** Returns the header row element of the grid. */
-  public get headerRow(): IgcGridLiteHeaderRow<T> | null {
-    return this.host.renderRoot.querySelector<IgcGridLiteHeaderRow<T>>(GRID_HEADER_ROW_TAG);
-  }
-
-  /** Returns the filter row element of the grid. */
-  public get filterRow(): IgcFilterRow<T> | null {
-    return this.host.renderRoot.querySelector<IgcFilterRow<T>>(GRID_FILTER_ROW_TAG);
-  }
-
-  /** Returns the data row elements of the grid. */
-  public get rows(): IgcGridLiteRow<T>[] {
-    return Array.from(this.host.renderRoot.querySelectorAll<IgcGridLiteRow<T>>(GRID_ROW_TAG));
-  }
-
-  /** Returns the virtualizer element of the grid. */
-  public get virtualizer(): IgcVirtualizer | null {
-    return this.host.renderRoot.querySelector(GRID_BODY);
-  }
-
   /** The currently active node in the grid. */
   public get active(): ActiveNode<T> {
     return this.navigation.active;
@@ -63,26 +42,29 @@ class StateController<T extends object> implements ReactiveController {
     this.navigation.active = node;
   }
 
-  constructor(host: GridHost<T>, observersCallback: () => void) {
+  constructor(host: GridHost<T>, dom: GridDOMController<T>, observersCallback: () => void) {
     this._observersCallback = observersCallback;
     this.host = host;
-    this.host.addController(this);
 
-    this.sorting = new SortController(this.host);
-    this.filtering = new FilterController(this);
-    this.navigation = new NavigationController(this);
-    this.resizing = new ResizeController(this.host);
+    this.sorting = new SortController(this);
+    this.filtering = new FilterController(this, dom);
+    this.navigation = new NavigationController(this, dom);
+    this.resizing = new ResizeController(this, dom);
   }
 
-  public hostUpdate(): void {
-    this.headerRow?.requestUpdate();
-    this.virtualizer?.requestUpdate();
+  /**
+   * Notifies the state context consumers (headers, header row, filter row) that
+   * their render inputs changed. Called at the mutation points only, never on
+   * each host update.
+   */
+  public updateObservers(): void {
+    this._observersCallback.call(this.host);
   }
 
   public setColumnConfiguration(columns: ColumnConfiguration<T>[]): void {
     this._columns = columns.map((column) => createColumnConfiguration(column));
     this.filtering.resolveConditions();
-    this._observersCallback.call(this.host);
+    this.updateObservers();
     this.host.requestUpdate(PIPELINE);
   }
 
@@ -106,16 +88,36 @@ class StateController<T extends object> implements ReactiveController {
     }
 
     this._columns = [...this._columns];
-    this._observersCallback.call(this.host);
+    this.updateObservers();
     this.host.requestUpdate(PIPELINE);
+  }
+
+  /**
+   * Replaces the width of a single column with a new configuration object.
+   *
+   * @remarks
+   * Width has no effect on the data pipeline, so no pipeline run is scheduled.
+   * Resize drags call this on each pointer move.
+   */
+  public setColumnWidth(field: Keys<T>, width: string): void {
+    const index = this._columns.findIndex((column) => column.field === field);
+
+    if (index === -1) {
+      return;
+    }
+
+    this._columns = this._columns.with(index, { ...this._columns[index], width });
+    this.updateObservers();
+    this.host.requestUpdate();
   }
 }
 
 function createStateController<T extends object>(
   host: GridHost<T>,
+  dom: GridDOMController<T>,
   observersCallback: () => void
 ): StateController<T> {
-  return new StateController<T>(host, observersCallback);
+  return new StateController<T>(host, dom, observersCallback);
 }
 
 export type { StateController };

@@ -81,8 +81,8 @@ describe('Grid navigation', () => {
     it('Keyboard navigation in one grid is not affected by another', async () => {
       const [first, second] = await setup(gridTemplate(), gridTemplate());
 
-      await first.navigateTo(0, 'id', true);
-      await second.navigateTo(2, 'city', true);
+      await first.navigateTo(0, { column: 'id', activate: true });
+      await second.navigateTo(2, { column: 'city', activate: true });
 
       await press(first, 'ArrowDown');
 
@@ -93,8 +93,8 @@ describe('Grid navigation', () => {
     it('Disconnecting a grid does not reset another', async () => {
       const [first, second] = await setup(gridTemplate(), gridTemplate());
 
-      await first.navigateTo(0, 'id', true);
-      await second.navigateTo(1, 'name', true);
+      await first.navigateTo(0, { column: 'id', activate: true });
+      await second.navigateTo(1, { column: 'name', activate: true });
 
       first.remove();
       await nextFrame();
@@ -106,7 +106,7 @@ describe('Grid navigation', () => {
     it('Nullish active node falls back to the initial position', async () => {
       const [grid] = await setup(gridTemplate());
 
-      await grid.navigateTo(2, 'city', true);
+      await grid.navigateTo(2, { column: 'city', activate: true });
 
       // @ts-expect-error - private member access
       grid._stateController.active = null;
@@ -116,11 +116,30 @@ describe('Grid navigation', () => {
     });
   });
 
+  describe('navigateTo activation', () => {
+    it('Activation without a column falls back to the first visible column', async () => {
+      const [grid] = await setup(gridTemplate());
+
+      await grid.navigateTo(1, { activate: true });
+
+      expect(activeCell(grid)).to.eql({ row: 1, column: 'id' });
+    });
+
+    it('Activation without a column keeps the current column', async () => {
+      const [grid] = await setup(gridTemplate());
+
+      await grid.navigateTo(0, { column: 'city', activate: true });
+      await grid.navigateTo(2, { activate: true });
+
+      expect(activeCell(grid)).to.eql({ row: 2, column: 'city' });
+    });
+  });
+
   describe('Hidden columns', () => {
     it('ArrowRight skips a hidden column', async () => {
       const [grid] = await setup(gridTemplate(['name']));
 
-      await grid.navigateTo(0, 'id', true);
+      await grid.navigateTo(0, { column: 'id', activate: true });
       await press(grid, 'ArrowRight');
 
       expect(activeCell(grid)).to.eql({ row: 0, column: 'city' });
@@ -129,7 +148,7 @@ describe('Grid navigation', () => {
     it('ArrowLeft skips a hidden column', async () => {
       const [grid] = await setup(gridTemplate(['name']));
 
-      await grid.navigateTo(0, 'city', true);
+      await grid.navigateTo(0, { column: 'city', activate: true });
       await press(grid, 'ArrowLeft');
 
       expect(activeCell(grid)).to.eql({ row: 0, column: 'id' });

@@ -9,6 +9,9 @@ export const SORT_ICON_DESCENDING = 'arrow-downward' as const;
 
 export const MIN_COL_RESIZE_WIDTH = 80;
 
+/** CSS pseudo-class that matches an element that has or contains DOM focus. */
+export const FOCUS_WITHIN = ':focus-within';
+
 export const SENTINEL_NODE: Readonly<ActiveNode<any>> = Object.freeze({
   column: NON_EXISTING_COLUMN,
   row: -1,

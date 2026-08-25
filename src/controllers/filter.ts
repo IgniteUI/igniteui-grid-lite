@@ -6,6 +6,7 @@ import type { ColumnConfiguration, Keys } from '../internal/types.js';
 import { asArray, getFilterOperandsFor, isString } from '../internal/utils.js';
 import { FilterState } from '../operations/filter/state.js';
 import type { FilterExpression } from '../operations/filter/types.js';
+import type { GridDOMController } from './dom.js';
 import type { StateController } from './state.js';
 
 /** The kind of modification a `filtering` event describes. */
@@ -13,9 +14,11 @@ export type FilterEventType = 'add' | 'modify' | 'remove';
 
 export class FilterController<T extends object> implements ReactiveController {
   private readonly _stateController: StateController<T>;
+  private readonly _dom: GridDOMController<T>;
 
-  constructor(state: StateController<T>) {
+  constructor(state: StateController<T>, dom: GridDOMController<T>) {
     this._stateController = state;
+    this._dom = dom;
     this._stateController.host.addController(this);
   }
 
@@ -26,11 +29,7 @@ export class FilterController<T extends object> implements ReactiveController {
   }
 
   public get filterRow(): IgcFilterRow<T> | null {
-    return this._stateController.filterRow;
-  }
-
-  get #virtualizer() {
-    return this._stateController.virtualizer;
+    return this._dom.filterRow;
   }
 
   #emitFilteringEvent(key: Keys<T>, expressions: FilterExpression<T>[], type: FilterEventType) {
@@ -51,15 +50,12 @@ export class FilterController<T extends object> implements ReactiveController {
 
     // HACK: In the case where the scrollTop is a large and amount and a big chunk of data is filtered out
     // HACK: the virtualizer can't recalculate its scroll position correctly. Thus, we reset the scrollTop state.
-    this.#virtualizer?.scrollTo({ top: 0 });
+    this._dom.resetScrollPosition();
+    this._stateController.updateObservers();
     this.host.requestUpdate(PIPELINE);
   }
 
   public hostConnected() {}
-
-  public hostUpdate(): void {
-    this.filterRow?.requestUpdate();
-  }
 
   public get(key: Keys<T>) {
     return this.state.get(key);
@@ -67,13 +63,18 @@ export class FilterController<T extends object> implements ReactiveController {
 
   public reset(key?: Keys<T>) {
     key !== undefined ? this.state.delete(key) : this.state.clear();
+
+    // The filter row renders its chips from this state.
+    this._stateController.updateObservers();
   }
 
   public setActiveColumn(column?: ColumnConfiguration<T>) {
     if (column?.filterable && this.filterRow?.active) {
       this.filterRow.column = column;
       this.filterRow.expression = this.getDefaultExpression(column);
-      this.host.requestUpdate();
+
+      // The header row marks the filtered column.
+      this._stateController.updateObservers();
     }
   }
 
@@ -127,10 +128,10 @@ export class FilterController<T extends object> implements ReactiveController {
    * Emits `filtering` for `expression` and, if it passes, applies it.
    *
    * @remarks
-   * `target` is the state-held expression the change belongs to. Callers pass a candidate
-   * copy as `expression` so that a canceled event leaves the stored state untouched; on
-   * commit the candidate is folded back into `target`, preserving the object identity the
-   * expression tree and the chip selection rely on.
+   * `target` is the stored expression the change applies to. Callers pass a
+   * candidate copy as `expression`, so a canceled event does not touch the stored
+   * state. On commit the candidate is merged back into `target`. This keeps the
+   * object identity that the expression tree and the chip selection use.
    */
   public async filterWithEvent(
     expression: FilterExpression<T>,
@@ -160,12 +161,16 @@ export class FilterController<T extends object> implements ReactiveController {
   }
 
   /**
-   * Stores expressions directly in the filter state without requiring column configuration.
+   * Stores expressions in the filter state without requiring column configuration.
    * Used when setting initial filter expressions before columns are available.
+   *
+   * @remarks
+   * Copies are stored. `resolveConditions` later rewrites each stored expression,
+   * and those writes must not reach the caller's objects.
    */
   public setRaw(expressions: FilterExpression<T>[]) {
     for (const expr of expressions) {
-      this.state.set(expr);
+      this.state.set({ ...expr });
     }
   }
 

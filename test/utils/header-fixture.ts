@@ -25,12 +25,21 @@ export default class HeaderTestFixture<T extends object> {
     return this.get('[part~="resizable"]');
   }
 
+  public get isResizing() {
+    return this.contentPart.part.contains('resizing');
+  }
+
   public get titlePart() {
     return this.get('[part~="title"]');
   }
 
   public get sortIcon() {
     return this.sortPart.querySelector('igc-icon')!;
+  }
+
+  /** The 1-based multi-sort position rendered on the sort icon, if any. */
+  public get sortIndex() {
+    return this.sortIcon.getAttribute('data-sortindex');
   }
 
   public get isSorted() {

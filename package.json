@@ -20,6 +20,7 @@
   "scripts": {
     "analyze": "cem analyze --litelement --globs \"src/**/*.{js,ts}\" --exclude \"src/styles/**/*\"",
     "build": "npm run analyze && node scripts/build.js && npm run typedoc",
+    "build:styles": "node scripts/build-styles.js",
     "build:tsc": "tsc",
     "dev:vite": "vite build",
     "format": "biome check --fix && npm run format:stylelint",

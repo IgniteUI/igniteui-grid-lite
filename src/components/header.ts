@@ -7,6 +7,7 @@ import {
 import { html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import type { StateController } from '../controllers/state.js';
+import { addA11y } from '../internal/a11y.js';
 import {
   MIN_COL_RESIZE_WIDTH,
   SORT_ICON_ASCENDING,
@@ -32,6 +33,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   }
 
   private readonly _adoptedStylesController = addAdoptedStylesController(this);
+  private readonly _a11y = addA11y(this, 'columnheader');
 
   protected get context(): IgcHeaderContext<T> {
     return {
@@ -58,6 +60,15 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   @property({ attribute: false })
   public adoptRootStyles = false;
 
+  /**
+   * Position of the header among the visible columns. Written as its 1-based
+   * `aria-colindex`.
+   *
+   * @internal
+   */
+  @property({ attribute: false })
+  public _colIndex = -1;
+
   constructor() {
     super();
 
@@ -73,7 +84,20 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
       );
     }
 
+    // Sort state reaches the header as a context ping, not a property change, so
+    // the ARIA state is resolved on each update instead of dirty-checked.
+    this._a11y.set({ ariaColIndex: `${this._colIndex}`, ariaSort: this.#ariaSort() });
+
     super.update(props);
+  }
+
+  /** `aria-sort` applies only to a sortable header. */
+  #ariaSort(): string | null {
+    if (!this.isSortable) {
+      return null;
+    }
+
+    return this.state.sorting.state.get(this.column.field)?.direction ?? 'none';
   }
 
   private _handleThemeChange() {

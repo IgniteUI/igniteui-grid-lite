@@ -1,6 +1,16 @@
+import { isString } from '../internal/utils.js';
 import DataOperation from './base.js';
 import type { FilterState } from './filter/state.js';
 import type { FilterExpression, FilterOperation } from './filter/types.js';
+
+/**
+ * An expression keeps its condition as a raw operand name until a matching column
+ * configuration resolves it. Without a column (e.g. `filterExpressions` set for a
+ * field that was never slotted) there is nothing to run: skip the expression.
+ */
+function isResolved<T extends object>(expression: FilterExpression<T>): boolean {
+  return !isString(expression.condition);
+}
 
 export default class FilterDataOperation<T extends object> extends DataOperation<T> {
   protected resolveFilter(record: T, expr: FilterExpression<T>) {
@@ -30,8 +40,16 @@ export default class FilterDataOperation<T extends object> extends DataOperation
   public apply(data: T[], state: FilterState<T>): T[] {
     if (state.empty) return data;
 
-    // Pre-compute ors/ands per tree once rather than re-deriving them per record
-    const trees = state.values.map((tree) => ({ ors: tree.ors, ands: tree.ands }));
+    // Pre-compute ors/ands per tree once, not per record. Remove trees with no
+    // runnable expressions: an empty `ands` set would decide the match for
+    // records it says nothing about.
+    const trees = state.values
+      .map((tree) => ({ ors: tree.ors.filter(isResolved), ands: tree.ands.filter(isResolved) }))
+      .filter(({ ors, ands }) => ors.length > 0 || ands.length > 0);
+
+    if (trees.length === 0) {
+      return data;
+    }
 
     return data.filter((record) =>
       trees.every(({ ors, ands }) => this.matchTree(record, ors, ands))

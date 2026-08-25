@@ -72,6 +72,14 @@ describe('Column resizing', () => {
       expect(TDD.resizePart).to.not.exist;
     });
 
+    it('Headers reflect the resizing state', async () => {
+      await TDD.startResizeHeader('name');
+      expect(TDD.headers.get('name').isResizing).to.be.true;
+
+      await TDD.stopResizeHeader('name');
+      expect(TDD.headers.get('name').isResizing).to.be.false;
+    });
+
     it('Header is sized correctly', async () => {
       await TDD.assertResized('name', 100);
       await TDD.assertResized('name', -100);
@@ -123,13 +131,24 @@ describe('Column resizing', () => {
 
     it('Auto size (column without rendered cells)', async () => {
       const header = TDD.headers.get('name').element;
-      const column = TDD.grid.getColumn('name')!;
 
       // Hiding the column drops its cells from the rendered rows.
       await TDD.updateColumns({ field: 'name', hidden: true });
 
-      await TDD.resizeController.autosize(column, header);
-      expect(column.width).to.equal(`${MIN_COL_RESIZE_WIDTH}px`);
+      await TDD.resizeController.autosize(TDD.grid.getColumn('name')!, header);
+      expect(TDD.grid.getColumn('name')!.width).to.equal(`${MIN_COL_RESIZE_WIDTH}px`);
+    });
+
+    it('Resizing replaces the column configuration object', async () => {
+      const initial = TDD.grid.getColumn('name')!;
+
+      await TDD.startResizeHeader('name');
+      await TDD.resizeHeader('name', 100);
+      await TDD.stopResizeHeader('name');
+
+      // Immutable updates - the previous configuration is left untouched.
+      expect(TDD.grid.getColumn('name')).to.not.equal(initial);
+      expect(initial.width).to.be.undefined;
     });
   });
 });

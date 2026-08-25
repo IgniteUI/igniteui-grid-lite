@@ -2,6 +2,8 @@ import { consume } from '@lit/context';
 import {
   θaddAdoptedStylesController as addAdoptedStylesController,
   θaddThemingController as addThemingController,
+  IgcButtonComponent,
+  IgcChipComponent,
   IgcDropdownComponent,
   type IgcDropdownItemComponent,
   type IgcIconComponent,
@@ -11,11 +13,12 @@ import { html, LitElement, nothing, type PropertyValues } from 'lit';
 import { property, query } from 'lit/decorators.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import type { StateController } from '../controllers/state.js';
+import { addA11y, FILTER_ROW_INDEX } from '../internal/a11y.js';
 import { DEFAULT_COLUMN_CONFIG } from '../internal/constants.js';
 import { GRID_STATE_CONTEXT } from '../internal/context.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_FILTER_ROW_TAG } from '../internal/tags.js';
-import type { ColumnConfiguration, PropertyType } from '../internal/types.js';
+import type { ColumnConfiguration, Keys, PropertyType } from '../internal/types.js';
 import { getFilterOperandsFor } from '../internal/utils.js';
 import { watch } from '../internal/watch.js';
 import type { FilterExpressionTree } from '../operations/filter/tree.js';
@@ -25,6 +28,9 @@ import { all } from '../styles/themes/filtering-row-themes.js';
 
 /** Number of filter expressions shown as chips before collapsing into a single counted chip. */
 const MAX_PREVIEW_CHIPS = 3;
+
+/** Accessible name of the filter row itself. */
+const FILTER_ROW_LABEL = 'Column filters';
 
 type ExpressionChipProps<T> = {
   expression: FilterExpression<T>;
@@ -50,8 +56,18 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   public static override styles = styles;
 
+  /**
+   * Only the filter row renders these editor components, so the grid defers this
+   * call until a filterable column shows one.
+   */
   public static register() {
-    registerComponent(IgcFilterRow);
+    registerComponent(
+      IgcFilterRow,
+      IgcButtonComponent,
+      IgcChipComponent,
+      IgcInputComponent,
+      IgcDropdownComponent
+    );
   }
 
   private readonly _adoptedStylesController = addAdoptedStylesController(this);
@@ -95,6 +111,15 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   constructor() {
     super();
+
+    // `role=grid` permits only rows and rowgroups as children, so a `search`
+    // landmark here would be an illegal node in the grid tree. The filter row is
+    // modeled as the second header row: one `gridcell` per column, each with that
+    // column's filter controls.
+    addA11y(this, 'row').set({
+      ariaRowIndex: `${FILTER_ROW_INDEX}`,
+      ariaLabel: FILTER_ROW_LABEL,
+    });
 
     addThemingController(this, all, {
       themeChange: this._handleThemeChange,
@@ -203,6 +228,25 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     this.dropdown.toggle(this.input);
   }
 
+  #handleConditionKeydown(event: KeyboardEvent) {
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    // The trigger sits in the prefix slot of the input. The keystroke must not
+    // reach the input and commit a filter behind the open dropdown.
+    event.preventDefault();
+    event.stopPropagation();
+
+    this.#openDropdownList();
+  }
+
+  /** Header text of a column. Names the filter controls that act on it. */
+  #nameFor(field: Keys<T>): string {
+    const column = this.state.columns.find((each) => each.field === field);
+    return String(column?.header ?? field);
+  }
+
   @watch('active', { waitUntilFirstUpdate: true })
   protected activeChanged() {
     this.style.display = this.active ? 'flex' : '';
@@ -211,7 +255,8 @@ export default class IgcFilterRow<T extends object> extends LitElement {
       this.column = DEFAULT_COLUMN_CONFIG as ColumnConfiguration<T>;
     }
 
-    this.state.host.requestUpdate();
+    // The header row marks the column whose filter editor is open.
+    this.state.updateObservers();
   }
 
   #chipCriteriaFor(expression: FilterExpression<T>) {
@@ -268,10 +313,18 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
     const prefix = html`<span slot="select"></span>${prefixedIcon(name)}`;
 
+    // The chip renders its select and remove actions in its own shadow root.
+    // Resource strings are the only way to name them after the expression.
+    const expression = `${this.#nameFor(props.expression.key)} ${name} ${unary ? '' : term}`.trim();
+
     return html`
       <igc-chip
         selectable
         removable
+        .resourceStrings=${{
+          chip_remove: `Remove filter ${expression}`,
+          chip_select: `Edit filter ${expression}`,
+        }}
         ?selected=${props.selected}
         @igcRemove=${props.onRemove}
         @igcSelect=${props.onSelect}
@@ -341,22 +394,31 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   protected renderDropdownTarget() {
+    const condition = this.condition.label ?? this.condition.name;
+
     return html`<igc-icon
       id="condition"
       slot="prefix"
       collection="internal"
+      role="button"
+      tabindex="0"
+      aria-haspopup="listbox"
+      aria-label=${`Filter condition: ${condition}`}
       .name=${this.condition.name}
       @click=${this.#openDropdownList}
+      @keydown=${this.#handleConditionKeydown}
     >
     </igc-icon>`;
   }
 
   protected renderInputArea() {
+    // `igc-input` names its inner control from a slotted label or the placeholder
+    // only, so the placeholder carries the column name.
     return html`
       <igc-input
         outlined
         value=${ifDefined(this.expression.searchTerm)}
-        placeholder="Add filter value"
+        placeholder=${`Filter ${this.#nameFor(this.column.field)}`}
         ?readonly=${this.condition.unary}
         @igcInput=${this.#handleInput}
         @keydown=${this.#handleKeydown}
@@ -369,7 +431,10 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   protected renderActiveState() {
     return html`
-      <div part="active-state">
+      <div
+        part="active-state"
+        role="gridcell"
+      >
         <div part="filter-row-input">${this.renderInputArea()}</div>
         <div part="filter-row-filters">${this.renderActiveChips()}</div>
         <div part="filter-row-actions">${this.renderFilterActions()}</div>
@@ -410,6 +475,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     const count = hidden ? html`<span slot="suffix">${state.length}</span>` : nothing;
     const chip = html`<igc-chip
       data-column=${column.field}
+      aria-label=${`Filter ${this.#nameFor(column.field)}`}
       @click=${open}
       >${prefixedIcon('filter')}Filter${count}</igc-chip
     >`;
@@ -418,15 +484,19 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   protected renderInactiveState() {
-    return this.state.columns.map((column) =>
-      column.hidden
-        ? nothing
-        : html`
-            <div part="filter-row-preview">
-              ${column.filterable ? this.renderFilterState(column) : nothing}
-            </div>
-          `
-    );
+    return this.state.columns
+      .filter((column) => !column.hidden)
+      .map(
+        (column, index) => html`
+          <div
+            part="filter-row-preview"
+            role="gridcell"
+            aria-colindex=${index + 1}
+          >
+            ${column.filterable ? this.renderFilterState(column) : nothing}
+          </div>
+        `
+      );
   }
 
   protected override render() {

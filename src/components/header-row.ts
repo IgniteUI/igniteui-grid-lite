@@ -1,8 +1,9 @@
 import { consume } from '@lit/context';
-import { html, LitElement, type PropertyValues } from 'lit';
+import { html, LitElement } from 'lit';
 import { property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import type { StateController } from '../controllers/state.js';
+import { addA11y, HEADER_ROW_INDEX } from '../internal/a11y.js';
 import { GRID_STATE_CONTEXT } from '../internal/context.js';
 import { getElementFromEventPath } from '../internal/element-from-event-path.js';
 import { partMap } from '../internal/part-map.js';
@@ -39,22 +40,14 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
 
   constructor() {
     super();
+
+    addA11y(this, 'row').set({ ariaRowIndex: `${HEADER_ROW_INDEX}` });
     this.addEventListener('click', this._setActiveFilterColumn);
   }
 
   private _setActiveFilterColumn(event: PointerEvent): void {
     const header = getElementFromEventPath<IgcGridLiteHeader<T>>(IgcGridLiteHeader.tagName, event);
     this._state?.filtering.setActiveColumn(header?.column);
-  }
-
-  protected override willUpdate(props: PropertyValues<this>): void {
-    // Column configuration is passed by reference, so the headers have to be
-    // refreshed explicitly whenever the row itself updates.
-    for (const header of this.headers) {
-      header.requestUpdate();
-    }
-
-    super.willUpdate(props);
   }
 
   protected override render() {
@@ -65,11 +58,12 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
       ${repeat(
         columns,
         (column) => column.field,
-        (column) => html`
+        (column, index) => html`
           <igc-grid-lite-header
             part=${partMap({ filtered: column.field === filterRow?.column?.field })}
             .adoptRootStyles=${this.adoptRootStyles}
             .column=${column}
+            ._colIndex=${index + 1}
           ></igc-grid-lite-header>
         `
       )}

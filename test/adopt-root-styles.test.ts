@@ -348,7 +348,7 @@ describe('Grid adopt-root-styles property', () => {
       await grid.updateComplete;
 
       // Wait for virtualizer to complete layout
-      const virtualizer = grid.renderRoot.querySelector('igc-virtualizer');
+      const virtualizer = grid.renderRoot.querySelector('igc-grid-lite-virtualizer');
       if (virtualizer) {
         await virtualizer.layoutComplete;
       }

@@ -286,15 +286,42 @@ describe('Grid properties (late column slotting)', () => {
   });
 
   it('sort is applied to data after columns are slotted', async () => {
-    await lateSlotTDD.slotColumns([{ field: 'id' }]);
+    // Both the sorted and the filtered column are slotted, so neither expression
+    // depends on state left behind by another test.
+    await lateSlotTDD.slotColumns([
+      { field: 'id' },
+      { field: 'importance', dataType: 'string', filterable: true },
+    ]);
+
+    const ids = data.filter((d) => d.importance === 'high').map((d) => d.id);
 
     // Sorted descending by id — first row should have the highest id
-    expect(lateSlotTDD.rows.first.data.id).to.equal(Math.max(...data.map((d) => d.id)));
+    expect(lateSlotTDD.grid.totalItems).to.equal(ids.length);
+    expect(lateSlotTDD.rows.first.data.id).to.equal(Math.max(...ids));
   });
 
   it('filterExpressions getter still returns expressions after columns are slotted', async () => {
     await lateSlotTDD.slotColumns([{ field: 'importance', dataType: 'string', filterable: true }]);
 
     expect(lateSlotTDD.grid.filterExpressions).lengthOf(lateSlotTDD.filterState.length);
+  });
+});
+
+describe('Grid properties (unresolved filter expressions)', () => {
+  const unresolvedTDD = new LateColumnSlottingFixture(data);
+  unresolvedTDD.filterState = [
+    { key: 'nosuchfield', condition: 'contains', searchTerm: 'x' },
+  ] as unknown as FilterExpression<TestData>[];
+
+  beforeEach(async () => await unresolvedTDD.setUp());
+  afterEach(() => unresolvedTDD.tearDown());
+
+  it('An expression for a never slotted column does not break the pipeline', async () => {
+    await unresolvedTDD.slotColumns([{ field: 'id' }]);
+    await unresolvedTDD.sort({ key: 'id', direction: 'ascending' });
+
+    // The condition stays a raw string, so the expression is ignored instead of throwing.
+    expect(unresolvedTDD.grid.totalItems).to.equal(data.length);
+    expect(unresolvedTDD.rows.first.data.id).to.equal(Math.min(...data.map((d) => d.id)));
   });
 });

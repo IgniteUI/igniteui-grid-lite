@@ -16,7 +16,7 @@
 	box-shadow: 0 0 0 rem(1px) var(--grid-border-color);
 }
 
-igc-virtualizer {
+igc-grid-lite-virtualizer {
 	grid-row: virtualized-container;
 	display: flex;
 	flex-flow: column;

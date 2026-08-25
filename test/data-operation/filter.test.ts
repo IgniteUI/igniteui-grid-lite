@@ -47,6 +47,12 @@ class TDDFilterState<T extends object> {
     return this;
   }
 
+  /** Stores an expression with its condition left as a raw string, as if no column resolved it. */
+  public addRawCondition(key: Keys<T>, condition: string, opts: Partial<FilterExpression<T>> = {}) {
+    this.#state.set({ key, condition, ...opts } as unknown as FilterExpression<T>);
+    return this;
+  }
+
   public clearState() {
     this.#state.clear();
   }
@@ -482,6 +488,29 @@ describe('Filter operations', () => {
       // Chicago + active: id 3, 5, 8
       expect(TDD.result).lengthOf(3);
       expect(TDD.result.every((r) => r.address.city === 'Chicago' && r.active === true)).to.be.true;
+    });
+  });
+
+  describe('Unresolved conditions', () => {
+    it('An unresolved condition does not participate in filtering', () => {
+      TDD.addRawCondition('name', 'contains', { searchTerm: 'd' }).run();
+      expect(TDD.result).lengthOf(data.length);
+    });
+
+    it('Resolved conditions still apply next to an unresolved one', () => {
+      TDD.addRawCondition('importance', 'equals', { searchTerm: 'high' })
+        .addCondition('name', 'contains', { searchTerm: 'd' })
+        .run();
+
+      expect(TDD.result).lengthOf(2);
+    });
+
+    it('An unresolved `or` does not widen the result set', () => {
+      TDD.addCondition('name', 'contains', { searchTerm: 'd', criteria: 'or' })
+        .addRawCondition('name', 'contains', { searchTerm: 'a', criteria: 'or' })
+        .run();
+
+      expect(TDD.result).lengthOf(2);
     });
   });
 });

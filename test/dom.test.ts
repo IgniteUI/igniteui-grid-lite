@@ -18,7 +18,7 @@ class DomFixture<T extends object> extends GridTestFixture<T> {
    */
   public async addFakeScrollbar(): Promise<void> {
     const style = document.createElement('style');
-    style.textContent = `igc-virtualizer { border-inline-end: ${FAKE_SCROLLBAR_WIDTH}px solid transparent; }`;
+    style.textContent = `igc-grid-lite-virtualizer { border-inline-end: ${FAKE_SCROLLBAR_WIDTH}px solid transparent; }`;
     this.grid.renderRoot.appendChild(style);
 
     // Resize delivery + the deferred CSS variable write.

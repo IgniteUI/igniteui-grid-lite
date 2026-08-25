@@ -106,6 +106,14 @@ describe('Grid UI sort', () => {
   });
 
   describe('Grid sorting configuration', () => {
+    it('Switching the sort mode refreshes the headers', async () => {
+      await TDD.sortHeader('id');
+      expect(TDD.headers.get('id').sortIndex).to.equal('1');
+
+      await TDD.updateProperty('sortingOptions', { mode: 'single' });
+      expect(TDD.headers.get('id').sortIndex).to.be.null;
+    });
+
     it('Single sort with tri-state', async () => {
       await TDD.updateProperty('sortingOptions', { mode: 'single' });
 

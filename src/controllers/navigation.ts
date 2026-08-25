@@ -1,8 +1,7 @@
 import type { ReactiveController } from 'lit';
-import type IgcGridLiteRow from '../components/row.js';
 import { SENTINEL_NODE } from '../internal/constants.js';
-import { GRID_ROW_TAG } from '../internal/tags.js';
-import type { ActiveNode, Keys } from '../internal/types.js';
+import type { ActiveNode, Keys, NavigateToOptions } from '../internal/types.js';
+import type { GridDOMController } from './dom.js';
 import type { StateController } from './state.js';
 
 export class NavigationController<T extends object> implements ReactiveController {
@@ -18,7 +17,7 @@ export class NavigationController<T extends object> implements ReactiveControlle
   );
 
   protected get _virtualizer() {
-    return this._state.virtualizer;
+    return this._dom.virtualizer;
   }
 
   protected _active = SENTINEL_NODE as ActiveNode<T>;
@@ -55,19 +54,16 @@ export class NavigationController<T extends object> implements ReactiveControlle
   }
 
   protected queryRowByIndex(index: number) {
-    return Array.from(this._virtualizer?.querySelectorAll(GRID_ROW_TAG) ?? []).find(
-      (row) => row.index === index
-    ) as unknown as IgcGridLiteRow<T>;
+    return this._dom.rows.find((row) => row.index === index);
+  }
+
+  /** The rendered cell at `node`, if its row and column are in the DOM. */
+  #queryCell(node: ActiveNode<T>) {
+    return this.queryRowByIndex(node.row)?.cells.find((cell) => cell.column.field === node.column);
   }
 
   protected scrollToCell(node: ActiveNode<T>) {
-    const row = this.queryRowByIndex(node.row);
-
-    if (row) {
-      row.cells
-        .find((cell) => cell.column.field === node.column)
-        ?.scrollIntoView({ block: 'nearest' });
-    }
+    this.#queryCell(node)?.scrollIntoView({ block: 'nearest' });
   }
 
   public get active(): ActiveNode<T> {
@@ -75,11 +71,50 @@ export class NavigationController<T extends object> implements ReactiveControlle
   }
 
   public set active(node: ActiveNode<T>) {
+    const previous = this._active;
+
     this._active = node ?? SENTINEL_NODE;
+    this.#updateActiveRows(previous);
     this._state.host.requestUpdate();
   }
 
-  constructor(protected _state: StateController<T>) {
+  /**
+   * Sends the new active node only to the rows that enter or leave the active
+   * state. The other rendered rows have no changes and are not re-rendered.
+   */
+  #updateActiveRows(previous: ActiveNode<T>): void {
+    for (const row of this._dom.rows) {
+      if (row.index === previous.row || row.index === this._active.row) {
+        row.activeNode = this._active;
+      }
+    }
+  }
+
+  /** Moves DOM focus onto the active cell when it is rendered (roving focus). */
+  async #focusActiveCell(): Promise<void> {
+    const node = this._active;
+    let row = this.queryRowByIndex(node.row);
+
+    // The target row is not rendered yet. Wait for the virtualizer layout pass.
+    if (!row) {
+      await this._virtualizer?.layoutComplete;
+      row = this.queryRowByIndex(node.row);
+    }
+
+    await row?.updateComplete;
+
+    // A newer navigation replaced this one during the render wait.
+    if (node !== this._active) {
+      return;
+    }
+
+    this.#queryCell(node)?.focus({ preventScroll: true });
+  }
+
+  constructor(
+    protected _state: StateController<T>,
+    protected _dom: GridDOMController<T>
+  ) {
     this._state.host.addController(this);
   }
 
@@ -134,12 +169,18 @@ export class NavigationController<T extends object> implements ReactiveControlle
 
     event.preventDefault();
     handler.call(this);
+    this.#focusActiveCell();
   }
 
-  public async navigateTo(row: number, column?: Keys<T>, activate = false) {
-    if (activate) this.active = Object.assign(this.nextNode, { row, column });
+  public async navigateTo(row: number, options?: NavigateToOptions<T>) {
+    const { column, activate } = options ?? {};
 
-    // attempt to resolve row in DOM first as a check if layout change will be needed
+    if (activate) {
+      // Without an explicit column, activation keeps the one from `nextNode`.
+      this.active = Object.assign(this.nextNode, column ? { row, column } : { row });
+    }
+
+    // Resolve the row in the DOM first. A missing row means a layout pass is necessary.
     let item: Pick<HTMLElement, 'scrollIntoView'> | undefined = this.queryRowByIndex(row);
     let completePromise: Promise<void> | undefined;
 
@@ -150,6 +191,9 @@ export class NavigationController<T extends object> implements ReactiveControlle
 
     item?.scrollIntoView({ block: 'nearest' });
     await completePromise;
-    if (column) this.scrollToCell({ row, column });
+
+    if (column) {
+      this.scrollToCell({ row, column });
+    }
   }
 }

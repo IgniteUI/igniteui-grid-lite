@@ -1,15 +1,20 @@
 import type { ReactiveController } from 'lit';
 import { PIPELINE } from '../internal/constants.js';
-import type { ColumnConfiguration, GridHost, Keys } from '../internal/types.js';
+import type { ColumnConfiguration, Keys } from '../internal/types.js';
 import { asArray } from '../internal/utils.js';
 import type { SortingDirection, SortingExpression, SortState } from '../operations/sort/types.js';
+import type { StateController } from './state.js';
 
 export class SortController<T extends object> implements ReactiveController {
-  constructor(protected host: GridHost<T>) {
+  constructor(protected _state: StateController<T>) {
     this.host.addController(this);
   }
 
   public state: SortState<T> = new Map();
+
+  protected get host() {
+    return this._state.host;
+  }
 
   get #isMultipleSort() {
     return this.host.sortingOptions.mode === 'multiple';
@@ -109,6 +114,9 @@ export class SortController<T extends object> implements ReactiveController {
 
   public reset(key?: Keys<T>) {
     key !== undefined ? this.state.delete(key) : this.state.clear();
+
+    // Headers render the sort indicator from this state.
+    this._state.updateObservers();
   }
 
   protected _sort(expressions: SortingExpression<T> | SortingExpression<T>[]) {
@@ -116,14 +124,17 @@ export class SortController<T extends object> implements ReactiveController {
       this.#setExpression(expr);
     }
 
+    this._state.updateObservers();
     this.host.requestUpdate(PIPELINE);
   }
 
   public sort(expressions: SortingExpression<T> | SortingExpression<T>[]) {
+    // Merge into copies. Only `#setExpression` replaces the stored expression.
     this._sort(
-      asArray(expressions).map((expr) =>
-        Object.assign(this.state.get(expr.key) ?? this.#createDefaultExpression(expr.key), expr)
-      )
+      asArray(expressions).map((expr) => ({
+        ...(this.state.get(expr.key) ?? this.#createDefaultExpression(expr.key)),
+        ...expr,
+      }))
     );
   }
 
