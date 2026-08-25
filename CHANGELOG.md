@@ -9,6 +9,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- Full ARIA grid pattern through `ElementInternals`: roles, row and column counts and indices, `aria-sort`, and `aria-selected`. The filter row is exposed as a second header row. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
+- Keyboard navigation and click activation set DOM focus on the active cell. Screen readers announce the cell. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
+- Public `columns` setter. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
+
+### Changed
+
+- **BREAKING:** `navigateTo(row, options)` replaces the positional `navigateTo(row, column?, activate?)` arguments. Navigation without a column keeps the current column. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
+- Cell activation updates only the two affected rows, not all visible rows. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
+- Faster rendering: rows reuse cells across column changes, sorting shares one collator, and a `ResizeObserver` drives the scrollbar offset. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
+
+### Fixed
+
+- Filters with only OR expressions matched every record. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
+- String filter conditions crashed on `null` or `undefined` cell values. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
+- The cancelable `sorting` and `filtering` events fire before the state changes, so listeners can cancel or modify the expression. The `sorted` and `filtered` events fire after the data view updates. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
+- Concurrent asynchronous data pipeline runs could apply results out of order. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
+- Declarative columns nested in a wrapping element no longer drop their sibling columns. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
+- Navigation state is kept per grid instance, skips hidden columns, and no longer produces invalid row indices. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
+- Filter expressions with conditions that match no column are skipped. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
+
 ## [0.9.0] - 2026-07-09
 
 ### Changed
