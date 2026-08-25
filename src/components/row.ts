@@ -51,7 +51,7 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
     return html`
       ${repeat(
         columns,
-        (column) => column,
+        (column) => column.field,
         (column) => html`
           <igc-grid-lite-cell
             part="cell"

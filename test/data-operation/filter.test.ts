@@ -56,11 +56,29 @@ class TDDFilterState<T extends object> {
   }
 }
 
+interface NullishData {
+  name: string;
+  count: number;
+}
+
+/**
+ * Records with null / undefined / missing values for both a string and a number column.
+ * The first record is fully populated so operand resolution picks the right data type.
+ */
+const nullishData = [
+  { name: 'Alpha', count: 1 },
+  { name: null, count: null },
+  { name: undefined, count: undefined },
+  {},
+] as unknown as NullishData[];
+
 const TDD = new TDDFilterState(data);
+const NullishTDD = new TDDFilterState(nullishData);
 
 describe('Filter operations', () => {
   beforeEach(() => {
     TDD.clearState();
+    NullishTDD.clearState();
   });
 
   describe('String operands', () => {
@@ -274,6 +292,163 @@ describe('Filter operations', () => {
       expect(TDD.first.importance).to.equal('high');
       expect(TDD.last.active).to.equal(true);
       expect(TDD.last.importance).to.equal('high');
+    });
+  });
+
+  describe('Criteria resolution', () => {
+    it('Only ANDs -> every expression must match', () => {
+      TDD.addCondition('id', 'greaterThan', { searchTerm: 3 })
+        .addCondition('id', 'lessThan', { searchTerm: 5 })
+        .run();
+
+      expect(TDD.result).lengthOf(1);
+      expect(TDD.first.id).to.equal(4);
+    });
+
+    it('Only ORs -> non-matching records are filtered out', () => {
+      TDD.addCondition('id', 'equals', { searchTerm: 1, criteria: 'or' })
+        .addCondition('id', 'equals', { searchTerm: 2, criteria: 'or' })
+        .run();
+
+      expect(TDD.result).lengthOf(2);
+      expect(TDD.first.id).to.equal(1);
+      expect(TDD.last.id).to.equal(2);
+    });
+
+    it('Only ORs -> no match leaves an empty result', () => {
+      TDD.addCondition('name', 'equals', { searchTerm: 'nope', criteria: 'or' })
+        .addCondition('name', 'equals', { searchTerm: 'nada', criteria: 'or' })
+        .run();
+
+      expect(TDD.result).empty;
+    });
+
+    it('Mixed -> ORs pass through, ANDs still apply', () => {
+      TDD.addCondition('id', 'greaterThan', { searchTerm: 3 })
+        .addCondition('id', 'lessThan', { searchTerm: 5 })
+        .addCondition('id', 'greaterThanOrEqual', { searchTerm: 6, criteria: 'or' })
+        .run();
+
+      expect(TDD.result).lengthOf(4);
+      expect(TDD.first.id).to.equal(4);
+      expect(TDD.last.id).to.equal(8);
+    });
+  });
+
+  describe('Nullish values [string operands]', () => {
+    it('`contains` [case insensitive]', () => {
+      NullishTDD.addCondition('name', 'contains', { searchTerm: 'a' }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`contains` [case sensitive]', () => {
+      NullishTDD.addCondition('name', 'contains', { searchTerm: 'A', caseSensitive: true }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`doesNotContain` [case insensitive]', () => {
+      NullishTDD.addCondition('name', 'doesNotContain', { searchTerm: 'a' }).run();
+      expect(NullishTDD.result).lengthOf(3);
+    });
+
+    it('`doesNotContain` [case sensitive]', () => {
+      NullishTDD.addCondition('name', 'doesNotContain', {
+        searchTerm: 'A',
+        caseSensitive: true,
+      }).run();
+      expect(NullishTDD.result).lengthOf(3);
+    });
+
+    it('`startsWith` [case insensitive]', () => {
+      NullishTDD.addCondition('name', 'startsWith', { searchTerm: 'al' }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`startsWith` [case sensitive]', () => {
+      NullishTDD.addCondition('name', 'startsWith', {
+        searchTerm: 'Al',
+        caseSensitive: true,
+      }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`endsWith` [case insensitive]', () => {
+      NullishTDD.addCondition('name', 'endsWith', { searchTerm: 'HA' }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`endsWith` [case sensitive]', () => {
+      NullishTDD.addCondition('name', 'endsWith', { searchTerm: 'ha', caseSensitive: true }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`equals` [case insensitive]', () => {
+      NullishTDD.addCondition('name', 'equals', { searchTerm: 'alpha' }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`equals` [case sensitive]', () => {
+      NullishTDD.addCondition('name', 'equals', { searchTerm: 'Alpha', caseSensitive: true }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`equals` empty string matches nullish values', () => {
+      NullishTDD.addCondition('name', 'equals', { searchTerm: '' }).run();
+      expect(NullishTDD.result).lengthOf(3);
+    });
+
+    it('`doesNotEqual` [case insensitive]', () => {
+      NullishTDD.addCondition('name', 'doesNotEqual', { searchTerm: 'alpha' }).run();
+      expect(NullishTDD.result).lengthOf(3);
+    });
+
+    it('`doesNotEqual` [case sensitive]', () => {
+      NullishTDD.addCondition('name', 'doesNotEqual', {
+        searchTerm: 'Alpha',
+        caseSensitive: true,
+      }).run();
+      expect(NullishTDD.result).lengthOf(3);
+    });
+
+    it('`empty` / `notEmpty`', () => {
+      NullishTDD.addCondition('name', 'empty').run();
+      expect(NullishTDD.result).lengthOf(3);
+
+      NullishTDD.clearState();
+      NullishTDD.addCondition('name', 'notEmpty').run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+  });
+
+  describe('Nullish values [number operands]', () => {
+    it('`equals` does not match nullish', () => {
+      NullishTDD.addCondition('count', 'equals', { searchTerm: 1 }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`doesNotEqual` matches nullish', () => {
+      NullishTDD.addCondition('count', 'doesNotEqual', { searchTerm: 1 }).run();
+      expect(NullishTDD.result).lengthOf(3);
+    });
+
+    it('`greaterThan` does not match nullish', () => {
+      NullishTDD.addCondition('count', 'greaterThan', { searchTerm: 0 }).run();
+      expect(NullishTDD.result).lengthOf(1);
+    });
+
+    it('`lessThan` does not match undefined', () => {
+      // `null` coerces to 0 in relational comparisons, `undefined` yields NaN.
+      NullishTDD.addCondition('count', 'lessThan', { searchTerm: 5 }).run();
+      expect(NullishTDD.result).lengthOf(2);
+    });
+
+    it('`empty` / `notEmpty`', () => {
+      NullishTDD.addCondition('count', 'empty').run();
+      expect(NullishTDD.result).lengthOf(3);
+
+      NullishTDD.clearState();
+      NullishTDD.addCondition('count', 'notEmpty').run();
+      expect(NullishTDD.result).lengthOf(1);
     });
   });
 

@@ -2,8 +2,9 @@ import { expect } from '@open-wc/testing';
 import sinon from 'sinon';
 import { SORT_ICON_ASCENDING, SORT_ICON_DESCENDING } from '../../src/internal/constants.js';
 import type { Keys } from '../../src/internal/types.js';
+import type { SortingExpression } from '../../src/operations/sort/types.js';
 import GridTestFixture from '../utils/grid-fixture.js';
-import data, { importanceComparer } from '../utils/test-data.js';
+import data, { importanceComparer, type TestData } from '../utils/test-data.js';
 
 class SortFixture<T extends object> extends GridTestFixture<T> {
   public override updateConfig(): void {
@@ -220,6 +221,53 @@ describe('Grid UI sort', () => {
 
       expect(spy.callCount).to.equal(1);
       expect(TDD.rows.first.data.id).to.equal(1);
+    });
+
+    it('`sorted` is emitted after the data view is updated', async () => {
+      // Stands in for a remote sort - the result lands after the update which starts it.
+      TDD.grid.dataPipelineConfiguration = {
+        sort: async ({ data }) => {
+          await Promise.resolve();
+          return [...data].reverse();
+        },
+      };
+
+      let idOnSorted = -1;
+      TDD.grid.addEventListener(
+        'sorted',
+        () => {
+          idOnSorted = TDD.grid.dataView[0].id;
+        },
+        { once: true }
+      );
+
+      await TDD.sortHeader('id');
+
+      expect(idOnSorted).to.equal(8);
+    });
+
+    it('Canceling `sorting` leaves the sort state untouched', async () => {
+      await TDD.sortHeader('id');
+
+      let stateDuringDispatch: SortingExpression<TestData>[] = [];
+      TDD.grid.addEventListener(
+        'sorting',
+        (e) => {
+          stateDuringDispatch = TDD.grid.sortingExpressions;
+          e.preventDefault();
+        },
+        { once: true }
+      );
+
+      await TDD.sortHeader('id');
+
+      // The listener must not observe the pending descending direction.
+      expect(stateDuringDispatch).lengthOf(1);
+      expect(stateDuringDispatch[0].direction).to.equal('ascending');
+
+      expect(TDD.grid.sortingExpressions[0].direction).to.equal('ascending');
+      expect(TDD.rows.first.data.id).to.equal(1);
+      TDD.indicatorIsAscending('id');
     });
 
     it('Modify event arguments mid-flight', async () => {

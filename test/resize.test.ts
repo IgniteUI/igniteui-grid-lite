@@ -1,4 +1,5 @@
 import { expect, html } from '@open-wc/testing';
+import type { ResizeController } from '../src/controllers/resize.js';
 import { MIN_COL_RESIZE_WIDTH } from '../src/internal/constants.js';
 import type { Keys } from '../src/internal/types.js';
 import GridTestFixture from './utils/grid-fixture.js';
@@ -21,6 +22,11 @@ class ResizeFixture<T extends object> extends GridTestFixture<T> {
 
     // Cell
     expect(this.rows.first.cells.get(name).element.offsetWidth).to.equal(initial + delta);
+  }
+
+  public get resizeController() {
+    // @ts-expect-error - Protected member access
+    return this.grid._stateController.resizing as ResizeController<T>;
   }
 
   public getTranslate(element: HTMLElement) {
@@ -113,6 +119,17 @@ describe('Column resizing', () => {
 
       expect(header.offsetWidth).greaterThan(600);
       expect(header.offsetWidth).to.equal(cell.offsetWidth);
+    });
+
+    it('Auto size (column without rendered cells)', async () => {
+      const header = TDD.headers.get('name').element;
+      const column = TDD.grid.getColumn('name')!;
+
+      // Hiding the column drops its cells from the rendered rows.
+      await TDD.updateColumns({ field: 'name', hidden: true });
+
+      await TDD.resizeController.autosize(column, header);
+      expect(column.width).to.equal(`${MIN_COL_RESIZE_WIDTH}px`);
     });
   });
 });

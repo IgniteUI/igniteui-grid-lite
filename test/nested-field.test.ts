@@ -63,4 +63,20 @@ describe('resolveFieldValue utility', () => {
     const partialObj = { id: 1, user: null } as unknown as NestedTestData;
     expect(resolveFieldValue(partialObj, 'user.name')).to.be.undefined;
   });
+
+  it('should resolve the same path across different objects', () => {
+    for (const record of nestedData) {
+      expect(resolveFieldValue(record, 'user.address.city')).to.equal(record.user.address.city);
+    }
+
+    // Repeated resolution must stay stable - path segments are cached between calls.
+    expect(resolveFieldValue(nestedData[0], 'user.address.city')).to.equal('New York');
+    expect(resolveFieldValue(nestedData[1], 'user.address.city')).to.equal('Los Angeles');
+  });
+
+  it('should not confuse a dotted path with a same-prefixed one', () => {
+    expect(resolveFieldValue(testObj, 'user.name')).to.equal('Alice');
+    expect(resolveFieldValue(testObj, 'user.address.code')).to.equal(10001);
+    expect(resolveFieldValue(testObj, 'user.age')).to.equal(30);
+  });
 });

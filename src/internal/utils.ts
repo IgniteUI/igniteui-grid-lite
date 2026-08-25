@@ -9,6 +9,23 @@ function _isObject(entity: unknown): entity is Record<string, unknown> {
 }
 
 /**
+ * Dot-path -> segments cache. Filtering and sorting resolve the same handful of paths
+ * once per record, so the split is done once per path instead of per lookup.
+ */
+const pathSegments = new Map<string, string[]>();
+
+function getPathSegments(path: string): string[] {
+  let segments = pathSegments.get(path);
+
+  if (!segments) {
+    segments = path.split('.');
+    pathSegments.set(path, segments);
+  }
+
+  return segments;
+}
+
+/**
  * Resolves a value from an object using a path string.
  * Supports nested properties using dot notation (e.g., 'prop.nestedProp').
  *
@@ -18,7 +35,7 @@ function _isObject(entity: unknown): entity is Record<string, unknown> {
  */
 export function resolveFieldValue<T>(obj: T, path: Keys<T>): PropertyType<T> {
   if (typeof path === 'string' && path.includes('.')) {
-    return path.split('.').reduce<unknown>((current, key) => {
+    return getPathSegments(path).reduce<unknown>((current, key) => {
       return _isObject(current) && key in current ? current[key] : undefined;
     }, obj) as PropertyType<T>;
   }

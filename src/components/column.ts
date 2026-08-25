@@ -7,6 +7,7 @@ import { GRID_COLUMN_TAG } from '../internal/tags.js';
 import type {
   BaseColumnConfiguration,
   ColumnSortConfiguration,
+  DataType,
   IgcCellContext,
   IgcHeaderContext,
   Keys,
@@ -44,7 +45,7 @@ export class IgcGridLiteColumn<T extends object = any>
 
   /** The data type of the column's values. */
   @property({ attribute: 'data-type' })
-  public dataType?: 'number' | 'string' | 'boolean' = 'string';
+  public dataType?: DataType = 'string';
 
   /** The header text of the column. */
   @property()

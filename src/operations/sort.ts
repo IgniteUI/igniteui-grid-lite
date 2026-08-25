@@ -1,6 +1,9 @@
 import DataOperation from './base.js';
 import type { SortState } from './sort/types.js';
 
+// A single collator is reused across comparisons - `localeCompare` builds one per call.
+const collator = new Intl.Collator();
+
 export default class SortDataOperation<T> extends DataOperation<T> {
   protected orderBy = new Map(
     Object.entries({
@@ -11,7 +14,7 @@ export default class SortDataOperation<T> extends DataOperation<T> {
 
   protected compareValues<U>(first: U, second: U) {
     if (typeof first === 'string' && typeof second === 'string') {
-      return first.localeCompare(second);
+      return collator.compare(first, second);
     }
     return first > second ? 1 : first < second ? -1 : 0;
   }

@@ -77,7 +77,7 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
   }
 
   protected override update(props: PropertyValues<this>): void {
-    if (props.has('adoptRootStyles')) {
+    if (props.has('adoptRootStyles') || props.has('cellTemplate')) {
       this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
     }
 

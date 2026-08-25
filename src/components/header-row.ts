@@ -47,12 +47,14 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
     this._state?.filtering.setActiveColumn(header?.column);
   }
 
-  protected override shouldUpdate(props: PropertyValues<this>): boolean {
+  protected override willUpdate(props: PropertyValues<this>): void {
+    // Column configuration is passed by reference, so the headers have to be
+    // refreshed explicitly whenever the row itself updates.
     for (const header of this.headers) {
       header.requestUpdate();
     }
 
-    return super.shouldUpdate(props);
+    super.willUpdate(props);
   }
 
   protected override render() {
@@ -62,7 +64,7 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
     return html`
       ${repeat(
         columns,
-        (column) => column,
+        (column) => column.field,
         (column) => html`
           <igc-grid-lite-header
             part=${partMap({ filtered: column.field === filterRow?.column?.field })}

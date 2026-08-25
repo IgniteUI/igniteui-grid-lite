@@ -15,10 +15,6 @@ export class SortController<T extends object> implements ReactiveController {
     return this.host.sortingOptions.mode === 'multiple';
   }
 
-  get #isTriStateSort() {
-    return true;
-  }
-
   #resolveSortOptions(column?: ColumnConfiguration<T>) {
     const expr: Pick<SortingExpression<T>, 'caseSensitive' | 'comparer'> = {
       caseSensitive: false,
@@ -45,16 +41,17 @@ export class SortController<T extends object> implements ReactiveController {
     } as SortingExpression<T>;
   }
 
+  /** Tri-state cycle: ascending -> descending -> none. */
   #orderBy(dir?: SortingDirection): SortingDirection {
-    return this.#isTriStateSort
-      ? dir === 'ascending'
-        ? 'descending'
-        : dir === 'descending'
-          ? 'none'
-          : 'ascending'
-      : dir === 'ascending'
-        ? 'descending'
-        : 'ascending';
+    if (dir === 'ascending') {
+      return 'descending';
+    }
+
+    if (dir === 'descending') {
+      return 'none';
+    }
+
+    return 'ascending';
   }
 
   #emitSortingEvent(detail: SortingExpression<T>) {
@@ -84,18 +81,26 @@ export class SortController<T extends object> implements ReactiveController {
 
     this._sort(expression);
 
-    await this.host.updateComplete;
+    await this.host._pipelineComplete;
     this.#emitSortedEvent(expression);
   }
 
+  /**
+   * Returns the expression the next sort operation would apply for `column`.
+   *
+   * @remarks
+   * The result is a candidate copy - the stored state is only updated once the
+   * operation is committed through {@link SortController._sort}.
+   */
   public prepareExpression(column: ColumnConfiguration<T>): SortingExpression<T> {
     if (this.state.has(column.field)) {
       const expr = this.state.get(column.field)!;
 
-      return Object.assign(expr, {
+      return {
+        ...expr,
         direction: this.#orderBy(expr.direction),
         ...this.#resolveSortOptions(column),
-      });
+      };
     }
 
     // Initial state
@@ -103,7 +108,7 @@ export class SortController<T extends object> implements ReactiveController {
   }
 
   public reset(key?: Keys<T>) {
-    key ? this.state.delete(key) : this.state.clear();
+    key !== undefined ? this.state.delete(key) : this.state.clear();
   }
 
   protected _sort(expressions: SortingExpression<T> | SortingExpression<T>[]) {

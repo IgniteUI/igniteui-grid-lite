@@ -13,11 +13,13 @@ export class ResizeController<T extends object> implements ReactiveController {
   public indicatorOffset = 0;
 
   #maxSize(key: Keys<T>, headerWidth: number) {
-    const max = this.host.rows
-      .map((row) => row.cells.find((cell) => cell.column.field === key)!)
-      .reduce((prev, current) => (current.offsetWidth > prev ? current.offsetWidth : prev), 0);
+    // A rendered row may not carry a cell for the column (e.g. it was just hidden).
+    const max = this.host.rows.reduce((prev, row) => {
+      const cell = row.cells.find((cell) => cell.column.field === key);
+      return cell && cell.offsetWidth > prev ? cell.offsetWidth : prev;
+    }, 0);
 
-    return Math.max(...[MIN_COL_RESIZE_WIDTH, max, headerWidth]);
+    return Math.max(MIN_COL_RESIZE_WIDTH, max, headerWidth);
   }
 
   /**

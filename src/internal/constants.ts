@@ -1,4 +1,4 @@
-import type { ActiveNode, ColumnConfiguration, NavigationState } from './types.js';
+import type { ActiveNode, ColumnConfiguration } from './types.js';
 
 const columnKey = Symbol();
 const NON_EXISTING_COLUMN = Symbol();
@@ -21,7 +21,3 @@ export const DEFAULT_COLUMN_CONFIG = Object.freeze<ColumnConfiguration<any>>({
   sortable: false,
   filterable: false,
 });
-export const NAVIGATION_STATE: Map<NavigationState, ActiveNode<any>> = new Map([
-  ['previous', SENTINEL_NODE],
-  ['current', SENTINEL_NODE],
-]);

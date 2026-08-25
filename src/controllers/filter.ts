@@ -8,6 +8,9 @@ import { FilterState } from '../operations/filter/state.js';
 import type { FilterExpression } from '../operations/filter/types.js';
 import type { StateController } from './state.js';
 
+/** The kind of modification a `filtering` event describes. */
+export type FilterEventType = 'add' | 'modify' | 'remove';
+
 export class FilterController<T extends object> implements ReactiveController {
   private readonly _stateController: StateController<T>;
 
@@ -30,13 +33,9 @@ export class FilterController<T extends object> implements ReactiveController {
     return this._stateController.virtualizer;
   }
 
-  #emitFilteringEvent(expression: FilterExpression<T>, type: 'add' | 'modify' | 'remove') {
+  #emitFilteringEvent(key: Keys<T>, expressions: FilterExpression<T>[], type: FilterEventType) {
     return this.host.emitEvent('filtering', {
-      detail: {
-        key: expression.key,
-        expressions: [expression],
-        type,
-      },
+      detail: { key, expressions, type },
       cancelable: true,
     });
   }
@@ -67,7 +66,7 @@ export class FilterController<T extends object> implements ReactiveController {
   }
 
   public reset(key?: Keys<T>) {
-    key ? this.state.delete(key) : this.state.clear();
+    key !== undefined ? this.state.delete(key) : this.state.clear();
   }
 
   public setActiveColumn(column?: ColumnConfiguration<T>) {
@@ -94,30 +93,21 @@ export class FilterController<T extends object> implements ReactiveController {
   public async removeAllExpressions(key: Keys<T>) {
     const state = this.get(key)?.all ?? [];
 
-    if (
-      !this.host.emitEvent('filtering', {
-        detail: {
-          key,
-          expressions: state,
-          type: 'remove',
-        },
-        cancelable: true,
-      })
-    ) {
+    if (!this.#emitFilteringEvent(key, state, 'remove')) {
       return;
     }
 
     this.reset(key);
     this.#filter([]);
 
-    await this.host.updateComplete;
+    await this.host._pipelineComplete;
     this.#emitFilteredEvent({ key, state: this.get(key)?.all ?? [] });
   }
 
   public async removeExpression(expression: FilterExpression<T>) {
     const state = this.get(expression.key);
 
-    if (!this.#emitFilteringEvent(expression, 'remove')) {
+    if (!this.#emitFilteringEvent(expression.key, [expression], 'remove')) {
       return;
     }
 
@@ -129,19 +119,36 @@ export class FilterController<T extends object> implements ReactiveController {
 
     this.#filter([]);
 
-    await this.host.updateComplete;
+    await this.host._pipelineComplete;
     this.#emitFilteredEvent({ key: expression.key, state: state?.all ?? [] });
   }
 
-  public async filterWithEvent(expression: FilterExpression<T>, type: 'add' | 'modify' | 'remove') {
-    if (!this.#emitFilteringEvent(expression, type)) {
+  /**
+   * Emits `filtering` for `expression` and, if it passes, applies it.
+   *
+   * @remarks
+   * `target` is the state-held expression the change belongs to. Callers pass a candidate
+   * copy as `expression` so that a canceled event leaves the stored state untouched; on
+   * commit the candidate is folded back into `target`, preserving the object identity the
+   * expression tree and the chip selection rely on.
+   */
+  public async filterWithEvent(
+    expression: FilterExpression<T>,
+    type: FilterEventType,
+    target: FilterExpression<T> = expression
+  ) {
+    if (!this.#emitFilteringEvent(expression.key, [expression], type)) {
       return;
     }
 
-    this.#filter(expression);
+    if (target !== expression) {
+      Object.assign(target, expression);
+    }
 
-    await this.host.updateComplete;
-    this.#emitFilteredEvent({ key: expression.key, state: this.get(expression.key)?.all ?? [] });
+    this.#filter(target);
+
+    await this.host._pipelineComplete;
+    this.#emitFilteredEvent({ key: target.key, state: this.get(target.key)?.all ?? [] });
   }
 
   public filter(expression: FilterExpression<T> | FilterExpression<T>[]) {

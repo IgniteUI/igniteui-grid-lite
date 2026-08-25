@@ -1,6 +1,6 @@
 import type { ReactiveController } from 'lit';
 import type IgcGridLiteRow from '../components/row.js';
-import { NAVIGATION_STATE, SENTINEL_NODE } from '../internal/constants.js';
+import { SENTINEL_NODE } from '../internal/constants.js';
 import { GRID_ROW_TAG } from '../internal/tags.js';
 import type { ActiveNode, Keys } from '../internal/types.js';
 import type { StateController } from './state.js';
@@ -21,36 +21,37 @@ export class NavigationController<T extends object> implements ReactiveControlle
     return this._state.virtualizer;
   }
 
-  protected _navigationState = NAVIGATION_STATE;
-  protected _active = SENTINEL_NODE;
+  protected _active = SENTINEL_NODE as ActiveNode<T>;
 
   protected get nextNode() {
-    const node = this._navigationState.get('current')!;
-    return node === SENTINEL_NODE
-      ? { column: this._firstColumn, row: 0 }
-      : ({ ...node } as ActiveNode<T>);
+    return this._active === SENTINEL_NODE
+      ? ({ column: this._firstColumn, row: 0 } as ActiveNode<T>)
+      : ({ ...this._active } as ActiveNode<T>);
   }
 
+  /** Rows render only the visible columns, so navigation walks the same sequence. */
   protected get _columns() {
-    return this._state.columns;
+    return this._state.columns.filter((column) => !column.hidden);
   }
 
   protected get _firstColumn() {
-    return this._state.host.getColumn(0)!.field ?? '';
+    return this._columns.at(0)?.field ?? SENTINEL_NODE.column;
   }
 
+  // Both lookups clamp at the ends; a hidden or missing key (index -1) lands on the
+  // first visible column.
   protected getPreviousColumn(key: Keys<T>) {
-    return this._columns[Math.max(this._columns.indexOf(this._state.host.getColumn(key)!) - 1, 0)]
-      .field;
+    const columns = this._columns;
+    const index = columns.findIndex((column) => column.field === key);
+
+    return columns[Math.max(index - 1, 0)].field;
   }
 
   protected getNextColumn(key: Keys<T>) {
-    return this._columns[
-      Math.min(
-        this._columns.indexOf(this._state.host.getColumn(key)!) + 1,
-        this._columns.length - 1
-      )
-    ].field;
+    const columns = this._columns;
+    const index = columns.findIndex((column) => column.field === key);
+
+    return columns[Math.min(index + 1, columns.length - 1)].field;
   }
 
   protected queryRowByIndex(index: number) {
@@ -70,13 +71,11 @@ export class NavigationController<T extends object> implements ReactiveControlle
   }
 
   public get active(): ActiveNode<T> {
-    return this._active as ActiveNode<T>;
+    return this._active;
   }
 
   public set active(node: ActiveNode<T>) {
     this._active = node ?? SENTINEL_NODE;
-    this._navigationState.set('previous', this._active);
-    this._navigationState.set('current', node);
     this._state.host.requestUpdate();
   }
 
@@ -123,14 +122,18 @@ export class NavigationController<T extends object> implements ReactiveControlle
 
   public hostDisconnected() {
     this.active = SENTINEL_NODE as ActiveNode<T>;
-    this._navigationState = NAVIGATION_STATE;
   }
 
   public navigate(event: KeyboardEvent) {
-    if (this.handlers.has(event.key)) {
-      event.preventDefault();
-      this.handlers.get(event.key)!.call(this);
+    const handler = this.handlers.get(event.key);
+
+    // Nothing to move to without a visible column or a data row.
+    if (!handler || this._columns.length === 0 || this._state.host.totalItems === 0) {
+      return;
     }
+
+    event.preventDefault();
+    handler.call(this);
   }
 
   public async navigateTo(row: number, column?: Keys<T>, activate = false) {

@@ -47,6 +47,24 @@ describe('Column configuration', () => {
       }
     });
 
+    it('Multiple columns inside a single slotted container', async () => {
+      const newKeys: Array<Keys<TestData>> = ['id', 'name'];
+      const container = document.createElement('div');
+
+      container.append(
+        ...newKeys.map((key) => {
+          const col = document.createElement(GRID_COLUMN_TAG) as IgcGridLiteColumn<TestData>;
+          col.field = key;
+          return col;
+        })
+      );
+
+      TDD.grid.replaceChildren(container);
+      await elementUpdated(TDD.grid);
+
+      expect(TDD.grid.columns.map((column) => column.field)).to.eql(newKeys);
+    });
+
     it('Updating configuration', async () => {
       await TDD.updateColumns([
         { field: 'id', header: 'Primary' },

@@ -106,6 +106,17 @@ describe('Grid auto-generate column configuration', () => {
 
     expect(autoGenerateTDD.grid.rows).lengthOf(testData.length);
   });
+
+  it('Resetting the columns collection re-runs auto generation', async () => {
+    expect(autoGenerateTDD.grid.columns).lengthOf(keys.size);
+
+    autoGenerateTDD.grid.columns = [];
+    expect(autoGenerateTDD.grid.columns).to.be.empty;
+
+    await autoGenerateTDD.updateProperty('data', [{ alpha: 1, beta: 'x' }] as any);
+
+    expect(autoGenerateTDD.grid.columns.map((column) => column.field)).to.eql(['alpha', 'beta']);
+  });
 });
 
 describe('Grid properties (initial bindings)', () => {
@@ -210,6 +221,38 @@ describe('Grid properties', () => {
     ]);
 
     expect(TDD.grid.filterExpressions).lengthOf(3);
+  });
+
+  it('Sort expressions (get) returns copies', async () => {
+    await TDD.sort({ key: 'id', direction: 'ascending' });
+
+    const [expression] = TDD.grid.sortingExpressions;
+    expression.direction = 'descending';
+
+    expect(TDD.grid.sortingExpressions[0].direction).to.equal('ascending');
+  });
+
+  it('Filter expressions (get) returns copies', async () => {
+    await TDD.filter({ key: 'name', condition: 'contains', searchTerm: 'a' });
+
+    const [expression] = TDD.grid.filterExpressions;
+    expression.searchTerm = 'b';
+
+    expect(TDD.grid.filterExpressions[0].searchTerm).to.equal('a');
+    expect(TDD.grid.totalItems).to.equal(2);
+  });
+
+  it('filter() does not mutate the passed expressions', async () => {
+    const expression: FilterExpression<TestData> = {
+      key: 'name',
+      condition: 'contains',
+      searchTerm: 'a',
+    };
+
+    await TDD.filter(expression);
+
+    expect(expression.condition).to.equal('contains');
+    expect(expression.criteria).to.be.undefined;
   });
 });
 

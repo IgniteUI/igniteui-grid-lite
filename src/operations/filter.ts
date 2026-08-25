@@ -17,6 +17,13 @@ export default class FilterDataOperation<T extends object> extends DataOperation
     if (ors.length > 0 && ors.some((expr) => this.resolveFilter(record, expr))) {
       return true;
     }
+
+    // With no ANDs the ORs are the whole answer - `every` on an empty set is
+    // vacuously true and would otherwise let every record through.
+    if (ands.length === 0) {
+      return ors.length === 0;
+    }
+
     return ands.every((expr) => this.resolveFilter(record, expr));
   }
 

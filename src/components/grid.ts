@@ -40,11 +40,16 @@ import IgcGridLiteHeaderRow from './header-row.js';
 import IgcGridLiteRow from './row.js';
 import IgcVirtualizer from './virtualizer.js';
 
-/** Column reducer matching either direct column element or one nested in container */
+/** Column reducer matching either a direct column element or every one nested in a container */
 function columnReducer<T extends Element>(acc: T[], el: T): T[] {
   const tag = IgcGridLiteColumn.tagName;
-  const column = el.matches(tag) ? el : el.querySelector(tag);
-  if (column) acc.push(column as unknown as T);
+
+  if (el.matches(tag)) {
+    acc.push(el);
+    return acc;
+  }
+
+  acc.push(...(Array.from(el.querySelectorAll(tag)) as unknown as T[]));
   return acc;
 }
 
@@ -193,6 +198,23 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   @state()
   protected _dataState: T[] = [];
 
+  /** Monotonic token identifying the most recently started pipeline run. */
+  private _pipelineEpoch = 0;
+
+  private _pipelineTask: Promise<void> = Promise.resolve();
+
+  /**
+   * Resolves when the most recently started pipeline run has settled and its result
+   * is rendered. Consumed by the sort/filter controllers so that `sorted`/`filtered`
+   * are emitted against an up to date {@link IgcGridLite.dataView}.
+   *
+   * @internal
+   */
+  public get _pipelineComplete(): Promise<void> {
+    // The `updateComplete` hop lets a just-requested PIPELINE update install its task first.
+    return this.updateComplete.then(() => this._pipelineTask);
+  }
+
   @property({ type: Boolean, reflect: true, attribute: 'adopt-root-styles' })
   public adoptRootStyles = false;
 
@@ -258,7 +280,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    */
   @property({ attribute: false })
   public get sortingExpressions(): SortingExpression<T>[] {
-    return Array.from(this._stateController.sorting.state.values());
+    return Array.from(this._stateController.sorting.state.values(), (expr) => ({ ...expr }));
   }
 
   /**
@@ -278,9 +300,25 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    */
   @property({ attribute: false })
   public get filterExpressions(): FilterExpression<T>[] {
-    return this._stateController.filtering.state.values.flatMap((each) => each.all);
+    return this._stateController.filtering.state.values.flatMap((each) =>
+      each.all.map((expr) => ({ ...expr }))
+    );
   }
 
+  /**
+   * Sets the column configuration for the grid.
+   *
+   * @remarks
+   * Passing an empty collection resets the columns, which - with `autoGenerate` -
+   * lets the next data source binding re-generate them.
+   */
+  public set columns(configuration: ColumnConfiguration<T>[]) {
+    this._stateController.setColumnConfiguration(asArray(configuration));
+  }
+
+  /**
+   * Returns the column configuration of the grid.
+   */
   public get columns(): ColumnConfiguration<T>[] {
     return this._stateController.columns.map((col) => ({ ...col }));
   }
@@ -323,9 +361,35 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
     }
   }
 
+  /**
+   * NOTE: The `PIPELINE` sentinel resolves to this method's own name, which is what makes
+   * the `@watch` comparison (`undefined !== <method>`) fire on every requested update.
+   * Renaming the method silently disables the pipeline.
+   */
   @watch(PIPELINE)
-  protected async pipeline() {
-    this._dataState = await this._dataController.apply([...this.data], this._stateController);
+  protected pipeline(): void {
+    this._pipelineTask = this._runPipeline();
+  }
+
+  /** Runs the data operations, discarding a result superseded by a newer run. */
+  private async _runPipeline(): Promise<void> {
+    const epoch = ++this._pipelineEpoch;
+
+    try {
+      const state = await this._dataController.apply([...this.data], this._stateController);
+
+      if (epoch !== this._pipelineEpoch) {
+        return;
+      }
+
+      this._dataState = state;
+    } catch (e) {
+      // A failing hook must not blank the grid - keep the previous data state and report.
+      // biome-ignore lint/suspicious/noConsole: the pipeline hooks are user code; swallowing their errors hides bugs
+      console.error(e);
+    }
+
+    await this.updateComplete;
   }
 
   constructor() {
@@ -371,10 +435,10 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    * Performs a filter operation in the grid based on the passed expression(s).
    */
   public filter(config: FilterExpression<T> | FilterExpression<T>[]): void {
-    const expressions = asArray(config).filter((expr) => {
-      const column = this.getColumn(expr.key);
-      return column !== undefined;
-    });
+    // Copies - the caller's expression objects must not be rewritten.
+    const expressions = asArray(config)
+      .filter((expr) => this.getColumn(expr.key) !== undefined)
+      .map((expr) => ({ ...expr }));
 
     for (const expr of expressions) {
       if (!isString(expr.condition)) {

@@ -23,6 +23,9 @@ import type { FilterExpression, FilterOperation, OperandKeys } from '../operatio
 import { styles } from '../styles/filter-row/filter-row.css.js';
 import { all } from '../styles/themes/filtering-row-themes.js';
 
+/** Number of filter expressions shown as chips before collapsing into a single counted chip. */
+const MAX_PREVIEW_CHIPS = 3;
+
 type ExpressionChipProps<T> = {
   expression: FilterExpression<T>;
   selected: boolean;
@@ -135,12 +138,19 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     const key = event.detail.value as OperandKeys<PropertyType<T, typeof this.column.field>>;
 
     // XXX: Types
-    this.expression.condition = (getFilterOperandsFor(this.column) as any)[key] as FilterOperation<
+    const condition = (getFilterOperandsFor(this.column) as any)[key] as FilterOperation<
       PropertyType<T, keyof T>
     >;
 
-    if (this.input.value || this.expression.condition.unary) {
-      this.filterController.filterWithEvent(this.expression, 'modify');
+    if (this.input.value || condition.unary) {
+      this.filterController.filterWithEvent(
+        { ...this.expression, condition },
+        'modify',
+        this.expression
+      );
+    } else {
+      // Nothing to filter by yet - the condition is only staged in the UI.
+      this.expression.condition = condition;
     }
 
     this.requestUpdate();
@@ -156,9 +166,11 @@ export default class IgcFilterRow<T extends object> extends LitElement {
       : 'add';
 
     if (shouldUpdate) {
-      this.expression.searchTerm = value as any;
-
-      this.filterController.filterWithEvent(this.expression, type);
+      this.filterController.filterWithEvent(
+        { ...this.expression, searchTerm: value as any },
+        type,
+        this.expression
+      );
     } else {
       this.#removeExpression(this.expression);
     }
@@ -206,8 +218,9 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     return async (e: Event) => {
       e.stopPropagation();
 
-      expression.criteria = expression.criteria === 'and' ? 'or' : 'and';
-      this.filterController.filterWithEvent(expression, 'modify');
+      const criteria = expression.criteria === 'and' ? 'or' : 'and';
+
+      this.filterController.filterWithEvent({ ...expression, criteria }, 'modify', expression);
       this.requestUpdate();
     };
   }
@@ -385,8 +398,8 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   protected renderFilterState(column: ColumnConfiguration<T>) {
     const state = this.filterController.get(column.field);
 
-    const partial = state && state.length < 3;
-    const hidden = state && state.length >= 3;
+    const partial = state && state.length < MAX_PREVIEW_CHIPS;
+    const hidden = state && state.length >= MAX_PREVIEW_CHIPS;
 
     const open = () => {
       this.column = column;

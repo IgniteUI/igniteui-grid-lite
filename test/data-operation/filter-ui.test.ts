@@ -3,9 +3,17 @@ import sinon from 'sinon';
 import type { Keys } from '../../src/internal/types.js';
 import { NumberOperands } from '../../src/operations/filter/operands/number.js';
 import { StringOperands } from '../../src/operations/filter/operands/string.js';
-import type { FilterExpression, OperandKeys } from '../../src/operations/filter/types.js';
+import type {
+  FilterExpression,
+  FilterOperation,
+  OperandKeys,
+} from '../../src/operations/filter/types.js';
 import GridTestFixture from '../utils/grid-fixture.js';
 import data, { type TestData } from '../utils/test-data.js';
+
+function conditionName(expression: FilterExpression<TestData>): string {
+  return (expression.condition as FilterOperation<unknown>).name;
+}
 
 class FilterFixture<T extends object> extends GridTestFixture<T> {
   public override updateConfig(): void {
@@ -346,6 +354,106 @@ describe('Grid UI filter', () => {
 
       // No filter operation
       expect(TDD.grid.totalItems).to.equal(8);
+    });
+
+    it('`filtered` is emitted after the data view is updated', async () => {
+      // Stands in for a remote filter - the result lands after the update which starts it.
+      TDD.grid.dataPipelineConfiguration = {
+        filter: async ({ data }) => {
+          await Promise.resolve();
+          return data.filter((record) => record.name === 'a');
+        },
+      };
+
+      let totalOnFiltered = -1;
+      TDD.grid.addEventListener(
+        'filtered',
+        () => {
+          totalOnFiltered = TDD.grid.totalItems;
+        },
+        { once: true }
+      );
+
+      await TDD.activateFilterRow('name');
+      await TDD.filterByInput('a');
+
+      expect(totalOnFiltered).to.equal(1);
+    });
+
+    it('Canceling `filtering` on input leaves the expression untouched', async () => {
+      await TDD.activateFilterRow('name');
+      await TDD.filterByInput('a');
+
+      let stateDuringDispatch: FilterExpression<TestData>[] = [];
+      TDD.grid.addEventListener(
+        'filtering',
+        (e) => {
+          stateDuringDispatch = TDD.grid.filterExpressions;
+          e.preventDefault();
+        },
+        { once: true }
+      );
+
+      await TDD.filterByInput('b');
+
+      expect(stateDuringDispatch).lengthOf(1);
+      expect(stateDuringDispatch[0].searchTerm).to.equal('a');
+
+      expect(TDD.grid.filterExpressions[0].searchTerm).to.equal('a');
+      expect(TDD.activeChips[0].textContent?.trim()).to.equal('a');
+      expect(TDD.grid.totalItems).to.equal(2);
+    });
+
+    it('Canceling `filtering` on condition change leaves the expression untouched', async () => {
+      await TDD.activateFilterRow('importance');
+      await TDD.filterByInput('l');
+
+      expect(TDD.grid.totalItems).to.equal(3);
+
+      let stateDuringDispatch: FilterExpression<TestData>[] = [];
+      TDD.grid.addEventListener(
+        'filtering',
+        (e) => {
+          stateDuringDispatch = TDD.grid.filterExpressions;
+          e.preventDefault();
+        },
+        { once: true }
+      );
+
+      await TDD.changeFilterCondition('endsWith');
+
+      expect(conditionName(stateDuringDispatch[0])).to.equal('contains');
+      expect(conditionName(TDD.grid.filterExpressions[0])).to.equal('contains');
+      expect(TDD.grid.totalItems).to.equal(3);
+    });
+
+    it('Canceling `filtering` on criteria toggle leaves the expression untouched', async () => {
+      await TDD.activateFilterRow('importance');
+      await TDD.changeFilterCondition('startsWith');
+
+      await TDD.filterByInput('l');
+      await TDD.commitInput();
+      await TDD.filterByInput('h');
+      await TDD.commitInput();
+
+      expect(TDD.grid.totalItems).to.equal(0);
+
+      let stateDuringDispatch: FilterExpression<TestData>[] = [];
+      TDD.grid.addEventListener(
+        'filtering',
+        (e) => {
+          stateDuringDispatch = TDD.grid.filterExpressions;
+          e.preventDefault();
+        },
+        { once: true }
+      );
+
+      await TDD.toggleCriteria(TDD.filterRow.activeCriteriaButtons[0]);
+
+      expect(stateDuringDispatch[1].criteria).to.equal('and');
+      expect(TDD.grid.filterExpressions[1].criteria).to.equal('and');
+      expect(TDD.filterRow.activeCriteriaButtons[0].textContent?.trim()).to.equal('and');
+      expect(TDD.grid.totalItems).to.equal(0);
     });
 
     it('Modify event arguments mid-flight', async () => {

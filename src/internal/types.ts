@@ -6,7 +6,6 @@ import type IgcGridLiteHeader from '../components/header.js';
 import type IgcGridLiteRow from '../components/row.js';
 import type { SortComparer } from '../operations/sort/types.js';
 
-export type NavigationState = 'previous' | 'current';
 export type GridHost<T extends object> = ReactiveControllerHost & IgcGridLite<T>;
 
 export type Themes = {

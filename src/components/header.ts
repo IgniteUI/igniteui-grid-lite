@@ -67,7 +67,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   }
 
   protected override update(props: PropertyValues<this>): void {
-    if (props.has('adoptRootStyles')) {
+    if (props.has('adoptRootStyles') || props.has('column')) {
       this._adoptedStylesController.shouldAdoptStyles(
         this.adoptRootStyles && this.column.headerTemplate != null
       );
