@@ -40,7 +40,7 @@ export default class GridTestFixture<T extends object> {
   }
 
   protected async waitForUpdate() {
-    await Promise.all([elementUpdated(this.grid), nextFrame]);
+    await Promise.all([elementUpdated(this.grid), nextFrame()]);
     await nextFrame();
   }
 

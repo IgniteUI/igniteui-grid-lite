@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { esbuildPlugin } from '@web/dev-server-esbuild';
 import { playwrightLauncher } from '@web/test-runner-playwright';
+import { BARREL_BUNDLE, prebundleTestDeps, TEST_DEPS_DIR } from './scripts/prebundle-test-deps.js';
 
 const filteredLogs = ['in dev mode'];
 
@@ -14,7 +15,7 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
   },
 
   coverageConfig: {
-    exclude: ['node_modules/**/*', '**/styles/**', 'test/**']
+    exclude: ['node_modules/**/*', `${TEST_DEPS_DIR}/**/*`, '**/styles/**', 'test/**']
   },
 
   /** Browsers to run tests on */
@@ -27,6 +28,14 @@ export default /** @type {import("@web/test-runner").TestRunnerConfig} */ ({
   },
 
   plugins: [
+    {
+      name: 'prebundled-test-deps',
+
+      serverStart: () => prebundleTestDeps(),
+
+      // Serve the tree-shaken bundle instead of the unbundled barrel.
+      resolveImport: ({ source }) => (source === 'igniteui-webcomponents' ? BARREL_BUNDLE : undefined),
+    },
     esbuildPlugin({
       ts: true,
       tsconfig: fileURLToPath(new URL('./tsconfig.json', import.meta.url)),

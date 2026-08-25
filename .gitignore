@@ -32,3 +32,6 @@ storybook-static
 
 custom-elements.json
 *.css.ts
+
+# Prebundled test dependencies
+.test-deps/
