@@ -492,7 +492,24 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
    * @param row The row index to navigate to
    * @param options The column field to navigate to and whether to activate the cell
    */
-  public async navigateTo(row: number, options?: NavigateToOptions<T>) {
+  public async navigateTo(row: number, options?: NavigateToOptions<T>): Promise<void>;
+  /**
+   * Navigates to a position in the grid based on provided row index and column field.
+   * @param row The row index to navigate to
+   * @param column The column field to navigate to, if any
+   * @param activate Optionally also activate the navigated cell
+   * @deprecated Use `navigateTo(row, options)` instead.
+   */
+  public async navigateTo(row: number, column?: Keys<T>, activate?: boolean): Promise<void>;
+  public async navigateTo(
+    row: number,
+    columnOrOptions?: Keys<T> | NavigateToOptions<T>,
+    activate?: boolean
+  ): Promise<void> {
+    // Normalize the deprecated positional form into options.
+    const options =
+      typeof columnOrOptions === 'object' ? columnOrOptions : { column: columnOrOptions, activate };
+
     await this._stateController.navigation.navigateTo(row, options);
   }
 

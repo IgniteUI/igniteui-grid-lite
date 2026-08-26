@@ -290,5 +290,19 @@ describe('Grid activation', () => {
       expect(cell.active).to.be.true;
       expect(isVisibleGrid(cell.element)).to.be.true;
     });
+
+    it('supports the deprecated positional signature', async () => {
+      await TDD.grid.navigateTo(1, 'name');
+
+      let cell = TDD.rows.get(1).cells.get('name');
+      expect(cell.active).to.be.false;
+      expect(isVisibleGrid(cell.element)).to.be.true;
+
+      await TDD.grid.navigateTo(2, 'id', true);
+
+      cell = TDD.rows.get(2).cells.get('id');
+      expect(cell.active).to.be.true;
+      expect(isVisibleGrid(cell.element)).to.be.true;
+    });
   });
 });

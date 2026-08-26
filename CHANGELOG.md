@@ -15,9 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keyboard navigation and click activation set DOM focus on the active cell. Screen readers announce the cell. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
 - Public `columns` setter. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
 
+### Deprecated
+
+- The positional `navigateTo(row, column?, activate?)` arguments. Use `navigateTo(row, options)` instead. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
+
 ### Changed
 
-- **BREAKING:** `navigateTo(row, options)` replaces the positional `navigateTo(row, column?, activate?)` arguments. Navigation without a column keeps the current column. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
+- Navigation without a column keeps the current column. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
 - Cell activation updates only the two affected rows, not all visible rows. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
 - Faster rendering: rows reuse cells across column changes, sorting shares one collator, and a `ResizeObserver` drives the scrollbar offset. [#78](https://github.com/IgniteUI/igniteui-grid-lite/pull/78)
 
