@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## [0.10.0] - 2026-08-26
+
 ### Added
 
 - Full ARIA grid pattern through `ElementInternals`: roles, row and column counts and indices, `aria-sort`, and `aria-selected`. The filter row is exposed as a second header row. [#79](https://github.com/IgniteUI/igniteui-grid-lite/pull/79)
@@ -184,6 +186,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** `triState` property has been removed from `GridLiteSortingOptions`. Tri-state sorting is now always enabled.
 
+[0.10.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.7.0...0.7.1
