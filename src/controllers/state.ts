@@ -20,7 +20,6 @@ class StateController<T extends object> {
   private _columns: ColumnConfiguration<T>[] = [];
   private readonly _observersCallback: () => void;
 
-  /** The grid host element. */
   public readonly host: GridHost<T>;
 
   public readonly sorting: SortController<T>;
@@ -52,13 +51,9 @@ class StateController<T extends object> {
     this.resizing = new ResizeController(this, dom);
   }
 
-  /**
-   * Notifies the state context consumers (headers, header row, filter row) that
-   * their render inputs changed. Called at the mutation points only, never on
-   * each host update.
-   */
+  /** Pings the state consumers (headers, header row, filter row). Call at mutation points only. */
   public updateObservers(): void {
-    this._observersCallback.call(this.host);
+    this._observersCallback();
   }
 
   public setColumnConfiguration(columns: ColumnConfiguration<T>[]): void {
@@ -69,25 +64,29 @@ class StateController<T extends object> {
   }
 
   public setAutoColumnConfiguration(): void {
-    if (this.host.autoGenerate && this.host.data.length > 0) {
-      this._columns = setColumnsFromData(this.host.data[0]);
-      this.filtering.resolveConditions();
-      this.host.requestUpdate(PIPELINE);
+    if (!this.host.autoGenerate || this.host.data.length === 0) {
+      return;
     }
+
+    this._columns = setColumnsFromData(this.host.data[0]);
+    this.filtering.resolveConditions();
+    this.host.requestUpdate(PIPELINE);
   }
 
   public updateColumnsConfiguration(config: ColumnConfiguration<T>[]): void {
-    // NOTE: The in-place writes are load-bearing. Consumers holding the current
-    // array (header row, DOM controller) must see the new column objects in this
-    // update cycle; rebuilding the array delivers them one cycle late.
+    // NOTE: Write in place first. Holders of the current array (header row, DOM
+    // controller) must see the new objects this cycle, not the next.
     for (const columnConfig of config) {
       const existing = this._columns.findIndex((column) => column.field === columnConfig.field);
-      if (existing !== -1) {
-        this._columns[existing] = {
-          ...this._columns[existing],
-          ...createColumnConfiguration(columnConfig),
-        };
+
+      if (existing === -1) {
+        continue;
       }
+
+      this._columns[existing] = {
+        ...this._columns[existing],
+        ...createColumnConfiguration(columnConfig),
+      };
     }
 
     this._columns = [...this._columns];
@@ -95,13 +94,7 @@ class StateController<T extends object> {
     this.host.requestUpdate(PIPELINE);
   }
 
-  /**
-   * Replaces the width of a single column with a new configuration object.
-   *
-   * @remarks
-   * Width has no effect on the data pipeline, so no pipeline run is scheduled.
-   * Resize drags call this on each pointer move.
-   */
+  /** Replaces one column's width. Skips the pipeline: resize drags call this per pointer move. */
   public setColumnWidth(field: Keys<T>, width: string): void {
     const index = this._columns.findIndex((column) => column.field === field);
 

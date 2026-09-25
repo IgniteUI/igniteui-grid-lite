@@ -12,16 +12,10 @@ export const HEADER_ROW_INDEX = 1;
 /** `aria-rowindex` of the filter row. It always comes after the header row. */
 export const FILTER_ROW_INDEX = 2;
 
-/**
- * ElementInternals keeps ARIA out of the DOM. Neither `getAttribute` nor
- * `element.role` can read the semantics back. This registry is the only read path.
- */
+/** ARIA set through ElementInternals is unreadable from the DOM. This is the read path. */
 const semantics = new WeakMap<Element, ARIAMixin>();
 
-/**
- * Publishes the ARIA semantics of one grid part through its ElementInternals.
- * Roles and states stay off the observable attributes of the host.
- */
+/** Writes the ARIA of one grid part through ElementInternals, off the host attributes. */
 class A11yController {
   readonly #internals: ElementInternals;
 
@@ -55,5 +49,3 @@ export function ariaOf(element: Element): ARIAMixin | undefined {
 export function headerRowsFor<T extends object>(columns: ColumnConfiguration<T>[]): number {
   return columns.some((column) => column.filterable) ? FILTER_ROW_INDEX : HEADER_ROW_INDEX;
 }
-
-export type { A11yController };

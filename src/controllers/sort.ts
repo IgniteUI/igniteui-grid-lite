@@ -1,4 +1,3 @@
-import type { ReactiveController } from 'lit';
 import { PIPELINE } from '../internal/constants.js';
 import type { ColumnConfiguration, Keys } from '../internal/types.js';
 import { asArray } from '../internal/utils.js';
@@ -12,10 +11,8 @@ const NEXT_DIRECTION: Record<SortingDirection, SortingDirection> = {
   none: 'ascending',
 };
 
-export class SortController<T extends object> implements ReactiveController {
-  constructor(protected _state: StateController<T>) {
-    this.host.addController(this);
-  }
+export class SortController<T extends object> {
+  constructor(protected _state: StateController<T>) {}
 
   public state: SortState<T> = new Map();
 
@@ -53,9 +50,12 @@ export class SortController<T extends object> implements ReactiveController {
   }
 
   #setExpression(expression: SortingExpression<T>) {
-    expression.direction === 'none'
-      ? this.reset(expression.key)
-      : this.state.set(expression.key, { ...expression });
+    if (expression.direction === 'none') {
+      this.reset(expression.key);
+      return;
+    }
+
+    this.state.set(expression.key, { ...expression });
   }
 
   public async sortFromHeaderClick(column: ColumnConfiguration<T>) {
@@ -79,26 +79,29 @@ export class SortController<T extends object> implements ReactiveController {
    * Returns the expression the next sort operation would apply for `column`.
    *
    * @remarks
-   * The result is a candidate copy - the stored state is only updated once the
-   * operation is committed through {@link SortController._sort}.
+   * A candidate copy. The stored state changes only on commit through
+   * {@link SortController._sort}.
    */
   public prepareExpression(column: ColumnConfiguration<T>): SortingExpression<T> {
-    if (this.state.has(column.field)) {
-      const expr = this.state.get(column.field)!;
+    const expr = this.state.get(column.field);
 
-      return {
-        ...expr,
-        direction: NEXT_DIRECTION[expr.direction],
-        ...this.#resolveSortOptions(column),
-      };
+    if (!expr) {
+      return this.#createDefaultExpression(column.field);
     }
 
-    // Initial state
-    return this.#createDefaultExpression(column.field);
+    return {
+      ...expr,
+      direction: NEXT_DIRECTION[expr.direction],
+      ...this.#resolveSortOptions(column),
+    };
   }
 
   public reset(key?: Keys<T>) {
-    key !== undefined ? this.state.delete(key) : this.state.clear();
+    if (key === undefined) {
+      this.state.clear();
+    } else {
+      this.state.delete(key);
+    }
 
     // Headers render the sort indicator from this state.
     this._state.updateObservers();
@@ -122,6 +125,4 @@ export class SortController<T extends object> implements ReactiveController {
       }))
     );
   }
-
-  public hostConnected() {}
 }

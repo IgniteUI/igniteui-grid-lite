@@ -1,20 +1,27 @@
 import type { ReactiveController } from 'lit';
-import { SENTINEL_NODE } from '../internal/constants.js';
+import { NO_SCROLL, SENTINEL_NODE } from '../internal/constants.js';
 import type { ActiveNode, NavigateToOptions } from '../internal/types.js';
+import { clamp, visibleColumns } from '../internal/utils.js';
 import type { GridDOMController } from './dom.js';
 import type { StateController } from './state.js';
 
+/** Minimal scroll that shows the target. */
+const SCROLL_NEAREST: ScrollIntoViewOptions = { block: 'nearest' };
+
+/** The active node a row at `index` receives: only the active row sees it. */
+export function activeNodeFor<T extends object>(active: ActiveNode<T>, index: number) {
+  return active.row === index ? active : (SENTINEL_NODE as ActiveNode<T>);
+}
+
 export class NavigationController<T extends object> implements ReactiveController {
-  protected handlers = new Map(
-    Object.entries({
-      ArrowDown: this.arrowDown,
-      ArrowUp: this.arrowUp,
-      ArrowLeft: this.arrowLeft,
-      ArrowRight: this.arrowRight,
-      Home: this.home,
-      End: this.end,
-    })
-  );
+  protected handlers = new Map<string, () => void>([
+    ['ArrowDown', () => this.#moveToRow(this.nextNode.row + 1)],
+    ['ArrowUp', () => this.#moveToRow(this.nextNode.row - 1)],
+    ['ArrowLeft', () => this.#moveToColumn(-1)],
+    ['ArrowRight', () => this.#moveToColumn(1)],
+    ['Home', () => this.#moveToRow(0)],
+    ['End', () => this.#moveToRow(this._state.host.totalItems - 1)],
+  ]);
 
   protected get _virtualizer() {
     return this._dom.virtualizer;
@@ -28,9 +35,8 @@ export class NavigationController<T extends object> implements ReactiveControlle
       : ({ ...this._active } as ActiveNode<T>);
   }
 
-  /** Rows render only the visible columns, so navigation walks the same sequence. */
   protected get _columns() {
-    return this._state.columns.filter((column) => !column.hidden);
+    return visibleColumns(this._state.columns);
   }
 
   protected get _firstColumn() {
@@ -47,7 +53,7 @@ export class NavigationController<T extends object> implements ReactiveControlle
   }
 
   protected scrollToCell(node: ActiveNode<T>) {
-    this.#queryCell(node)?.scrollIntoView({ block: 'nearest' });
+    this.#queryCell(node)?.scrollIntoView(SCROLL_NEAREST);
   }
 
   public get active(): ActiveNode<T> {
@@ -62,14 +68,11 @@ export class NavigationController<T extends object> implements ReactiveControlle
     this._state.host.requestUpdate();
   }
 
-  /**
-   * Sends the new active node only to the rows that enter or leave the active
-   * state. The other rendered rows have no changes and are not re-rendered.
-   */
+  /** Updates only the rows entering or leaving the active state. */
   #updateActiveRows(previous: ActiveNode<T>): void {
     for (const row of this._dom.rows) {
       if (row.index === previous.row || row.index === this._active.row) {
-        row.activeNode = this._active;
+        row.activeNode = activeNodeFor(this._active, row.index);
       }
     }
   }
@@ -79,7 +82,7 @@ export class NavigationController<T extends object> implements ReactiveControlle
     const node = this._active;
     let row = this.queryRowByIndex(node.row);
 
-    // The target row is not rendered yet. Wait for the virtualizer layout pass.
+    // Row not rendered yet: wait for layout.
     if (!row) {
       await this._virtualizer?.layoutComplete;
       row = this.queryRowByIndex(node.row);
@@ -92,7 +95,7 @@ export class NavigationController<T extends object> implements ReactiveControlle
       return;
     }
 
-    this.#queryCell(node)?.focus({ preventScroll: true });
+    this.#queryCell(node)?.focus(NO_SCROLL);
   }
 
   constructor(
@@ -104,10 +107,10 @@ export class NavigationController<T extends object> implements ReactiveControlle
 
   /** Activates `row` (clamped to the data range) and scrolls it into view. */
   #moveToRow(row: number) {
-    const clamped = Math.min(Math.max(row, 0), this._state.host.totalItems - 1);
+    const clamped = clamp(row, 0, this._state.host.totalItems - 1);
 
     this.active = Object.assign(this.nextNode, { row: clamped });
-    this._virtualizer?.element(clamped)?.scrollIntoView({ block: 'nearest' });
+    this._virtualizer?.scrollToIndex(clamped, SCROLL_NEAREST);
   }
 
   /**
@@ -119,34 +122,10 @@ export class NavigationController<T extends object> implements ReactiveControlle
     const columns = this._columns;
 
     const index = columns.findIndex((column) => column.field === next.column);
-    const target = Math.min(Math.max(index + offset, 0), columns.length - 1);
+    const target = clamp(index + offset, 0, columns.length - 1);
 
     this.active = Object.assign(next, { column: columns[target].field });
     this.scrollToCell(this.active);
-  }
-
-  protected home() {
-    this.#moveToRow(0);
-  }
-
-  protected end() {
-    this.#moveToRow(this._state.host.totalItems - 1);
-  }
-
-  protected arrowDown() {
-    this.#moveToRow(this.nextNode.row + 1);
-  }
-
-  protected arrowUp() {
-    this.#moveToRow(this.nextNode.row - 1);
-  }
-
-  protected arrowLeft() {
-    this.#moveToColumn(-1);
-  }
-
-  protected arrowRight() {
-    this.#moveToColumn(1);
   }
 
   public hostDisconnected() {
@@ -162,7 +141,7 @@ export class NavigationController<T extends object> implements ReactiveControlle
     }
 
     event.preventDefault();
-    handler.call(this);
+    handler();
     this.#focusActiveCell();
   }
 
@@ -174,17 +153,7 @@ export class NavigationController<T extends object> implements ReactiveControlle
       this.active = Object.assign(this.nextNode, column ? { row, column } : { row });
     }
 
-    // Resolve the row in the DOM first. A missing row means a layout pass is necessary.
-    let item: Pick<HTMLElement, 'scrollIntoView'> | undefined = this.queryRowByIndex(row);
-    let completePromise: Promise<void> | undefined;
-
-    if (!item) {
-      item = this._virtualizer?.element(row);
-      completePromise = item && this._virtualizer?.layoutComplete;
-    }
-
-    item?.scrollIntoView({ block: 'nearest' });
-    await completePromise;
+    await this._virtualizer?.scrollToIndex(row, SCROLL_NEAREST);
 
     if (column) {
       this.scrollToCell({ row, column });

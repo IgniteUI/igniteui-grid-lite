@@ -65,7 +65,8 @@ describe('Grid ARIA', () => {
       expect(aria(TDD.grid).role).to.equal('grid');
       expect(aria(TDD.headerRow).role).to.equal('row');
       expect(aria(TDD.headers.first.element).role).to.equal('columnheader');
-      expect(aria(TDD.gridBody).role).to.equal('rowgroup');
+      // The body is a library element: its role is an attribute.
+      expect(TDD.gridBody.getAttribute('role')).to.equal('rowgroup');
       expect(aria(TDD.rows.first.element).role).to.equal('row');
       expect(aria(TDD.rows.first.cells.first.element).role).to.equal('gridcell');
     });

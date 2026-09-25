@@ -9,19 +9,21 @@
 	
 	display: grid;
 	height: 100%;
-	position: relative;
 	font-family: var(--ig-font-family), serif;
 	overflow: auto hidden;
 	grid-template-rows: [header-row] max-content [filter-row] max-content [virtualized-container] auto;
 	box-shadow: 0 0 0 rem(1px) var(--grid-border-color);
 }
 
-igc-grid-lite-virtualizer {
+igc-virtual-scroll {
 	grid-row: virtualized-container;
-	display: flex;
-	flex-flow: column;
-	flex: 1;
-	overflow: hidden auto !important;
+	
+	// Size from the grid track, not the fixed library default.
+	height: auto;
+	
+	// An unconstrained grid must not grow to fit all rows.
+	contain: size layout;
+	min-height: rem(150px);
 	
 	&:focus {
 		outline: none;

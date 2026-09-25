@@ -4,7 +4,7 @@ import type { Keys, PropertyType } from '../../internal/types.js';
  * Sort direction for a given sort expression.
  *
  * @remarks
- * `none` is used
+ * `none` clears the sort of the column.
  */
 export type SortingDirection = 'ascending' | 'descending' | 'none';
 

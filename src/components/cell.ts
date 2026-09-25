@@ -9,9 +9,6 @@ import type { ColumnConfiguration, IgcCellContext, PropertyType } from '../inter
 import { styles } from '../styles/body-cell/body-cell.css.js';
 import type IgcGridLiteRow from './row.js';
 
-/**
- * Component representing a DOM cell of the Igc grid.
- */
 export default class IgcGridLiteCell<T extends object> extends LitElement {
   public static get tagName() {
     return GRID_CELL_TAG;
@@ -38,28 +35,19 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
   @property({ attribute: false })
   public _colIndex = -1;
 
-  /**
-   * The value which will be rendered by the component.
-   */
+  /** The rendered value. */
   @property({ attribute: false })
   public value!: PropertyType<T>;
 
-  /**
-   * A reference to the column configuration object.
-   */
+  /** The column configuration. */
   @property({ attribute: false })
   public column!: ColumnConfiguration<T>;
 
-  /**
-   * Indicates whether this is the active cell in the grid.
-   *
-   */
+  /** Whether this is the active cell in the grid. */
   @property({ type: Boolean, reflect: true })
   public active = false;
 
-  /**
-   * The parent row component holding this cell.
-   */
+  /** The parent row. */
   @property({ attribute: false })
   public row!: IgcGridLiteRow<T>;
 
@@ -85,8 +73,7 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
   public override connectedCallback(): void {
     super.connectedCallback();
 
-    // Roving focus target. Navigation moves DOM focus here so that assistive
-    // technology announces the cell.
+    // Roving focus target: focus here announces the cell.
     this.tabIndex = -1;
     this._adoptedStylesController.shouldAdoptStyles(this._shouldAdoptStyles);
   }
@@ -106,11 +93,11 @@ export default class IgcGridLiteCell<T extends object> extends LitElement {
   }
 
   protected override render() {
-    return html`${cache(
+    return cache(
       this.cellTemplate
-        ? this.cellTemplate(this.context as any)
+        ? this.cellTemplate(this.context)
         : html`<span part="text">${this.value}</span>`
-    )}`;
+    );
   }
 }
 

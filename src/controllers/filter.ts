@@ -1,6 +1,5 @@
-import type { ReactiveController } from 'lit';
 import type IgcFilterRow from '../components/filter-row.js';
-import type { IgcFilteredEvent } from '../components/grid.js';
+import type { IgcFilteredEvent, IgcFilteringEvent } from '../components/grid.js';
 import { PIPELINE } from '../internal/constants.js';
 import type { ColumnConfiguration, Keys } from '../internal/types.js';
 import { asArray, getFilterOperandsFor, isString, resolveCondition } from '../internal/utils.js';
@@ -9,17 +8,15 @@ import type { FilterExpression } from '../operations/filter/types.js';
 import type { GridDOMController } from './dom.js';
 import type { StateController } from './state.js';
 
-/** The kind of modification a `filtering` event describes. */
-export type FilterEventType = 'add' | 'modify' | 'remove';
+type FilterEventType = IgcFilteringEvent<object>['type'];
 
-export class FilterController<T extends object> implements ReactiveController {
+export class FilterController<T extends object> {
   private readonly _stateController: StateController<T>;
   private readonly _dom: GridDOMController<T>;
 
   constructor(state: StateController<T>, dom: GridDOMController<T>) {
     this._stateController = state;
     this._dom = dom;
-    this._stateController.host.addController(this);
   }
 
   public state: FilterState<T> = new FilterState();
@@ -39,7 +36,7 @@ export class FilterController<T extends object> implements ReactiveController {
     });
   }
 
-  #emitFilteredEvent(detail?: IgcFilteredEvent<T>) {
+  #emitFilteredEvent(detail: IgcFilteredEvent<T>) {
     return this.host.emitEvent('filtered', { detail });
   }
 
@@ -48,38 +45,42 @@ export class FilterController<T extends object> implements ReactiveController {
       this.state.set(expr);
     }
 
-    // HACK: In the case where the scrollTop is a large and amount and a big chunk of data is filtered out
-    // HACK: the virtualizer can't recalculate its scroll position correctly. Thus, we reset the scrollTop state.
+    // HACK: a large scrollTop plus a heavy filter broke the scroll position. Reset it.
     this._dom.resetScrollPosition();
     this._stateController.updateObservers();
     this.host.requestUpdate(PIPELINE);
   }
-
-  public hostConnected() {}
 
   public get(key: Keys<T>) {
     return this.state.get(key);
   }
 
   public reset(key?: Keys<T>) {
-    key !== undefined ? this.state.delete(key) : this.state.clear();
+    if (key === undefined) {
+      this.state.clear();
+    } else {
+      this.state.delete(key);
+    }
 
     // The filter row renders its chips from this state.
     this._stateController.updateObservers();
   }
 
   public setActiveColumn(column?: ColumnConfiguration<T>) {
-    if (column?.filterable && this.filterRow?.active) {
-      this.filterRow.column = column;
-      this.filterRow.expression = this.getDefaultExpression(column);
+    const filterRow = this.filterRow;
 
-      // The header row marks the filtered column.
-      this._stateController.updateObservers();
+    if (!(column?.filterable && filterRow?.active)) {
+      return;
     }
+
+    filterRow.column = column;
+    filterRow.expression = this.getDefaultExpression(column);
+
+    // The header row marks the filtered column.
+    this._stateController.updateObservers();
   }
 
   public getDefaultExpression(column: ColumnConfiguration<T>) {
-    // XXX: Types
     return {
       key: column.field,
       condition: Object.values(getFilterOperandsFor(column))[0],
@@ -87,10 +88,7 @@ export class FilterController<T extends object> implements ReactiveController {
     } as unknown as FilterExpression<T>;
   }
 
-  /**
-   * Emits `filtering` and, if it passes, runs `commit`, waits for the pipeline
-   * and emits `filtered` with the resulting state of the column.
-   */
+  /** Emits `filtering`. If not canceled: commits, awaits the pipeline, emits `filtered`. */
   async #applyWithEvents(
     key: Keys<T>,
     expressions: FilterExpression<T>[],
@@ -129,13 +127,12 @@ export class FilterController<T extends object> implements ReactiveController {
   }
 
   /**
-   * Emits `filtering` for `expression` and, if it passes, applies it.
+   * Emits `filtering` for `expression` and, if not canceled, applies it.
    *
    * @remarks
-   * `target` is the stored expression the change applies to. Callers pass a
-   * candidate copy as `expression`, so a canceled event does not touch the stored
-   * state. On commit the candidate is merged back into `target`. This keeps the
-   * object identity that the expression tree and the chip selection use.
+   * `expression` is a candidate copy of the stored `target`, so a canceled event
+   * leaves `target` untouched. On commit it merges into `target`, keeping the
+   * identity the expression tree and the chip selection use.
    */
   public async filterWithEvent(
     expression: FilterExpression<T>,
@@ -159,29 +156,24 @@ export class FilterController<T extends object> implements ReactiveController {
     );
   }
 
-  /**
-   * Stores expressions in the filter state without requiring column configuration.
-   * Used when setting initial filter expressions before columns are available.
-   *
-   * @remarks
-   * Copies are stored. `resolveConditions` later rewrites each stored expression,
-   * and those writes must not reach the caller's objects.
-   */
+  /** Stores copies before columns exist. `resolveConditions` rewrites them later. */
   public setRaw(expressions: FilterExpression<T>[]) {
     for (const expr of expressions) {
       this.state.set({ ...expr });
     }
   }
 
-  /**
-   * Resolves any string conditions in the current filter state using available column configuration.
-   * Called after columns become available to finalize deferred expressions.
-   */
+  /** Resolves string conditions and default case sensitivity once columns exist. */
   public resolveConditions() {
     for (const tree of this.state.values) {
       const column = this.host.getColumn(tree.key);
-      if (!column) continue;
+
+      if (!column) {
+        continue;
+      }
+
       const defaults = this.getDefaultExpression(column);
+
       for (const expr of tree.all) {
         if (isString(expr.condition)) {
           (expr as any).condition = resolveCondition(column, expr.condition);

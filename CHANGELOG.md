@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Row virtualization uses `igc-virtual-scroll` from `igniteui-webcomponents` instead of `@lit-labs/virtualizer`. Fewer off-screen rows render. The `@lit-labs/virtualizer` dependency is removed.
+  - Benchmark against 0.10.0: 10,000 rows and 20 columns in an 800px-tall grid, headless Chromium, median of 5 runs. Figures are for plain cells. With a cell template (a badge, a bar and a formatted value per cell), the gains are equal or larger.
+    - Smooth scrolling (40px per frame) holds 60 fps instead of 30 fps. Frames over 20 ms dropped from 270 of 300 to 2, and main-thread time from 9.8 s to 4.8 s.
+    - Jumping to distant scroll positions is 8x faster: 40 jumps take 2.1 s instead of 17.9 s (with a cell template, 2.7 s instead of 26 s).
+    - Sorting is 8x faster: 6 sorts take 0.3 s instead of 2.5 s (with a cell template, 12x: 0.31 s instead of 3.7 s).
+- Updated `igniteui-webcomponents` to 7.4.1.
+
 ## [0.10.0] - 2026-08-26
 
 ### Added

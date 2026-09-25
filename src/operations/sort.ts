@@ -1,7 +1,7 @@
 import DataOperation from './base.js';
 import type { SortState } from './sort/types.js';
 
-// A single collator is reused across comparisons - `localeCompare` builds one per call.
+// One shared collator: `localeCompare` builds one per call.
 const collator = new Intl.Collator();
 
 const DIRECTION_MULTIPLIERS: Record<string, number> = {
@@ -18,14 +18,18 @@ export default class SortDataOperation<T> extends DataOperation<T> {
   }
 
   public apply(data: T[], state: SortState<T>) {
+    if (state.size === 0) {
+      return data;
+    }
+
     const expressions = Array.from(state.values());
     const length = expressions.length;
 
-    // Pre-compute direction multipliers once to avoid Map lookups in the comparator
+    // Resolved once, not per comparison.
     const multipliers = expressions.map(({ direction }) => DIRECTION_MULTIPLIERS[direction]);
+    const comparers = expressions.map(({ comparer }) => comparer);
 
-    // Store as flat tuples [item, key0, key1, ...] to avoid per-row object allocation
-    // and transform only once before sorting, then extract the original items after sorting.
+    // Flat tuples [item, key0, key1, ...]: keys resolve once, no per-row objects.
     const transformed = data.map((item) => {
       const tuple: unknown[] = new Array(length + 1);
       tuple[0] = item;
@@ -45,7 +49,7 @@ export default class SortDataOperation<T> extends DataOperation<T> {
         const keyB = b[i + 1];
         result =
           multipliers[i] *
-          (expressions[i].comparer?.(keyA as any, keyB as any) ?? this.compareValues(keyA, keyB));
+          (comparers[i]?.(keyA as any, keyB as any) ?? this.compareValues(keyA, keyB));
         i++;
       }
 

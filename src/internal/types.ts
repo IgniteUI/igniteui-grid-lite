@@ -8,14 +8,9 @@ import type { SortComparer } from '../operations/sort/types.js';
 
 export type GridHost<T extends object> = ReactiveControllerHost & IgcGridLite<T>;
 
-export type Themes = {
-  light: {
-    [K in Theme | 'shared']?: CSSResult;
-  };
-  dark: {
-    [K in Theme | 'shared']?: CSSResult;
-  };
-};
+type ThemeStyles = { [K in Theme | 'shared']?: CSSResult };
+
+export type Themes = { light: ThemeStyles; dark: ThemeStyles };
 
 type FlatKeys<T> = keyof T;
 
@@ -36,7 +31,7 @@ type DotPaths<T, Depth extends number = 5> = Depth extends 0
           [K in keyof T & string]: T[K] extends object
             ? T[K] extends NonTraversable
               ? never
-              : `${K}.${DotPaths<T[K], Prev[Depth]>}` // Note: resolving `never` will collapse the entire interpolated string to never, leaving only valid paths
+              : `${K}.${DotPaths<T[K], Prev[Depth]>}` // `never` collapses invalid paths
             : never;
         }[keyof T & string]
       | (keyof T & string);
@@ -133,7 +128,7 @@ export interface BaseColumnConfiguration<T extends object, K extends Keys<T> = K
    */
   hidden?: boolean;
   /**
-   * Whether the the column can be resized or not.
+   * Whether the column can be resized or not.
    */
   resizable?: boolean;
   /**

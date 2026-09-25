@@ -53,7 +53,7 @@ export interface BaseFilterExpression<T, K extends Keys<T> = Keys<T>> {
    */
   criteria?: FilterCriteria;
   /**
-   * Whether the sort operation should be case sensitive.
+   * Whether the filter operation should be case sensitive.
    *
    * @remarks
    * If not provided, the value is resolved based on the column filter configuration (if any).

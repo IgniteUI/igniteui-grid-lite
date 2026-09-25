@@ -9,18 +9,14 @@ describe('Grid scaled initial render', () => {
   afterEach(() => TDD.tearDown());
 
   it('should position items correctly in virtualizer', async () => {
-    function checkRowTopTranslate(index: number) {
-      const row = TDD.rows.get(index).element;
-      const { height } = row.getBoundingClientRect();
-      const offsetHeight = row.offsetHeight;
-      const { transform } = row.style;
+    // Rows stack without gaps or overlaps at half their layout size.
+    const { top } = TDD.rows.byIndex(0).element.getBoundingClientRect();
 
-      expect(offsetHeight / height).to.equal(2);
-      expect(transform).to.equal(`translate(0px, ${offsetHeight * index}px)`);
-    }
+    for (const row of TDD.grid.rows) {
+      const { height, top: rowTop } = row.getBoundingClientRect();
 
-    for (let i = 0; i < data.length; i++) {
-      checkRowTopTranslate(i);
+      expect(row.offsetHeight / height).to.equal(2);
+      expect(rowTop - top).to.equal(height * row.index);
     }
   });
 });

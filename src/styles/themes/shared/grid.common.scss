@@ -4,9 +4,7 @@
 $theme: $base;
 
 :host {
-	// box-shadow: var-get($theme, 'grid-elevation');
-	
-	igc-grid-lite-virtualizer {
+	igc-virtual-scroll {
 		background: var-get($theme, 'content-background');
 		color: var-get($theme, 'content-text-color');
 	}

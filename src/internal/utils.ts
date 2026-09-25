@@ -3,7 +3,7 @@ import { BooleanOperands } from '../operations/filter/operands/boolean.js';
 import { NumberOperands } from '../operations/filter/operands/number.js';
 import { StringOperands } from '../operations/filter/operands/string.js';
 import type { FilterOperation } from '../operations/filter/types.js';
-import type { ColumnConfiguration, Keys, PropertyType } from './types.js';
+import type { ColumnConfiguration, DataType, Keys, PropertyType } from './types.js';
 
 const DEFAULT_COLUMN_WIDTH = 'minmax(136px, 1fr)';
 
@@ -11,10 +11,7 @@ function _isObject(entity: unknown): entity is Record<string, unknown> {
   return entity != null && typeof entity === 'object';
 }
 
-/**
- * Dot-path -> segments cache. Filtering and sorting resolve the same handful of paths
- * once per record, so the split is done once per path instead of per lookup.
- */
+/** Dot-path segment cache: sort and filter resolve the same few paths per record. */
 const pathSegments = new Map<string, string[]>();
 
 function getPathSegments(path: string): string[] {
@@ -28,14 +25,7 @@ function getPathSegments(path: string): string[] {
   return segments;
 }
 
-/**
- * Resolves a value from an object using a path string.
- * Supports nested properties using dot notation (e.g., 'prop.nestedProp').
- *
- * @param obj - The object to resolve the value from.
- * @param path - The path to the property, can be a simple key or dot-separated path.
- * @returns The resolved value, or undefined if the path cannot be resolved.
- */
+/** Resolves `path` on `obj`. Dot paths reach nested props (`'a.b'`). Undefined when unresolvable. */
 export function resolveFieldValue<T>(obj: T, path: Keys<T>): PropertyType<T> {
   if (typeof path === 'string' && path.includes('.')) {
     return getPathSegments(path).reduce<unknown>((current, key) => {
@@ -45,14 +35,23 @@ export function resolveFieldValue<T>(obj: T, path: Keys<T>): PropertyType<T> {
   return obj[path as keyof T] as PropertyType<T>;
 }
 
+/** The columns rows render. Navigation, ARIA and track sizes share this sequence. */
+export function visibleColumns<T extends object>(
+  columns: ColumnConfiguration<T>[]
+): ColumnConfiguration<T>[] {
+  return columns.filter((column) => !column.hidden);
+}
+
 export function applyColumnWidths<T extends object>(
   columns: Array<ColumnConfiguration<T>>
 ): StyleInfo {
-  const widths = columns
-    .filter((each) => !each.hidden)
-    .map((each) => each.width ?? DEFAULT_COLUMN_WIDTH);
+  const widths = visibleColumns(columns).map((each) => each.width ?? DEFAULT_COLUMN_WIDTH);
 
   return { 'grid-template-columns': widths.join(' ') };
+}
+
+export function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
 }
 
 export function isBoolean(x: unknown): x is boolean {
@@ -72,7 +71,6 @@ export function asArray<T>(value: T | T[]): T[] {
 }
 
 export function getFilterOperandsFor<T extends object>(column: ColumnConfiguration<T>) {
-  // Check for custom class in the filter config
   switch (column.dataType) {
     case 'boolean':
       return BooleanOperands;
@@ -91,7 +89,7 @@ export function resolveCondition<T extends object>(
   return (getFilterOperandsFor(column) as Record<string, FilterOperation<any>>)[name];
 }
 
-function getColumnType(value: unknown): 'boolean' | 'number' | 'string' {
+function getColumnType(value: unknown): DataType {
   if (isBoolean(value)) {
     return 'boolean';
   }

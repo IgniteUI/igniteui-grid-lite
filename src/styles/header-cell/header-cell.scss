@@ -70,22 +70,12 @@ $theme: $material;
     }
 }
 
-[part~='sorted'],
-[part~='filtered'] {
+[part~='sorted'] {
 	color: var-get($theme, 'sorted-header-icon-color');
 
     igc-icon {
 	    color: inherit;
     }
-}
-
-[part~='filtered'] {
-    color: var-get($theme, 'filtering-header-text-color');
-    background: var-get($theme, 'filtering-header-background');
-}
-
-[part~='action']:empty {
-    display: none;
 }
 
 [part~='resizable'] {
@@ -97,17 +87,3 @@ $theme: $material;
     cursor: col-resize;
 }
 
-[part~='filter'] {
-    position: relative;
-}
-
-[part~='filter-count'] {
-    position: absolute;
-    top: -5px;
-    inset-inline-end: -1px;
-    font-size: .625rem;
-    text-align: end;
-    font-family: sans-serif;
-    line-height: .625rem;
-    color: currentcolor;
-}
