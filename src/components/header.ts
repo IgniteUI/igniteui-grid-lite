@@ -110,13 +110,6 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   #addResizeEventHandlers() {
     const config: AddEventListenerOptions = { once: true };
 
-    this.addEventListener(
-      'gotpointercapture',
-      () => {
-        this.resizeController.indicatorActive = true;
-      },
-      config
-    );
     this.addEventListener('lostpointercapture', this.#handlePointerLost, config);
     this.addEventListener('pointerup', (e) => this.releasePointerCapture(e.pointerId), config);
     this.addEventListener('pointermove', this.#handleResize);
@@ -147,7 +140,6 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   }
 
   #handlePointerLost = () => {
-    this.resizeController.indicatorActive = false;
     this.removeEventListener('pointermove', this.#handleResize);
     this.resizeController.stop();
   };
@@ -157,11 +149,11 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
   protected renderSortPart() {
     const state = this.state.sorting.state.get(this.column.field);
 
-    if (!(state || this.isSortable)) {
+    if (!state && !this.isSortable) {
       return nothing;
     }
 
-    // The 1-based position of the column in the multi-sort order.
+    // Column position in the multi-sort order.
     const position = Array.from(this.state.sorting.state.keys()).indexOf(this.column.field);
     const multiple = this.state.host.sortingOptions.mode === 'multiple';
     const icon = state?.direction === 'descending' ? SORT_ICON_DESCENDING : SORT_ICON_ASCENDING;
@@ -185,7 +177,7 @@ export default class IgcGridLiteHeader<T extends object> extends LitElement {
 
     return html`
       <span part="title">
-        <span>${template ? template(this.context) : html`${defaultContent}`}</span>
+        <span>${template ? template(this.context) : defaultContent}</span>
       </span>
     `;
   }

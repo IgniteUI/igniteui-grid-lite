@@ -1,4 +1,3 @@
-import { setupIgnoreWindowResizeObserverLoopErrors } from '@lit-labs/virtualizer/support/resize-observer-errors.js';
 import { expect } from '@open-wc/testing';
 import GridTestFixture from './utils/grid-fixture.js';
 import data, { generateFieldPaths } from './utils/test-data.js';
@@ -16,7 +15,6 @@ function isVisibleGrid(element: Element): boolean {
 }
 
 describe('Grid activation', () => {
-  setupIgnoreWindowResizeObserverLoopErrors(beforeEach, afterEach);
   beforeEach(async () => await TDD.setUp());
   afterEach(() => TDD.tearDown());
 
@@ -72,7 +70,7 @@ describe('Grid activation', () => {
       await TDD.clickCell(TDD.rows.first.cells.first);
 
       for (let i = 0; i < data.length; i++) {
-        expect(TDD.rows.get(i).cells.first.active).to.be.true;
+        expect(TDD.rows.byIndex(i).cells.first.active).to.be.true;
         await TDD.fireNavigationEvent({ key: 'ArrowDown' });
       }
     });
@@ -85,10 +83,13 @@ describe('Grid activation', () => {
     });
 
     it('ArrowUp', async () => {
-      await TDD.clickCell(TDD.rows.last.cells.first);
+      const last = data.length - 1;
 
-      for (let i = data.length - 1; i > -1; i--) {
-        expect(TDD.rows.get(i).cells.first.active).to.be.true;
+      await TDD.grid.navigateTo(last);
+      await TDD.clickCell(TDD.rows.byIndex(last).cells.first);
+
+      for (let i = last; i > -1; i--) {
+        expect(TDD.rows.byIndex(i).cells.first.active).to.be.true;
         await TDD.fireNavigationEvent({ key: 'ArrowUp' });
       }
     });

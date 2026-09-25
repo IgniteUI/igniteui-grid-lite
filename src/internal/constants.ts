@@ -1,3 +1,4 @@
+import type { IgcVirtualScrollComponentEventMap } from 'igniteui-webcomponents';
 import type { ActiveNode, ColumnConfiguration } from './types.js';
 
 const columnKey = Symbol();
@@ -9,8 +10,14 @@ export const SORT_ICON_DESCENDING = 'arrow-downward' as const;
 
 export const MIN_COL_RESIZE_WIDTH = 80;
 
-/** CSS pseudo-class that matches an element that has or contains DOM focus. */
 export const FOCUS_WITHIN = ':focus-within';
+
+/** Focus without scrolling: the grid scrolls through the virtualizer. */
+export const NO_SCROLL: FocusOptions = { preventScroll: true };
+
+/** `igc-virtual-scroll` event: the rendered window or the scroll size changed. */
+export const SCROLL_STATE_CHANGE =
+  'igcStateChange' satisfies keyof IgcVirtualScrollComponentEventMap;
 
 export const SENTINEL_NODE: Readonly<ActiveNode<any>> = Object.freeze({
   column: NON_EXISTING_COLUMN,

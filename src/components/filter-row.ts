@@ -19,17 +19,17 @@ import { GRID_STATE_CONTEXT } from '../internal/context.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_FILTER_ROW_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration, Keys, PropertyType } from '../internal/types.js';
-import { getFilterOperandsFor, resolveCondition } from '../internal/utils.js';
+import { getFilterOperandsFor, resolveCondition, visibleColumns } from '../internal/utils.js';
 import { watch } from '../internal/watch.js';
 import type { FilterExpressionTree } from '../operations/filter/tree.js';
 import type { FilterExpression, FilterOperation } from '../operations/filter/types.js';
 import { styles } from '../styles/filter-row/filter-row.css.js';
 import { all } from '../styles/themes/filtering-row-themes.js';
 
-/** Number of filter expressions shown as chips before collapsing into a single counted chip. */
+/** Expression count at which the preview collapses into one counted chip. */
 const MAX_PREVIEW_CHIPS = 3;
 
-/** Accessible name of the filter row itself. */
+/** Filter row accessible name. */
 const FILTER_ROW_LABEL = 'Column filters';
 
 type ExpressionChipProps<T> = {
@@ -56,10 +56,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
   public static override styles = styles;
 
-  /**
-   * Only the filter row renders these editor components, so the grid defers this
-   * call until a filterable column shows one.
-   */
+  /** Deferred by the grid until a filterable column shows: only this row uses the editors. */
   public static register() {
     registerComponent(
       IgcFilterRow,
@@ -112,10 +109,8 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   constructor() {
     super();
 
-    // `role=grid` permits only rows and rowgroups as children, so a `search`
-    // landmark here would be an illegal node in the grid tree. The filter row is
-    // modeled as the second header row: one `gridcell` per column, each with that
-    // column's filter controls.
+    // `role=grid` allows only rows and rowgroups, so no `search` landmark. Modeled
+    // as the second header row: one `gridcell` per column.
     addA11y(this, 'row').set({
       ariaRowIndex: `${FILTER_ROW_INDEX}`,
       ariaLabel: FILTER_ROW_LABEL,
@@ -147,15 +142,14 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     this.expression = this.filterController.getDefaultExpression(this.column);
   }
 
-  #removeExpression(expression: FilterExpression<T>) {
-    this.filterController.removeExpression(expression);
-  }
-
-  async #show() {
-    this.active = true;
-
+  async #selectInput() {
     await this.updateComplete;
     this.input?.select();
+  }
+
+  #show() {
+    this.active = true;
+    this.#selectInput();
   }
 
   #handleConditionChanged(event: CustomEvent<IgcDropdownItemComponent>) {
@@ -184,18 +178,19 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
     const value = this.isNumeric ? Number.parseFloat(event.detail) : event.detail;
     const shouldUpdate = this.isNumeric ? !Number.isNaN(value as number) : !!value;
-    const type = this.filterController.get(this.expression.key)?.has(this.expression)
-      ? 'modify'
-      : 'add';
 
     if (shouldUpdate) {
+      const type = this.filterController.get(this.expression.key)?.has(this.expression)
+        ? 'modify'
+        : 'add';
+
       this.filterController.filterWithEvent(
         { ...this.expression, searchTerm: value as any },
         type,
         this.expression
       );
     } else {
-      this.#removeExpression(this.expression);
+      this.filterController.removeExpression(this.expression);
     }
 
     this.requestUpdate();
@@ -211,8 +206,6 @@ export default class IgcFilterRow<T extends object> extends LitElement {
         return;
       case 'Escape':
         this.active = false;
-        return;
-      default:
         return;
     }
   }
@@ -272,15 +265,14 @@ export default class IgcFilterRow<T extends object> extends LitElement {
     return async (e: Event) => {
       e.stopPropagation();
       this.expression = expression;
-      await this.updateComplete;
-      this.input?.select();
+      await this.#selectInput();
     };
   }
 
   #chipRemoveFor(expression: FilterExpression<T>) {
     return async (e: Event) => {
       e.stopPropagation();
-      this.#removeExpression(expression);
+      this.filterController.removeExpression(expression);
 
       if (this.active && this.expression === expression) {
         this.#setDefaultExpression();
@@ -311,8 +303,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
 
     const prefix = html`<span slot="select"></span>${prefixedIcon(name)}`;
 
-    // The chip renders its select and remove actions in its own shadow root.
-    // Resource strings are the only way to name them after the expression.
+    // The chip names its actions in its shadow root. Resource strings are the only hook.
     const expression = `${this.#nameFor(props.expression.key)} ${name} ${unary ? '' : term}`.trim();
 
     return html`
@@ -456,8 +447,7 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   protected renderFilterState(column: ColumnConfiguration<T>) {
     const state = this.filterController.get(column.field);
 
-    // A short expression list renders inline. A longer one collapses into a
-    // single chip carrying the expression count.
+    // Short lists render inline. Longer ones collapse into one counted chip.
     if (state && state.length < MAX_PREVIEW_CHIPS) {
       return this.renderInactiveChips(column, state);
     }
@@ -479,23 +469,21 @@ export default class IgcFilterRow<T extends object> extends LitElement {
   }
 
   protected renderInactiveState() {
-    return this.state.columns
-      .filter((column) => !column.hidden)
-      .map(
-        (column, index) => html`
-          <div
-            part="filter-row-preview"
-            role="gridcell"
-            aria-colindex=${index + 1}
-          >
-            ${column.filterable ? this.renderFilterState(column) : nothing}
-          </div>
-        `
-      );
+    return visibleColumns(this.state.columns).map(
+      (column, index) => html`
+        <div
+          part="filter-row-preview"
+          role="gridcell"
+          aria-colindex=${index + 1}
+        >
+          ${column.filterable ? this.renderFilterState(column) : nothing}
+        </div>
+      `
+    );
   }
 
   protected override render() {
-    return html`${this.active ? this.renderActiveState() : this.renderInactiveState()}`;
+    return this.active ? this.renderActiveState() : this.renderInactiveState();
   }
 }
 

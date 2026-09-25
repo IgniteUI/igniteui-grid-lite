@@ -1,4 +1,4 @@
-import { html, nothing, type ReactiveController } from 'lit';
+import { html, nothing } from 'lit';
 import { styleMap } from 'lit/directives/style-map.js';
 import type IgcGridLiteHeader from '../components/header.js';
 import { MIN_COL_RESIZE_WIDTH } from '../internal/constants.js';
@@ -6,13 +6,11 @@ import type { ColumnConfiguration, Keys } from '../internal/types.js';
 import type { GridDOMController } from './dom.js';
 import type { StateController } from './state.js';
 
-export class ResizeController<T extends object> implements ReactiveController {
+export class ResizeController<T extends object> {
   constructor(
     protected _state: StateController<T>,
     protected _dom: GridDOMController<T>
-  ) {
-    this.host.addController(this);
-  }
+  ) {}
 
   public indicatorActive = false;
   public indicatorOffset = 0;
@@ -22,16 +20,14 @@ export class ResizeController<T extends object> implements ReactiveController {
   }
 
   #maxSize(key: Keys<T>, headerWidth: number) {
-    // A rendered row may not carry a cell for the column (e.g. it was just hidden).
-    const max = this._dom.rows.reduce((prev, row) => {
-      const cell = row.cells.find((cell) => cell.column.field === key);
-      return cell && cell.offsetWidth > prev ? cell.offsetWidth : prev;
-    }, 0);
+    // A rendered row may lack the cell, e.g. for a just hidden column.
+    const widths = this._dom.rows.map(
+      (row) => row.cells.find((cell) => cell.column.field === key)?.offsetWidth ?? 0
+    );
 
-    return Math.max(MIN_COL_RESIZE_WIDTH, max, headerWidth);
+    return Math.max(MIN_COL_RESIZE_WIDTH, headerWidth, ...widths);
   }
 
-  /** Column objects are immutable. Widths are set through the state. */
   #setWidth(column: ColumnConfiguration<T>, width: string) {
     this._state.setColumnWidth(column.field, width);
   }
@@ -49,9 +45,7 @@ export class ResizeController<T extends object> implements ReactiveController {
     this.#indicatorChanged();
   }
 
-  /**
-   * Stops and resets the resizing state.
-   */
+  /** Hides the indicator. */
   public stop() {
     this.indicatorActive = false;
     this.#indicatorChanged();
@@ -73,11 +67,6 @@ export class ResizeController<T extends object> implements ReactiveController {
     this.#setWidth(column, `${this.#maxSize(column.field, header.offsetWidth)}px`);
   }
 
-  public hostConnected() {}
-
-  /**
-   * Renders the resize indicator in the grid.
-   */
   public renderIndicator() {
     return this.indicatorActive
       ? html`<div

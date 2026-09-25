@@ -1,4 +1,5 @@
 import { expect, nextFrame } from '@open-wc/testing';
+import { IgcVirtualScrollComponent } from 'igniteui-webcomponents';
 import GridTestFixture from './utils/grid-fixture.js';
 import data, { type TestData } from './utils/test-data.js';
 
@@ -18,10 +19,13 @@ class DomFixture<T extends object> extends GridTestFixture<T> {
    */
   public async addFakeScrollbar(): Promise<void> {
     const style = document.createElement('style');
-    style.textContent = `igc-grid-lite-virtualizer { border-inline-end: ${FAKE_SCROLLBAR_WIDTH}px solid transparent; }`;
+    style.textContent = `${IgcVirtualScrollComponent.tagName} { border-inline-end: ${FAKE_SCROLLBAR_WIDTH}px solid transparent; }`;
     this.grid.renderRoot.appendChild(style);
+    await this.measured();
+  }
 
-    // Resize delivery + the deferred CSS variable write.
+  /** Resize delivery + the deferred CSS variable write. */
+  public async measured(): Promise<void> {
     await nextFrame();
     await nextFrame();
     await nextFrame();
@@ -53,6 +57,7 @@ describe('Grid scrollbar offset', () => {
   afterEach(() => TDD.tearDown());
 
   it('tracks the virtualizer scrollbar without a host update', async () => {
+    await TDD.measured();
     expect(TDD.scrollbarOffset).to.equal('0px');
 
     await TDD.addFakeScrollbar();

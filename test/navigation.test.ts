@@ -1,8 +1,7 @@
-import { setupIgnoreWindowResizeObserverLoopErrors } from '@lit-labs/virtualizer/support/resize-observer-errors.js';
 import { elementUpdated, expect, fixture, fixtureCleanup, html, nextFrame } from '@open-wc/testing';
+import { IgcVirtualScrollComponent } from 'igniteui-webcomponents';
 import type { TemplateResult } from 'lit';
 import { IgcGridLite } from '../src/components/grid.js';
-import IgcVirtualizer from '../src/components/virtualizer.js';
 import { GRID_TAG } from '../src/internal/tags.js';
 
 interface Item {
@@ -34,8 +33,8 @@ function gridTemplate(hidden: string[] = [], items: Item[] = data): TemplateResu
   `;
 }
 
-function bodyOf(grid: IgcGridLite<Item>): IgcVirtualizer {
-  return grid.renderRoot.querySelector<IgcVirtualizer>(IgcVirtualizer.tagName)!;
+function bodyOf(grid: IgcGridLite<Item>): IgcVirtualScrollComponent {
+  return grid.renderRoot.querySelector(IgcVirtualScrollComponent.tagName)!;
 }
 
 async function setup(...templates: TemplateResult[]): Promise<IgcGridLite<Item>[]> {
@@ -46,10 +45,7 @@ async function setup(...templates: TemplateResult[]): Promise<IgcGridLite<Item>[
   );
   const grids = Array.from(wrapper.querySelectorAll<IgcGridLite<Item>>(GRID_TAG));
 
-  // An empty grid never runs a virtualizer layout, so wait on the host update instead.
-  await Promise.all(
-    grids.map((grid) => (grid.data.length > 0 ? bodyOf(grid).layoutComplete : elementUpdated(grid)))
-  );
+  await Promise.all(grids.map((grid) => bodyOf(grid).layoutComplete));
 
   return grids;
 }
@@ -74,7 +70,6 @@ function activeCell(grid: IgcGridLite<Item>) {
 }
 
 describe('Grid navigation', () => {
-  setupIgnoreWindowResizeObserverLoopErrors(beforeEach, afterEach);
   afterEach(() => fixtureCleanup());
 
   describe('Per-instance state', () => {

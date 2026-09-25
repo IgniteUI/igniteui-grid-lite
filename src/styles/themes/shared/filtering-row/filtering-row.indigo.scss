@@ -1,7 +1,4 @@
 @use 'igniteui-theming' as *;
-@use '../../../themes/light/themes' as *;
-
-$theme: $indigo;
 
 :host {
 	&:has([part~='active-state']) {
@@ -23,6 +20,6 @@ $theme: $indigo;
 	}
 
 	igc-input [slot='suffix'] {
-		padding-inline-end: sizable(rem(4px), rem(6px));;
+		padding-inline-end: sizable(rem(4px), rem(6px));
 	}
 }

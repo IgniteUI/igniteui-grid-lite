@@ -1,4 +1,5 @@
 import { expect, fixture, html, nextFrame } from '@open-wc/testing';
+import { IgcVirtualScrollComponent } from 'igniteui-webcomponents';
 import { html as litHtml } from 'lit';
 import type IgcGridLiteCell from '../src/components/cell.js';
 import type { IgcGridLite } from '../src/components/grid.js';
@@ -128,6 +129,19 @@ function createParentNode() {
   return parentNode;
 }
 
+/** Whether the shadow root of `element` carries rules adopted from the document stylesheets. */
+function hasAdoptedStyles(element: Element): boolean {
+  const documentRules = new Set(
+    Array.from(document.styleSheets).flatMap((sheet) =>
+      Array.from(sheet.cssRules, (rule) => rule.cssText)
+    )
+  );
+
+  return element.shadowRoot!.adoptedStyleSheets.some((sheet) =>
+    Array.from(sheet.cssRules).some((rule) => documentRules.has(rule.cssText))
+  );
+}
+
 describe('Grid adopt-root-styles property', () => {
   describe('With cell templates', () => {
     beforeEach(async () => {
@@ -161,17 +175,13 @@ describe('Grid adopt-root-styles property', () => {
     it('should have adopted styles in cell component', async () => {
       const cell = adoptRootStylesTDD.rows.first.cells.get(0);
       const cellElement = cell.element as IgcGridLiteCell<TestData>;
-
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      expect(hasAdoptedStyles(cellElement)).to.be.true;
     });
 
     it('should not affect cells without templates', async () => {
       const cellWithoutTemplate = adoptRootStylesTDD.rows.first.cells.get(1);
       const cellElement = cellWithoutTemplate.element as IgcGridLiteCell<TestData>;
-
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.false;
+      expect(hasAdoptedStyles(cellElement)).to.be.false;
     });
   });
 
@@ -207,17 +217,13 @@ describe('Grid adopt-root-styles property', () => {
     it('should have adopted styles in header component', async () => {
       const header = adoptRootStylesTDD.headers.get('name');
       const headerElement = header.element as IgcGridLiteHeader<TestData>;
-
-      // @ts-expect-error - Accessing private controller for testing
-      expect(headerElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      expect(hasAdoptedStyles(headerElement)).to.be.true;
     });
 
     it('should not affect headers without templates', async () => {
       const headerWithoutTemplate = adoptRootStylesTDD.headers.get('id');
       const headerElement = headerWithoutTemplate.element as IgcGridLiteHeader<TestData>;
-
-      // @ts-expect-error - Accessing private controller for testing
-      expect(headerElement._adoptedStylesController.hasAdoptedStyles).to.be.false;
+      expect(hasAdoptedStyles(headerElement)).to.be.false;
     });
   });
 
@@ -287,11 +293,8 @@ describe('Grid adopt-root-styles property', () => {
 
       expect(cellElement.adoptRootStyles).to.be.false;
       expect(headerElement.adoptRootStyles).to.be.false;
-
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.false;
-      // @ts-expect-error - Accessing private controller for testing
-      expect(headerElement._adoptedStylesController.hasAdoptedStyles).to.be.false;
+      expect(hasAdoptedStyles(cellElement)).to.be.false;
+      expect(hasAdoptedStyles(headerElement)).to.be.false;
     });
 
     it('should not apply document styles to templated cells when adopt-root-styles is false', async () => {
@@ -346,12 +349,7 @@ describe('Grid adopt-root-styles property', () => {
         { parentNode: createParentNode() }
       );
       await grid.updateComplete;
-
-      // Wait for virtualizer to complete layout
-      const virtualizer = grid.renderRoot.querySelector('igc-grid-lite-virtualizer');
-      if (virtualizer) {
-        await virtualizer.layoutComplete;
-      }
+      await grid.renderRoot.querySelector(IgcVirtualScrollComponent.tagName)!.layoutComplete;
     });
 
     afterEach(() => {
@@ -362,8 +360,7 @@ describe('Grid adopt-root-styles property', () => {
       // Initially false
       let cell = grid.rows[0]!.cells[0];
       expect(cell.adoptRootStyles).to.be.false;
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cell._adoptedStylesController.hasAdoptedStyles).to.be.false;
+      expect(hasAdoptedStyles(cell)).to.be.false;
 
       // Set adopt-root-styles to true
       grid.adoptRootStyles = true;
@@ -376,8 +373,7 @@ describe('Grid adopt-root-styles property', () => {
       // Get the cell again after the update
       cell = grid.rows[0]!.cells[0];
       expect(cell.adoptRootStyles).to.be.true;
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cell._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      expect(hasAdoptedStyles(cell)).to.be.true;
 
       const customDiv = cell.shadowRoot!.querySelector('.dynamic-cell-class');
       const computedStyle = window.getComputedStyle(customDiv!);
@@ -395,8 +391,7 @@ describe('Grid adopt-root-styles property', () => {
 
       let cell = grid.rows[0]!.cells[0];
       expect(cell.adoptRootStyles).to.be.true;
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cell._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      expect(hasAdoptedStyles(cell)).to.be.true;
 
       // Set adopt-root-styles to false
       grid.adoptRootStyles = false;
@@ -409,8 +404,7 @@ describe('Grid adopt-root-styles property', () => {
       // Get the cell again after the update
       cell = grid.rows[0]!.cells[0];
       expect(cell.adoptRootStyles).to.be.false;
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cell._adoptedStylesController.hasAdoptedStyles).to.be.false;
+      expect(hasAdoptedStyles(cell)).to.be.false;
     });
   });
 
@@ -427,8 +421,7 @@ describe('Grid adopt-root-styles property', () => {
       let headerElement = header.element;
 
       expect(headerElement.adoptRootStyles).to.be.true;
-      // @ts-expect-error - Accessing private controller for testing
-      expect(headerElement._adoptedStylesController.hasAdoptedStyles).to.be.false;
+      expect(hasAdoptedStyles(headerElement)).to.be.false;
 
       const column = adoptRootStylesTDD.grid.querySelector('igc-grid-lite-column')!;
       column.headerTemplate = (ctx: IgcHeaderContext<TestData>) =>
@@ -438,9 +431,7 @@ describe('Grid adopt-root-styles property', () => {
 
       header = adoptRootStylesTDD.headers.get('name');
       headerElement = header.element;
-
-      // @ts-expect-error - Accessing private controller for testing
-      expect(headerElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      expect(hasAdoptedStyles(headerElement)).to.be.true;
 
       const customDiv = headerElement.shadowRoot!.querySelector('.custom-header-class');
       expect(customDiv).to.exist;
@@ -455,8 +446,7 @@ describe('Grid adopt-root-styles property', () => {
       let cellElement = cell.element;
 
       expect(cellElement.adoptRootStyles).to.be.true;
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.false;
+      expect(hasAdoptedStyles(cellElement)).to.be.false;
 
       const column = adoptRootStylesTDD.grid.querySelector('igc-grid-lite-column')!;
       column.cellTemplate = (ctx: IgcCellContext<TestData>) =>
@@ -466,9 +456,7 @@ describe('Grid adopt-root-styles property', () => {
 
       cell = adoptRootStylesTDD.rows.first.cells.get(0);
       cellElement = cell.element;
-
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      expect(hasAdoptedStyles(cellElement)).to.be.true;
 
       const customDiv = cellElement.shadowRoot!.querySelector('.custom-cell-class');
       expect(customDiv).to.exist;
@@ -500,8 +488,7 @@ describe('Grid adopt-root-styles property', () => {
       const cellElement = cell.element as IgcGridLiteCell<TestData>;
 
       // Verify initial adopted state
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      expect(hasAdoptedStyles(cellElement)).to.be.true;
 
       // Simulate virtualizer caching: disconnect the cell and reconnect it with
       // properties already set (no Lit property-change cycle will fire in update)
@@ -514,8 +501,7 @@ describe('Grid adopt-root-styles property', () => {
       // connectedCallback must re-apply shouldAdoptStyles regardless of whether
       // adoptRootStyles changed, because the property did not change so the
       // update() guard (props.has('adoptRootStyles')) never fires
-      // @ts-expect-error - Accessing private controller for testing
-      expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+      expect(hasAdoptedStyles(cellElement)).to.be.true;
 
       const customDiv = cellElement.shadowRoot!.querySelector('.custom-cell-class');
       expect(customDiv).to.exist;
@@ -538,9 +524,7 @@ describe('Grid adopt-root-styles property', () => {
       for (let i = 0; i < adoptRootStylesTDD.grid.rows.length; i++) {
         const cellElement = adoptRootStylesTDD.rows.get(i).cells.get('name')
           .element as IgcGridLiteCell<TestData>;
-
-        // @ts-expect-error - Accessing private controller for testing
-        expect(cellElement._adoptedStylesController.hasAdoptedStyles).to.be.true;
+        expect(hasAdoptedStyles(cellElement)).to.be.true;
       }
     });
   });

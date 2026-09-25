@@ -13,10 +13,6 @@ export class FilterState<T> {
     return Array.from(this.state.values());
   }
 
-  public has(key: Keys<T>) {
-    return this.state.has(key);
-  }
-
   public get(key: Keys<T>) {
     return this.state.get(key);
   }

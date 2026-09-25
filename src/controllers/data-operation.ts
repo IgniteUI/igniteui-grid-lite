@@ -1,18 +1,13 @@
-import type { ReactiveController } from 'lit';
 import type { GridHost } from '../internal/types.js';
 import FilterDataOperation from '../operations/filter.js';
 import SortDataOperation from '../operations/sort.js';
 import type { StateController } from './state.js';
 
-class DataOperationsController<T extends object> implements ReactiveController {
+class DataOperationsController<T extends object> {
   protected sorting = new SortDataOperation<T>();
   protected filtering = new FilterDataOperation<T>();
 
-  constructor(protected host: GridHost<T>) {
-    this.host.addController(this);
-  }
-
-  public hostConnected() {}
+  constructor(protected host: GridHost<T>) {}
 
   public async apply(data: T[], state: StateController<T>) {
     // A hook, when configured, replaces the built-in operation.

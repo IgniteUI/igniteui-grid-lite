@@ -1,15 +1,19 @@
 import { ContextProvider } from '@lit/context';
-import type { RenderItemFunction } from '@lit-labs/virtualizer/virtualize.js';
-import { θaddThemingController as addThemingController } from 'igniteui-webcomponents';
+import {
+  θaddThemingController as addThemingController,
+  IgcVirtualScrollComponent,
+  type VirtualScrollItemTemplate,
+} from 'igniteui-webcomponents';
 import { html, nothing, type PropertyValues } from 'lit';
 import { eventOptions, property, state } from 'lit/decorators.js';
 import { cache } from 'lit/directives/cache.js';
 import { styleMap } from 'lit/directives/style-map.js';
 import { createDataOperationsController } from '../controllers/data-operation.js';
 import { createDomController } from '../controllers/dom.js';
+import { activeNodeFor } from '../controllers/navigation.js';
 import { createStateController } from '../controllers/state.js';
 import { addA11y, headerRowsFor } from '../internal/a11y.js';
-import { FOCUS_WITHIN, PIPELINE } from '../internal/constants.js';
+import { FOCUS_WITHIN, NO_SCROLL, PIPELINE } from '../internal/constants.js';
 import { COLUMN_UPDATE_CONTEXT, GRID_STATE_CONTEXT } from '../internal/context.js';
 import { getElementFromEventPath } from '../internal/element-from-event-path.js';
 import { EventEmitterBase } from '../internal/mixins/event-emitter.js';
@@ -22,7 +26,13 @@ import type {
   Keys,
   NavigateToOptions,
 } from '../internal/types.js';
-import { asArray, isNumber, isString, resolveCondition } from '../internal/utils.js';
+import {
+  asArray,
+  isNumber,
+  isString,
+  resolveCondition,
+  visibleColumns,
+} from '../internal/utils.js';
 import { watch } from '../internal/watch.js';
 import type { FilterExpression } from '../operations/filter/types.js';
 import type { SortingExpression } from '../operations/sort/types.js';
@@ -34,7 +44,6 @@ import { IgcGridLiteColumn } from './column.js';
 import IgcFilterRow from './filter-row.js';
 import IgcGridLiteHeaderRow from './header-row.js';
 import IgcGridLiteRow from './row.js';
-import IgcVirtualizer from './virtualizer.js';
 
 /**
  * Event object for the filtering event of the grid.
@@ -143,7 +152,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
     registerComponent(
       IgcGridLite,
       IgcGridLiteColumn,
-      IgcVirtualizer,
+      IgcVirtualScrollComponent,
       IgcGridLiteRow,
       IgcGridLiteHeaderRow
     );
@@ -152,10 +161,8 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   private readonly _a11y = addA11y(this, 'grid');
 
   protected readonly _domController = createDomController<T>(this);
-  protected readonly _stateController = createStateController(
-    this,
-    this._domController,
-    this._updateObservers
+  protected readonly _stateController = createStateController(this, this._domController, () =>
+    this._stateProvider.updateObservers()
   );
   protected readonly _dataController = createDataOperationsController(this);
 
@@ -167,35 +174,25 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   protected readonly _columnUpdateProvider = new ContextProvider(this, {
     context: COLUMN_UPDATE_CONTEXT,
     initialValue: ((config: ColumnConfiguration<T>) => {
-      this._updateConfiguration(config);
+      this._stateController.updateColumnsConfiguration(asArray(config));
     }) as any,
   });
-
-  private _updateObservers(): void {
-    this._stateProvider.updateObservers();
-  }
-
-  private _updateConfiguration(config: ColumnConfiguration<T>): void {
-    this._stateController.updateColumnsConfiguration(asArray(config));
-  }
 
   @state()
   protected _dataState: T[] = [];
 
-  /** Monotonic token identifying the most recently started pipeline run. */
+  /** Id of the latest pipeline run. */
   private _pipelineEpoch = 0;
 
   private _pipelineTask: Promise<void> = Promise.resolve();
 
   /**
-   * Resolves when the latest pipeline run completes and its result is rendered.
-   * The sort and filter controllers await this so that `sorted` and `filtered`
-   * report an up-to-date {@link IgcGridLite.dataView}.
+   * Resolves once the latest pipeline run renders. `sorted` and `filtered` await it.
    *
    * @internal
    */
   public get _pipelineComplete(): Promise<void> {
-    // The `updateComplete` hop lets a pending PIPELINE update install its task first.
+    // Let a pending PIPELINE update install its task first.
     return this.updateComplete.then(() => this._pipelineTask);
   }
 
@@ -336,32 +333,34 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   @watch('sortingOptions', { waitUntilFirstUpdate: true })
   protected sortingOptionsChanged() {
     // Headers render the multi-sort position out of this option.
-    this._updateObservers();
+    this._stateController.updateObservers();
   }
 
   @watch('data')
   protected dataChanged() {
     this._dataState = [...this.data];
 
-    if (this.hasUpdated) {
-      if (!this._hasAssignedColumns()) {
-        this._stateController.setAutoColumnConfiguration();
-      }
-      this.pipeline();
+    if (!this.hasUpdated) {
+      return;
     }
+
+    if (!this._hasAssignedColumns()) {
+      this._stateController.setAutoColumnConfiguration();
+    }
+
+    this.pipeline();
   }
 
   /**
-   * NOTE: The `PIPELINE` sentinel equals this method's name. That equality makes
-   * the `@watch` comparison (`undefined !== <method>`) fire on each requested
-   * update. A rename of this method silently disables the pipeline.
+   * NOTE: `PIPELINE` equals this method's name, so `@watch` fires on each request.
+   * Renaming the method silently disables the pipeline.
    */
   @watch(PIPELINE)
   protected pipeline(): void {
     this._pipelineTask = this._runPipeline();
   }
 
-  /** Runs the data operations. Discards a result that a newer run supersedes. */
+  /** Runs the data operations. Discards results superseded by a newer run. */
   private async _runPipeline(): Promise<void> {
     const epoch = ++this._pipelineEpoch;
 
@@ -374,8 +373,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
 
       this._dataState = state;
     } catch (e) {
-      // A failed hook must not blank the grid. Keep the previous data state and
-      // report the error.
+      // A failed hook keeps the previous data. Log it.
       // biome-ignore lint/suspicious/noConsole: the pipeline hooks are user code; swallowing their errors hides bugs
       console.error(e);
     }
@@ -389,7 +387,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
     addThemingController(this, all);
   }
 
-  /** The column set the current row renderer was built from. */
+  /** Columns the row renderer was built from. */
   private _rowColumns?: ColumnConfiguration<T>[];
 
   protected override willUpdate(props: PropertyValues<this>): void {
@@ -397,15 +395,13 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
 
     this._domController.setColumns(columns);
 
-    // The ARIA grid pattern counts the header rows in the row count. Only visible
-    // columns take part in the column index space.
+    // Row count includes the header rows. Only visible columns are indexed.
     this._a11y.set({
       ariaRowCount: `${headerRowsFor(columns) + this._dataState.length}`,
-      ariaColCount: `${columns.filter((column) => !column.hidden).length}`,
+      ariaColCount: `${visibleColumns(columns).length}`,
     });
 
-    // The virtualizer re-renders its rows only when `renderItem` changes identity.
-    // Build a new renderer only when a row input changes.
+    // A new `itemTemplate` re-renders every visible row: rebuild only on row input change.
     if (columns !== this._rowColumns || props.has('adoptRootStyles')) {
       this._rowColumns = columns;
       this._renderRow = this._createRowRenderer(columns);
@@ -525,43 +521,41 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   protected _bodyClickHandler(event: PointerEvent): void {
     const target = getElementFromEventPath<IgcGridLiteCell<T>>(IgcGridLiteCell.tagName, event);
 
-    if (target) {
-      this._stateController.active = { column: target.column.field, row: target.row.index };
+    if (!target) {
+      return;
+    }
 
-      // Move focus so that assistive technology announces the cell. Keep focus
-      // where it is when the click landed on focusable templated content.
-      if (!target.matches(FOCUS_WITHIN)) {
-        target.focus({ preventScroll: true });
-      }
+    this._stateController.active = { column: target.column.field, row: target.row.index };
+
+    // Focus announces the cell. Focusable templated content keeps the focus.
+    if (!target.matches(FOCUS_WITHIN)) {
+      target.focus(NO_SCROLL);
     }
   }
 
   protected _bodyKeydownHandler(event: KeyboardEvent): void {
     const [origin] = event.composedPath();
 
-    // Keys from the grid focus targets (the scroller and the focused cell) drive
-    // navigation. Keys from templated content in a cell pass through.
-    if (origin === this._domController.virtualizer || origin instanceof IgcGridLiteCell) {
+    // Only keys from the body or a cell navigate. Templated content keeps its keys.
+    if (origin === event.currentTarget || origin instanceof IgcGridLiteCell) {
       this._stateController.navigation.navigate(event);
     }
   }
 
-  /** Rebuilt by {@link IgcGridLite.willUpdate} when a row input changes. */
-  protected _renderRow: RenderItemFunction<T> = () => html``;
+  /** Rebuilt in {@link IgcGridLite.willUpdate}. */
+  protected _renderRow!: VirtualScrollItemTemplate<T>;
 
-  private _createRowRenderer(columns: ColumnConfiguration<T>[]): RenderItemFunction<T> {
-    // The active node is read live. Activation updates only the affected rows (see
-    // NavigationController) and must not rebuild the renderer: a new renderer
-    // identity makes the virtualizer re-render every visible row.
-    return (item: T, index: number) => html`
+  private _createRowRenderer(columns: ColumnConfiguration<T>[]): VirtualScrollItemTemplate<T> {
+    // Reads the active node live: activation must not rebuild the renderer.
+    return ({ value, index }) => html`
       <igc-grid-lite-row
         part="row"
         exportparts="cell"
         style=${styleMap(this._domController.columnSizes)}
         .adoptRootStyles=${this.adoptRootStyles}
         .index=${index}
-        .activeNode=${this._stateController.active}
-        .data=${item}
+        .activeNode=${activeNodeFor(this._stateController.active, index)}
+        .data=${value}
         .columns=${columns}
       ></igc-grid-lite-row>
     `;
@@ -579,33 +573,36 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
   }
 
   protected _renderBody() {
+    // The body is the tab stop. Focus roves to the active cell:
+    // `aria-activedescendant` cannot cross the row shadow roots.
     return html`
-      <igc-grid-lite-virtualizer
+      <igc-virtual-scroll
+        role="rowgroup"
+        .overScan=${10}
         tabindex="0"
-        .items=${this._dataState}
-        .renderItem=${this._renderRow}
+        .data=${this._dataState}
+        .itemTemplate=${this._renderRow}
         @click=${this._bodyClickHandler}
         @keydown=${this._bodyKeydownHandler}
-      ></igc-grid-lite-virtualizer>
+      ></igc-virtual-scroll>
     `;
   }
 
   protected _renderFilterRow() {
     const filterable = this._stateController.columns.some((column) => column.filterable);
 
-    // The filter row and its editors are registered on first use. A grid without
-    // filterable columns does not load their custom element definitions.
+    // Registered on first use: see IgcFilterRow.
     if (filterable) {
       IgcFilterRow.register();
     }
 
-    return html`${cache(
+    return cache(
       filterable
         ? html`<igc-grid-lite-filter-row
             style=${styleMap(this._domController.columnSizes)}
           ></igc-grid-lite-filter-row>`
         : nothing
-    )}`;
+    );
   }
 
   protected override render() {

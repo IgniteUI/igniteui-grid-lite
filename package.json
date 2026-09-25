@@ -45,37 +45,36 @@
     ]
   },
   "dependencies": {
-    "@lit-labs/virtualizer": "^2.1.1",
     "@lit/context": "^1.1.6",
-    "igniteui-webcomponents": "~7.3.0",
+    "igniteui-webcomponents": "~7.4.1",
     "lit": "^3.3.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.10",
+    "@biomejs/biome": "^2.5.14",
     "@custom-elements-manifest/analyzer": "^0.11.0",
     "@open-wc/testing": "^5.0.0",
     "@types/mocha": "^10.0.10",
     "@web/dev-server-esbuild": "^2.0.0",
     "@web/test-runner": "^1.0.0",
     "@web/test-runner-playwright": "^1.0.0",
-    "autoprefixer": "^10.5.4",
+    "autoprefixer": "^10.6.1",
     "concurrently": "^10.0.5",
     "esbuild": "^0.28.2",
     "husky": "^9.1.7",
-    "igniteui-theming": "^28.1.1",
-    "lint-staged": "^17.3.0",
-    "playwright": "^1.62.1",
-    "postcss": "^8.5.26",
-    "sass-embedded": "^1.102.0",
+    "igniteui-theming": "^29.0.0",
+    "lint-staged": "^17.5.1",
+    "playwright": "^1.63.0",
+    "postcss": "^8.5.28",
+    "sass-embedded": "^1.105.0",
     "sinon": "^22.1.0",
-    "stylelint": "^17.14.1",
+    "stylelint": "^17.15.0",
     "stylelint-config-standard-scss": "^17.0.0",
     "stylelint-prettier": "^5.0.3",
-    "stylelint-scss": "^7.2.0",
+    "stylelint-scss": "^7.3.0",
     "tslib": "^2.8.1",
     "typedoc": "^0.28.20",
     "typescript": "^6.0.3",
-    "vite": "^8.2.2"
+    "vite": "^8.3.0"
   },
   "customElements": "custom-elements.json"
 }

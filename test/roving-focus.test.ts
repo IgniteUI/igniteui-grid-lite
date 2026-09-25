@@ -1,8 +1,7 @@
-import { setupIgnoreWindowResizeObserverLoopErrors } from '@lit-labs/virtualizer/support/resize-observer-errors.js';
 import { elementUpdated, expect, fixture, fixtureCleanup, html, nextFrame } from '@open-wc/testing';
+import { IgcVirtualScrollComponent } from 'igniteui-webcomponents';
 import type IgcGridLiteCell from '../src/components/cell.js';
 import { IgcGridLite } from '../src/components/grid.js';
-import IgcVirtualizer from '../src/components/virtualizer.js';
 import { GRID_TAG } from '../src/internal/tags.js';
 
 interface Item {
@@ -14,8 +13,8 @@ const ITEM_COUNT = 50;
 
 const data: Item[] = Array.from({ length: ITEM_COUNT }, (_, i) => ({ id: i, name: `Item ${i}` }));
 
-function bodyOf(grid: IgcGridLite<Item>): IgcVirtualizer {
-  return grid.renderRoot.querySelector<IgcVirtualizer>(IgcVirtualizer.tagName)!;
+function bodyOf(grid: IgcGridLite<Item>): IgcVirtualScrollComponent {
+  return grid.renderRoot.querySelector(IgcVirtualScrollComponent.tagName)!;
 }
 
 /** The element that holds keyboard focus, found through the shadow roots. */
@@ -79,7 +78,6 @@ async function press(target: EventTarget, grid: IgcGridLite<Item>, key: string):
 }
 
 describe('Roving focus', () => {
-  setupIgnoreWindowResizeObserverLoopErrors(beforeEach, afterEach);
   afterEach(() => fixtureCleanup());
 
   it('Keyboard navigation moves focus onto the active cell', async () => {
@@ -132,7 +130,7 @@ describe('Roving focus', () => {
   it('Activation changes keep the row renderer identity', async () => {
     const grid = await setup();
     const body = bodyOf(grid);
-    const renderItem = body.renderItem;
+    const template = body.itemTemplate;
 
     body.focus();
     await press(body, grid, 'ArrowDown');
@@ -141,7 +139,7 @@ describe('Roving focus', () => {
     await press(activeCellOf(grid)!, grid, 'ArrowRight');
 
     expect(activeCellOf(grid)).to.exist;
-    expectSame(body.renderItem, renderItem, 'activation must not rebuild the row renderer');
+    expectSame(body.itemTemplate, template, 'activation must not rebuild the row renderer');
   });
 
   it('Focus falls back to the scroller when the focused cell is scrolled out', async () => {
@@ -157,6 +155,42 @@ describe('Roving focus', () => {
     await settle(grid);
 
     expectSame(focusedElement(), body, 'focus should fall back to the scroller');
+  });
+
+  it('Focus stays on the active cell while its row stays rendered', async () => {
+    const grid = await setup();
+    const body = bodyOf(grid);
+
+    body.focus();
+    await press(body, grid, 'ArrowDown');
+    const cell = activeCellOf(grid)!;
+
+    body.scrollTo({ top: grid.rows[0].offsetHeight });
+    await body.layoutComplete;
+    await settle(grid);
+
+    expectSame(focusedElement(), cell, 'focus should stay on the active cell');
+  });
+
+  it('Focus falls back to the scroller when the focused row is recycled', async () => {
+    const grid = await setup();
+    const body = bodyOf(grid);
+
+    body.focus();
+    await press(body, grid, 'ArrowDown');
+    const row = activeCellOf(grid)!.row.index;
+
+    // Scroll the focused row past the overscan: its element is recycled.
+    body.scrollTo({ top: grid.rows[0].offsetHeight * (row + body.overScan + 1) });
+    await body.layoutComplete;
+    await settle(grid);
+
+    expectSame(focusedElement(), body, 'focus should fall back to the scroller');
+
+    await press(body, grid, 'ArrowDown');
+
+    expect(activeCellOf(grid)!.row.index).to.equal(row + 1);
+    expectSame(focusedElement(), activeCellOf(grid), 'navigation should continue');
   });
 
   it('Scrolling does not steal focus from outside the grid', async () => {

@@ -1,8 +1,8 @@
 import { elementUpdated, fixture, fixtureCleanup, html, nextFrame } from '@open-wc/testing';
+import { IgcVirtualScrollComponent } from 'igniteui-webcomponents';
 import IgcFilterRow from '../../src/components/filter-row.js';
 import { IgcGridLite } from '../../src/components/grid.js';
 import IgcGridLiteHeaderRow from '../../src/components/header-row.js';
-import IgcVirtualizer from '../../src/components/virtualizer.js';
 import { GRID_COLUMN_TAG } from '../../src/internal/tags.js';
 import type { ColumnConfiguration, Keys } from '../../src/internal/types.js';
 import { asArray, isNumber } from '../../src/internal/utils.js';
@@ -18,6 +18,8 @@ interface RowCollection<T extends object> {
   first: RowTestFixture<T>;
   last: RowTestFixture<T>;
   get: (id: number) => RowTestFixture<T>;
+  /** The row rendering data index `index`. `get` takes a DOM position. */
+  byIndex: (index: number) => RowTestFixture<T>;
 }
 
 interface HeaderCollection<T extends object> {
@@ -107,7 +109,7 @@ export default class GridTestFixture<T extends object> {
   }
 
   public get gridBody() {
-    return this.grid.renderRoot.querySelector(IgcVirtualizer.tagName)!;
+    return this.grid.renderRoot.querySelector(IgcVirtualScrollComponent.tagName)!;
   }
 
   public get dataState() {
@@ -130,6 +132,8 @@ export default class GridTestFixture<T extends object> {
       first: this.getRow(0),
       last: this.getRow(-1),
       get: (id: number) => this.getRow(id),
+      byIndex: (index: number) =>
+        new RowTestFixture(this.grid.rows.find((row) => row.index === index)!),
     };
   }
 

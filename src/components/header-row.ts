@@ -10,6 +10,7 @@ import { partMap } from '../internal/part-map.js';
 import { registerComponent } from '../internal/register.js';
 import { GRID_HEADER_ROW_TAG } from '../internal/tags.js';
 import type { ColumnConfiguration } from '../internal/types.js';
+import { visibleColumns } from '../internal/utils.js';
 import { styles } from '../styles/header-row/header-row.base.css.js';
 import IgcGridLiteHeader from './header.js';
 
@@ -52,7 +53,7 @@ export default class IgcGridLiteHeaderRow<T extends object> extends LitElement {
 
   protected override render() {
     const filterRow = this._state?.filtering.filterRow;
-    const columns = this.columns.filter((column) => !column.hidden);
+    const columns = visibleColumns(this.columns);
 
     return html`
       ${repeat(
