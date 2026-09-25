@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** This project is currently in initial development (0.0.x versions). Until version 1.0.0 is released, the public API is not considered stable and breaking changes may occur in any release without following semantic versioning conventions.
 
-## Unreleased
+## [0.11.0] - 2026-09-25
 
 ### Changed
 
@@ -195,6 +195,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** `triState` property has been removed from `GridLiteSortingOptions`. Tri-state sorting is now always enabled.
 
+[0.11.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.7.1...0.8.0
