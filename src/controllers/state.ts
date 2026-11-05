@@ -59,6 +59,7 @@ class StateController<T extends object> {
   public setColumnConfiguration(columns: ColumnConfiguration<T>[]): void {
     this._columns = columns.map((column) => createColumnConfiguration(column));
     this.filtering.resolveConditions();
+    this.sorting.resolveOptions();
     this.updateObservers();
     this.host.requestUpdate(PIPELINE);
   }
@@ -70,6 +71,7 @@ class StateController<T extends object> {
 
     this._columns = setColumnsFromData(this.host.data[0]);
     this.filtering.resolveConditions();
+    this.sorting.resolveOptions();
     this.host.requestUpdate(PIPELINE);
   }
 

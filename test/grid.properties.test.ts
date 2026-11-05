@@ -1,5 +1,7 @@
-import { elementUpdated, expect, html, nextFrame } from '@open-wc/testing';
+import { elementUpdated, expect, fixture, fixtureCleanup, html, nextFrame } from '@open-wc/testing';
+import { IgcGridLite } from '../src/components/grid.js';
 import { GRID_COLUMN_TAG } from '../src/internal/tags.js';
+import type { ColumnConfiguration } from '../src/internal/types.js';
 import type { FilterExpression } from '../src/operations/filter/types.js';
 import type { SortingExpression } from '../src/operations/sort/types.js';
 import GridTestFixture from './utils/grid-fixture.js';
@@ -323,5 +325,74 @@ describe('Grid properties (unresolved filter expressions)', () => {
     // The condition stays a raw string, so the expression is ignored instead of throwing.
     expect(unresolvedTDD.grid.totalItems).to.equal(data.length);
     expect(unresolvedTDD.rows.first.data.id).to.equal(Math.min(...data.map((d) => d.id)));
+  });
+});
+
+describe('Grid properties (expressions before first update)', () => {
+  type Item = { id: number; name: string };
+
+  // Reverse code point order: b > a > B > A.
+  const comparer = (a: string, b: string) => (a < b ? 1 : a > b ? -1 : 0);
+  const items: Item[] = [
+    { id: 1, name: 'A' },
+    { id: 2, name: 'B' },
+    { id: 3, name: 'a' },
+    { id: 4, name: 'b' },
+  ];
+  const columns: ColumnConfiguration<Item>[] = [
+    { field: 'id', dataType: 'number' },
+    { field: 'name', sortable: true, sortingCaseSensitive: true, sortConfiguration: { comparer } },
+  ];
+
+  function createGrid() {
+    IgcGridLite.register();
+    const grid = document.createElement(IgcGridLite.tagName) as IgcGridLite<Item>;
+    grid.data = items;
+    return grid;
+  }
+
+  async function mount(grid: IgcGridLite<Item>) {
+    await fixture(grid);
+    await grid._pipelineComplete;
+  }
+
+  afterEach(() => fixtureCleanup());
+
+  it('applies the column sort configuration when columns are set first', async () => {
+    const grid = createGrid();
+    grid.columns = columns;
+    grid.sortingExpressions = [{ key: 'name', direction: 'ascending' }];
+    await mount(grid);
+
+    expect(grid.dataView.map((r) => r.name)).to.eql(['b', 'a', 'B', 'A']);
+  });
+
+  it('applies the column sort configuration when columns are set later', async () => {
+    const grid = createGrid();
+    grid.sortingExpressions = [{ key: 'name', direction: 'ascending' }];
+    await mount(grid);
+
+    grid.columns = columns;
+    await grid._pipelineComplete;
+
+    expect(grid.dataView.map((r) => r.name)).to.eql(['b', 'a', 'B', 'A']);
+  });
+
+  it('applies filter expressions when columns are set first', async () => {
+    const grid = createGrid();
+    grid.columns = columns;
+    grid.filterExpressions = [{ key: 'name', condition: 'contains', searchTerm: 'a' }];
+    await mount(grid);
+
+    expect(grid.dataView.map((r) => r.name)).to.eql(['A', 'a']);
+  });
+
+  it("does not store expressions with direction 'none'", async () => {
+    const grid = createGrid();
+    grid.columns = columns;
+    grid.sortingExpressions = [{ key: 'name', direction: 'none' }];
+    await mount(grid);
+
+    expect(grid.sortingExpressions).to.be.empty;
   });
 });
