@@ -125,4 +125,28 @@ export class SortController<T extends object> {
       }))
     );
   }
+
+  /** Stores copies before the first update. Skips the pipeline. */
+  public setRaw(expressions: SortingExpression<T>[]) {
+    for (const expr of expressions) {
+      this.#setExpression(expr);
+    }
+
+    // Columns may already be configured. Later ones resolve on configuration.
+    this.resolveOptions();
+  }
+
+  /** Fills missing `caseSensitive` and `comparer` from the column configuration. */
+  public resolveOptions() {
+    for (const [key, expr] of this.state) {
+      const column = this.host.getColumn(key);
+
+      if (!column) {
+        continue;
+      }
+
+      // Own keys win: explicit and already resolved options stay.
+      this.state.set(key, { ...this.#resolveSortOptions(column), ...expr });
+    }
+  }
 }

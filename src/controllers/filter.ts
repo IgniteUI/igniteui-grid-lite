@@ -161,6 +161,9 @@ export class FilterController<T extends object> {
     for (const expr of expressions) {
       this.state.set({ ...expr });
     }
+
+    // Columns may already be configured. Later ones resolve on configuration.
+    this.resolveConditions();
   }
 
   /** Resolves string conditions and default case sensitivity once columns exist. */

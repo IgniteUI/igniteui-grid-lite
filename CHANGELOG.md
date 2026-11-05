@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** This project is currently in initial development (0.0.x versions). Until version 1.0.0 is released, the public API is not considered stable and breaking changes may occur in any release without following semantic versioning conventions.
 
+## [Unreleased]
+
+### Changed
+
+- Updated `igniteui-webcomponents` to 7.5.0.
+
+### Fixed
+
+- `sortingExpressions` set before the first render ignored the column `sortConfiguration.comparer` and `sortingCaseSensitive`, and stored `direction: 'none'` as a sort. [#86](https://github.com/IgniteUI/igniteui-grid-lite/issues/86)
+- `filterExpressions` set before the first render, after `columns`, were not applied.
+
 ## [0.11.0] - 2026-09-25
 
 ### Changed
@@ -195,6 +206,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **BREAKING:** `triState` property has been removed from `GridLiteSortingOptions`. Tri-state sorting is now always enabled.
 
+[Unreleased]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.11.0...HEAD
 [0.11.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.10.0...0.11.0
 [0.10.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/IgniteUI/igniteui-grid-lite/compare/0.8.0...0.9.0

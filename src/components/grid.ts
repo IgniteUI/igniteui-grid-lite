@@ -250,9 +250,7 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
     if (this.hasUpdated) {
       this.sort(expressions);
     } else {
-      for (const expr of expressions) {
-        this._stateController.sorting.state.set(expr.key, { ...expr });
-      }
+      this._stateController.sorting.setRaw(expressions);
     }
   }
 
