@@ -30,7 +30,7 @@
   "customElements": "custom-elements.json",
   "dependencies": {
     "@lit/context": "~1.1.5",
-    "igniteui-webcomponents": "^7.5.0-beta.0",
+    "igniteui-webcomponents": "^7.5.0-rc.0",
     "lit": "^3.3.0"
   }
 }
