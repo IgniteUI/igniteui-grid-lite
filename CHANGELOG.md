@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** This project is currently in initial development (0.0.x versions). Until version 1.0.0 is released, the public API is not considered stable and breaking changes may occur in any release without following semantic versioning conventions.
 
+## [Unreleased]
+
+### Changed
+
+- The scrollbars take the scrollbar colors of the theme from `igniteui-webcomponents`, as the other components of the library do. The grid and its rows use the thumb and track colors of the scrollbar schema of the theme. `--ig-scrollbar-sb-thumb-bg-color` and `--ig-scrollbar-sb-track-bg-color` change them, and `--sb-width` sets the width. `--ig-scrollbar-size`, `--ig-scrollbar-thumb-background` and `--ig-scrollbar-track-background` have no effect, and the `::-webkit-scrollbar` rules are removed. [IgniteUI/igniteui-webcomponents#2609](https://github.com/IgniteUI/igniteui-webcomponents/issues/2609)
+
 ## [0.12.0] - 2026-11-16
 
 ### Changed
