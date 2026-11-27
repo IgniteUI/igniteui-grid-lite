@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** This project is currently in initial development (0.0.x versions). Until version 1.0.0 is released, the public API is not considered stable and breaking changes may occur in any release without following semantic versioning conventions.
 
+## [Unreleased]
+
+### Added
+
+- Body rows expose the `odd`, `even` and `last` custom states: `igc-grid-lite::part(row):state(even)`. Document rules beat the row's `:hover`: restyle stripe colors through the `--ig-grid-row-odd-*` and `--ig-grid-row-even-*` tokens instead. [#94](https://github.com/IgniteUI/igniteui-grid-lite/issues/94)
+- `IgcGridLiteRow.last`: whether the row renders the last data record. Set by the grid. [#94](https://github.com/IgniteUI/igniteui-grid-lite/issues/94)
+
+### Fixed
+
+- Body rows drew no dividers and ignored the even-row tokens. The `igc-grid-lite::part(row) { border-block-end: … }` workaround can be removed. [#94](https://github.com/IgniteUI/igniteui-grid-lite/issues/94)
+
 ## [0.12.0] - 2026-11-16
 
 ### Changed

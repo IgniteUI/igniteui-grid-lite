@@ -545,13 +545,14 @@ export class IgcGridLite<T extends object = any> extends EventEmitterBase<IgcGri
 
   private _createRowRenderer(columns: ColumnConfiguration<T>[]): VirtualScrollItemTemplate<T> {
     // Reads the active node live: activation must not rebuild the renderer.
-    return ({ value, index }) => html`
+    return ({ value, index, isLast }) => html`
       <igc-grid-lite-row
         part="row"
         exportparts="cell"
         style=${styleMap(this._domController.columnSizes)}
         .adoptRootStyles=${this.adoptRootStyles}
         .index=${index}
+        .last=${isLast}
         .activeNode=${activeNodeFor(this._stateController.active, index)}
         .data=${value}
         .columns=${columns}

@@ -13,11 +13,12 @@ $theme: $material;
 	min-height: var-get($theme, 'header-size');
 }
 
-:host(:last-of-type) {
+// The states below replace `*-of-type`: each virtualized row has its own wrapper.
+:host(:state(last)) {
     border-bottom: 0;
 }
 
-:host(:nth-of-type(odd)) {
+:host(:state(odd)) {
 	background: var-get($theme, 'row-odd-background');
 	color: var-get($theme, 'row-odd-text-color');
 	
@@ -26,7 +27,7 @@ $theme: $material;
 	}
 }
 
-:host(:nth-of-type(even)) {
+:host(:state(even)) {
     background: var-get($theme, 'row-even-background');
     color: var-get($theme, 'row-even-text-color');
 	
