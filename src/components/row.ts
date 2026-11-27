@@ -3,6 +3,7 @@ import { property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { addA11y, headerRowsFor } from '../internal/a11y.js';
 import { registerComponent } from '../internal/register.js';
+import { addStates } from '../internal/states.js';
 import { GRID_ROW_TAG } from '../internal/tags.js';
 import type { ActiveNode, ColumnConfiguration } from '../internal/types.js';
 import { resolveFieldValue, visibleColumns } from '../internal/utils.js';
@@ -11,6 +12,13 @@ import IgcGridLiteCell from './cell.js';
 
 const ACTIVE_ROW_Z_INDEX = '3';
 
+type RowState = 'odd' | 'even' | 'last';
+
+/**
+ * @cssstate odd - Odd data record, 1-based: the first is odd.
+ * @cssstate even - Even data record.
+ * @cssstate last - Last data record. No divider.
+ */
 export default class IgcGridLiteRow<T extends object> extends LitElement {
   public static get tagName() {
     return GRID_ROW_TAG;
@@ -22,6 +30,7 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
   }
 
   private readonly _a11y = addA11y(this, 'row');
+  private readonly _states = addStates<RowState>(this);
 
   @property({ attribute: false })
   public adoptRootStyles = false;
@@ -38,6 +47,10 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
   @property({ attribute: false })
   public index = -1;
 
+  /** Set by the grid: the row does not know the data length. */
+  @property({ attribute: false })
+  public last = false;
+
   public get cells(): IgcGridLiteCell<T>[] {
     return Array.from(
       this.renderRoot.querySelectorAll<IgcGridLiteCell<T>>(IgcGridLiteCell.tagName)
@@ -47,6 +60,10 @@ export default class IgcGridLiteRow<T extends object> extends LitElement {
   protected override update(props: PropertyValues<this>): void {
     // Data rows come after the header rows in the 1-based row index space.
     this._a11y.set({ ariaRowIndex: `${this.index + headerRowsFor(this.columns) + 1}` });
+
+    // 1-based stripes: index 0 is odd.
+    const even = this.index % 2 === 1;
+    this._states.set({ odd: !even, even, last: this.last });
 
     super.update(props);
   }
