@@ -1,4 +1,4 @@
-import { consume } from '@lit/context';
+import { ContextEvent, consume } from '@lit/context';
 import { css, LitElement, nothing, type PropertyValues } from 'lit';
 import { property } from 'lit/decorators.js';
 import { COLUMN_UPDATE_CONTEXT } from '../internal/context.js';
@@ -93,10 +93,23 @@ export class IgcGridLiteColumn<T extends object = any>
 
   protected override update(props: PropertyValues<this>): void {
     if (this.hasUpdated && props.size > 0) {
+      if (!this._setConfig) {
+        this._requestSetConfig();
+      }
+
       this._setConfig?.(this);
     }
 
     super.update(props);
+  }
+
+  /** The grid may upgrade after connect: ask for its callback again. */
+  private _requestSetConfig(): void {
+    this.dispatchEvent(
+      new ContextEvent(COLUMN_UPDATE_CONTEXT, this, (setConfig) => {
+        this._setConfig = setConfig as unknown as typeof this._setConfig;
+      })
+    );
   }
 
   protected override render(): unknown {
