@@ -4,11 +4,12 @@ type IgcComponent = CustomElementConstructor & {
 };
 
 export function registerComponent(component: IgcComponent, ...dependencies: IgcComponent[]): void {
-  for (const dependency of dependencies) {
-    dependency.register();
-  }
-
+  // Host first: children upgraded before it miss its context providers.
   if (!customElements.get(component.tagName)) {
     customElements.define(component.tagName, component);
+  }
+
+  for (const dependency of dependencies) {
+    dependency.register();
   }
 }

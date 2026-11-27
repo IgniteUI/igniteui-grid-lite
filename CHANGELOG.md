@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 > **Note:** This project is currently in initial development (0.0.x versions). Until version 1.0.0 is released, the public API is not considered stable and breaking changes may occur in any release without following semantic versioning conventions.
 
+## [Unreleased]
+
+### Fixed
+
+- Column property changes after the first render did not reach the grid when the columns upgraded before it. [#95](https://github.com/IgniteUI/igniteui-grid-lite/issues/95)
+
 ## [0.12.0] - 2026-11-16
 
 ### Changed
