@@ -1,3 +1,4 @@
+import { internalsOf } from './internals.js';
 import type { ColumnConfiguration } from './types.js';
 
 /** The roles the grid parts take in the ARIA grid pattern. */
@@ -20,7 +21,7 @@ class A11yController {
   readonly #internals: ElementInternals;
 
   constructor(host: HTMLElement, role: GridRole) {
-    this.#internals = host.attachInternals();
+    this.#internals = internalsOf(host);
     this.#internals.role = role;
 
     semantics.set(host, this.#internals);
